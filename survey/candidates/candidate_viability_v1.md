@@ -282,9 +282,25 @@ For §1 Introduction and §2 Taxonomy motivating examples:
 
 **Selected §4.1:** Astria devnet intent filler (research-constructed)
 
-**Selected §4.4 Primary (UPDATED 2026-05-28):** Application on Rari + ApeChain
-(both Espresso-sequenced Arbitrum Nitro mainnet chains — TF-1/TF-3 confirmed PASS
-from architecture.md manual read)
+**Selected §4.4 Primary (UPDATED — Path B final):**
+Espresso "Intents and Solvers" Caff Node solver pattern.
+
+After exhaustive search (N=30 applications, Espresso ecosystem, ApeChain/Rari/Molten
+specific apps including Camelot, Stargate, T3rn), no deployed third-party application
+satisfies TF-1 + TF-2 + TF-3 + AX-4 simultaneously. Root cause is structural:
+- All messaging protocols: TF-2 FAIL (sequential relay dependency)
+- All well-designed intent protocols (T3rn): AX-4 FAIL (have rollback = cap.(ii))
+- Single-chain DEX multichain deployments: no cross-rollup operation (TF-2 N/A)
+
+§4.4 target revised to Espresso platform's documented "intents and solvers" pattern:
+  Source: docs.espressosys.com/network/llms-full.txt
+  Verbatim: "Solvers query Caff Nodes to access the latest confirmed state of
+  source and destination chains, reducing both execution latency and the risk of
+  acting on stale state."
+This is the official Espresso-documented solver use case. Any solver implementing
+this pattern (simultaneous fills on two Espresso chains) faces PEFO conditions.
+Disclosure target: Espresso Systems (platform-level finding, broader impact than
+any single application).
 
 **Selected §4.4 Co-Primary:** Astria Flame + second rollup application
 (TF-1/TF-3 confirmed PASS; second production rollup not yet identified)
