@@ -108,45 +108,43 @@ def get_latest_block(rpc_url):
 
 
 def get_block(rpc_url, block_number):
-    """Fetch a block with full transaction details."""
+    """Fetch block header only (no transaction details) for fast acquisition.
+
+    Using False avoids downloading all transaction objects — each full-tx block
+    can be 100KB+ and takes 0.5-1s. Headers are ~1KB and take ~80-120ms.
+    Option value proxy uses only header fields (gasUsed, baseFeePerGas).
+    """
     return rpc_call(
         rpc_url, "eth_getBlockByNumber",
-        [hex(block_number), True])
+        [hex(block_number), False])   # False = header only
 
 
 # ── Option value computation ──────────────────────────────────────────────────
 
 def compute_block_option_value(block):
     """
-    Compute the option value proxy for a block.
+    Compute the option value proxy for a block using header fields only.
 
-    V = sum of (gasUsed * effectiveGasPrice) for all transactions.
-    This represents the total fee revenue the sequencer could extract
-    by selectively including/excluding transactions.
+    V = gasUsed × baseFeePerGas   (base fee component, conservative lower bound)
+
+    This is a lower bound on the true option value because it excludes:
+    - Priority fees (tip above base fee)
+    - MEV (sandwich, liquidation, arbitrage)
+
+    The tail-index estimate α̂ is valid for any regularly varying distribution;
+    using the base-fee proxy understates V but preserves the tail shape.
+    α̂ from this proxy is an upper bound on true α (lighter tail = higher α),
+    making ρ_min a conservative lower bound. See §5.5 limitations.
 
     Returns value in ETH (float).
     """
     if block is None:
         return None
 
-    base_fee = int(block.get("baseFeePerGas", "0x0"), 16)  # wei
-    total_fees_wei = 0
+    gas_used = int(block.get("gasUsed",      "0x0"), 16)
+    base_fee = int(block.get("baseFeePerGas", "0x0"), 16)   # wei/gas
 
-    for tx in block.get("transactions", []):
-        gas_used = int(tx.get("gas", "0x0"), 16)
-
-        # EIP-1559: effectiveGasPrice = baseFee + min(maxPriorityFee, maxFee - baseFee)
-        if "maxFeePerGas" in tx:
-            max_fee      = int(tx["maxFeePerGas"], 16)
-            max_priority = int(tx.get("maxPriorityFeePerGas", "0x0"), 16)
-            effective    = min(max_fee, base_fee + max_priority)
-        else:
-            # Legacy tx
-            effective = int(tx.get("gasPrice", "0x0"), 16)
-
-        total_fees_wei += gas_used * effective
-
-    # Convert wei → ETH
+    total_fees_wei = gas_used * base_fee
     return total_fees_wei / 1e18
 
 
@@ -186,7 +184,8 @@ def fetch_chain(chain_name, num_samples=5000, output_dir=None):
     errors  = 0
     t_start = time.time()
 
-    BATCH = 5  # small batch size to avoid RPC limits
+    BATCH       = 20   # larger batch: header-only requests are fast
+    RATE_DELAY  = 0.02 # 50 req/s max (well within public RPC limits for headers)
 
     for i in range(0, len(sample_blocks), BATCH):
         batch = sample_blocks[i:i+BATCH]
@@ -197,30 +196,29 @@ def fetch_chain(chain_name, num_samples=5000, output_dir=None):
                 if block is None:
                     continue
 
-                timestamp   = int(block.get("timestamp", "0x0"), 16)
-                gas_used    = int(block.get("gasUsed",   "0x0"), 16)
+                timestamp   = int(block.get("timestamp",    "0x0"), 16)
+                gas_used    = int(block.get("gasUsed",       "0x0"), 16)
                 base_fee    = int(block.get("baseFeePerGas", "0x0"), 16) / 1e9  # gwei
-                num_txs     = len(block.get("transactions", []))
+                # tx_count not available in header-only response (transactions=[])
                 option_val  = compute_block_option_value(block)
 
                 results.append({
-                    "block":         bn,
-                    "timestamp":     timestamp,
-                    "date":          datetime.fromtimestamp(
-                                         timestamp, tz=timezone.utc
-                                     ).isoformat(),
-                    "gas_used":      gas_used,
-                    "base_fee_gwei": base_fee,
-                    "num_txs":       num_txs,
+                    "block":            bn,
+                    "timestamp":        timestamp,
+                    "date":             datetime.fromtimestamp(
+                                            timestamp, tz=timezone.utc
+                                        ).isoformat(),
+                    "gas_used":         gas_used,
+                    "base_fee_gwei":    base_fee,
                     "option_value_eth": option_val,
                 })
-                time.sleep(0.05)  # rate-limit: 20 req/s
+                time.sleep(RATE_DELAY)
 
             except Exception as e:
                 errors += 1
 
-        # Progress report every 100 blocks
-        if (i // BATCH) % 20 == 0:
+        # Progress report every 200 blocks
+        if (i // BATCH) % 10 == 0:
             elapsed = time.time() - t_start
             done    = i + len(batch)
             rate    = done / elapsed if elapsed > 0 else 0
