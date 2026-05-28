@@ -42,7 +42,7 @@ CHAINS = {
         "chain_id":   10,
     },
     "base": {
-        "rpc":        "https://1rpc.io/base",
+        "rpc":        "https://base-pokt.nodies.app",
         "block_time": 2.0,
         "chain_id":   8453,
     },
@@ -108,43 +108,54 @@ def get_latest_block(rpc_url):
 
 
 def get_block(rpc_url, block_number):
-    """Fetch block header only (no transaction details) for fast acquisition.
+    """Fetch block with full transaction details.
 
-    Using False avoids downloading all transaction objects — each full-tx block
-    can be 100KB+ and takes 0.5-1s. Headers are ~1KB and take ~80-120ms.
-    Option value proxy uses only header fields (gasUsed, baseFeePerGas).
+    Using True to get all transaction objects, which are needed to compute
+    the correct option value proxy: Σ gasUsed_i × effectiveGasPrice_i.
+    effectiveGasPrice = baseFee + priorityFee, where priorityFee is the
+    sequencer's actual income (baseFee is burned in EIP-1559).
+
+    Speed: ~1-2s per block. For 300 samples: ~5-10 min per chain.
+    For 2000 samples: 30-60 min per chain (use --samples 300 for speed).
     """
     return rpc_call(
         rpc_url, "eth_getBlockByNumber",
-        [hex(block_number), False])   # False = header only
+        [hex(block_number), True])    # True = full transactions
 
 
 # ── Option value computation ──────────────────────────────────────────────────
 
 def compute_block_option_value(block):
     """
-    Compute the option value proxy for a block using header fields only.
+    Compute the option value proxy: Σ gasUsed_i × effectiveGasPrice_i.
 
-    V = gasUsed × baseFeePerGas   (base fee component, conservative lower bound)
+    effectiveGasPrice = baseFee + min(maxPriorityFee, maxFee - baseFee)
+    This captures both the base fee and the priority fee (tip) that goes
+    to the sequencer/validator. For Theorem 2, this is the economically
+    correct proxy: it represents what the sequencer could earn by optimizing
+    block composition.
 
-    This is a lower bound on the true option value because it excludes:
-    - Priority fees (tip above base fee)
-    - MEV (sandwich, liquidation, arbitrage)
-
-    The tail-index estimate α̂ is valid for any regularly varying distribution;
-    using the base-fee proxy understates V but preserves the tail shape.
-    α̂ from this proxy is an upper bound on true α (lighter tail = higher α),
-    making ρ_min a conservative lower bound. See §5.5 limitations.
-
+    Conservative: excludes MEV (sandwich, liquidations, arbitrage).
     Returns value in ETH (float).
     """
     if block is None:
         return None
 
-    gas_used = int(block.get("gasUsed",      "0x0"), 16)
-    base_fee = int(block.get("baseFeePerGas", "0x0"), 16)   # wei/gas
+    base_fee = int(block.get("baseFeePerGas", "0x0"), 16)  # wei
+    total_fees_wei = 0
 
-    total_fees_wei = gas_used * base_fee
+    for tx in block.get("transactions", []):
+        gas_used = int(tx.get("gas", "0x0"), 16)
+
+        if "maxFeePerGas" in tx:
+            max_fee      = int(tx["maxFeePerGas"], 16)
+            max_priority = int(tx.get("maxPriorityFeePerGas", "0x0"), 16)
+            effective    = min(max_fee, base_fee + max_priority)
+        else:
+            effective = int(tx.get("gasPrice", "0x0"), 16)
+
+        total_fees_wei += gas_used * effective
+
     return total_fees_wei / 1e18
 
 
@@ -184,8 +195,8 @@ def fetch_chain(chain_name, num_samples=5000, output_dir=None):
     errors  = 0
     t_start = time.time()
 
-    BATCH       = 20   # larger batch: header-only requests are fast
-    RATE_DELAY  = 0.02 # 50 req/s max (well within public RPC limits for headers)
+    BATCH       = 5    # conservative: full-tx blocks are large
+    RATE_DELAY  = 0.1  # 10 req/s — respectful of public RPCs with full block data
 
     for i in range(0, len(sample_blocks), BATCH):
         batch = sample_blocks[i:i+BATCH]
