@@ -1,0 +1,190 @@
+% Appendix A.4 — Theorem 2 Power-Law Derivation
+%
+% REVIEW STATUS: First complete draft (2026-05-28).
+% Pilot empirical values: α̂=1.47 (Optimism, N=200). Full calibration
+% pending 2000-sample dataset (all 4 chains).
+% OPEN: substitute [X%], CI_LOW, CI_HIGH from Task 7.4 full run.
+% OPEN: C_hat from full dataset.
+
+\section{Theorem 2: Power-Law Derivation and Empirical Calibration}
+\label{app:theorem2}
+
+This appendix provides (i) the complete derivation of the
+$\rho_{\min}$ closed-form bound from Theorem~\ref{thm:bond-insufficient},
+(ii) the empirical estimation procedure for $\hat{C}$ and $\hat{\alpha}$,
+and (iii) the full numerical calibration from the 12-month replay.
+
+%----------------------------------------------------------------------
+\subsection*{A.4.1 Power-Law Tail: Definition and Estimation}
+
+\paragraph{Model.}
+We model the option value $V$ of a sequencing commitment as a random
+variable with a regularly varying tail:
+\[
+  \Pr[V > v] \;\sim\; C \cdot v^{-\alpha} \quad \text{as } v \to \infty,
+\]
+where $C > 0$ is the scale constant and $\alpha > 1$ is the tail index.
+The assumption $\alpha > 1$ ensures finite mean; empirical values in
+financial time series and MEV distributions typically lie in $[1.2, 2.5]$
+(see e.g.~\cite{Gabaix2009, MantegnaStanley1995}).
+
+\paragraph{Hill estimator.}
+Given $n$ i.i.d.\ observations $X_1, \ldots, X_n$ sorted in descending
+order $X_{(1)} \geq X_{(2)} \geq \cdots \geq X_{(n)}$, the Hill
+estimator at threshold $k$ is:
+\[
+  \hat{\alpha}_{\mathrm{Hill}}(k) \;=\; \left[
+    \frac{1}{k} \sum_{i=1}^{k} \log \frac{X_{(i)}}{X_{(k)}}
+  \right]^{-1}.
+\]
+We report $\hat{\alpha}$ for $k \in \{50, 100, 200, 500\}$ and use
+$k = 100$ as the primary estimate following~\cite{EmbrechtsKM1997}.
+
+\paragraph{MLE (Clauset et al.)}
+Following~\cite{Clauset2009}, we select $x_{\min}$ by minimising
+the KS statistic between the empirical tail and a fitted Pareto CDF,
+then estimate $\alpha$ by:
+\[
+  \hat{\alpha}_{\mathrm{MLE}} \;=\; 1 + n_{\mathrm{tail}}
+  \left[\sum_{i: X_i \geq x_{\min}} \log \frac{X_i}{x_{\min}}\right]^{-1}.
+\]
+
+\paragraph{Bootstrap confidence interval.}
+We resample 1,000 times with replacement (bootstrap), compute
+$\hat{\alpha}_{\mathrm{Hill}}(k=100)$ on each resample, and report
+the empirical 2.5th and 97.5th percentiles as the 95\% CI.
+
+%----------------------------------------------------------------------
+\subsection*{A.4.2 Scale Constant Estimation}
+
+Given $\hat{\alpha}$ and $\hat{x}_{\min}$, we estimate $C$ from the
+empirical tail fraction:
+\[
+  \hat{C} \;=\; \frac{n_{\mathrm{tail}}}{n} \cdot \hat{x}_{\min}^{\hat{\alpha}},
+\]
+where $n_{\mathrm{tail}} = |\{i : X_i \geq \hat{x}_{\min}\}|$.
+This gives a moment-consistent estimate: $\hat{C} \cdot v^{-\hat{\alpha}}$
+matches the empirical survival probability at $v = \hat{x}_{\min}$.
+
+%----------------------------------------------------------------------
+\subsection*{A.4.3 Closed-Form $\rho_{\min}$ Derivation}
+
+Substituting the power-law tail into the violation probability per window:
+\[
+  \Pr[V_t > B_{\max}] \;\geq\; C \cdot B_{\max}^{-\alpha} \cdot (1-\varepsilon)
+\]
+for all $B_{\max}$ above the Pareto threshold $x_{\min}$.
+With $w$ measurement windows and per-window arrival rate $\lambda$:
+\begin{align*}
+  \rho_{\min}(\alpha, B_{\max}, w, \lambda)
+  &\;=\; w \cdot \lambda \cdot C \cdot B_{\max}^{-\alpha} \cdot (1-\varepsilon) \\
+  &\;=\; w \cdot \lambda \cdot \hat{C} \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon).
+\end{align*}
+This is strictly positive for any finite $B_{\max}$, $w>0$, $\lambda>0$,
+and $\hat{\alpha}>1$.
+
+\paragraph{Sensitivity to $\alpha$.}
+The bound $\rho_{\min}$ is decreasing in $\alpha$ (heavier tails $\Rightarrow$
+larger bound). For $\alpha = 1.47$ (our estimate):
+\[
+  \frac{\partial \log \rho_{\min}}{\partial \alpha}
+  = -\log B_{\max}.
+\]
+For $B_{\max} < 1$ ETH (typical bond sizes), $\log B_{\max} < 0$, so
+$\partial \rho_{\min}/\partial \alpha > 0$: larger $\alpha$ gives a smaller
+but still strictly positive bound. For $B_{\max} > 1$ ETH, the bound
+decreases as $\alpha$ increases. In either case, $\rho_{\min} > 0$.
+
+%----------------------------------------------------------------------
+\subsection*{A.4.4 Empirical Calibration Results}
+
+\paragraph{Dataset.}
+We sample 2,000 blocks uniformly from the 12-month window preceding the
+measurement date, independently on each of four chains: Optimism (OP),
+Base, Arbitrum One, and Polygon zkEVM. Option values $V$ are computed
+as the total transaction fee revenue per block (ETH):
+\[
+  V(\text{block}) \;=\; \sum_{\tau \in \text{block}}
+    \texttt{gasUsed}_\tau \cdot \texttt{effectiveGasPrice}_\tau.
+\]
+This is a conservative proxy: it does not include sandwich MEV or other
+extractable value, making our bound a lower bound on the true option value.
+
+\paragraph{Estimated parameters.}
+
+\begin{table}[h]
+\centering
+\small
+\caption{Tail-index estimates across four chains. Hill $k=100$ primary;
+  MLE (Clauset) as robustness check. Bootstrap 95\% CI (1,000 resamples).
+  $\dagger$ Pilot estimate (N=200); replaced by full-dataset estimate upon completion.}
+\label{tab:alpha-estimates}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Chain & $N$ & $\hat{\alpha}_{\text{Hill}}$ & 95\% CI & $\hat{\alpha}_{\text{MLE}}$ \\
+\midrule
+Optimism$^\dagger$ & 200 & 1.47 & [1.13, 1.98] & 1.48 \\
+Base         & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Arbitrum     & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Polygon zkEVM & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+\midrule
+\textbf{Combined} & & \textbf{[PLACEHOLDER]} & \textbf{[PLACEHOLDER]} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{$\rho_{\min}$ calibration.}
+Using the primary estimate $\hat{\alpha} = 1.47$ and the mev-commit
+reference scenario ($B_{\max} = 0.05$ ETH, $w = 52{,}560$ windows/year,
+$\lambda = 1$ commitment/window):
+\begin{align*}
+  \rho_{\min}(1.47,\; 0.05,\; 52560,\; 1)
+  &= 52560 \cdot 1 \cdot \hat{C} \cdot (0.05)^{-1.47} \\
+  &\geq \mathbf{[X\%]} \quad \text{(95\% CI: [CI\_LO, CI\_HI])}
+\end{align*}
+
+\noindent\textit{Note:} Placeholders will be replaced with full-dataset
+estimates upon completion of the 2,000-sample run. The key structural
+result — $\rho_{\min} > 0$ for any finite $B_{\max}$ and $\hat{\alpha} > 1$
+— is established by Theorem~\ref{thm:bond-insufficient} and does not depend
+on the specific numerical value.
+
+%----------------------------------------------------------------------
+\subsection*{A.4.5 Reactive-Market Sensitivity (\S\ref{sec:meas-react})}
+
+We assess robustness of $\rho_{\min}$ under price-impact assumptions.
+Let $\theta \in [0, 1]$ denote the fraction of option value consumed by
+market impact when the attacker exercises the option. Effective option value:
+$V_\theta = (1-\theta) V$.
+
+The reactive bound is:
+\[
+  \rho_{\min}^\theta(\hat{\alpha}, B_{\max}, w, \lambda)
+  = w \cdot \lambda \cdot \hat{C} \cdot ((1-\theta)^{-1} B_{\max})^{-\hat{\alpha}}
+  = (1-\theta)^{\hat{\alpha}} \cdot \rho_{\min}^{\theta=0}.
+\]
+
+\begin{table}[h]
+\centering
+\small
+\caption{$\rho_{\min}$ sensitivity to price-impact fraction $\theta$.
+  $\hat{\alpha} = 1.47$, mev-commit reference scenario.}
+\label{tab:rhomin-sensitivity}
+\begin{tabular}{@{}lll@{}}
+\toprule
+$\theta$ & $(1-\theta)^{1.47}$ & $\rho_{\min}^\theta / \rho_{\min}^0$ \\
+\midrule
+0    & 1.000 & 1.000 \\
+0.25 & $0.75^{1.47} \approx 0.672$ & 67.2\% \\
+0.50 & $0.50^{1.47} \approx 0.360$ & 36.0\% \\
+1.00 & 0 & 0 (trivial: no option value) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Even at $\theta = 0.50$ (50\% price impact), $\rho_{\min}$ retains
+36\% of its no-impact value and remains strictly positive. The bound only
+collapses to zero under the trivial assumption $\theta = 1$ (100\% price
+impact absorbs all option value), which corresponds to a fully efficient market
+in which the attacked commitment has no residual option value — an assumption
+inconsistent with observed MEV rates~\cite{Flashbots2023}.
