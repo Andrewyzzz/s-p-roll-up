@@ -1,35 +1,71 @@
 % Main paper LaTeX source
 % Target: IEEE S&P 2027 Cycle 2
-% Target length: 12.7 pages IEEE double-column
+% Target length: 12.7 pages IEEE double-column + appendices
+% Compilation: latexmk -pdf main
+%
+% PLACEHOLDER LEGEND:
+%   \DEPLOYEDAPP   → replaced at camera-ready with actual vendor name
+%   [TO BE FILLED] → populated after Task 2.1 architecture analysis
+%   [PLACEHOLDER]  → populated after corresponding milestone
 
 \documentclass[conference]{IEEEtran}
 
-% --- Packages ---
+% --- Core packages ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
 \usepackage{amsmath,amssymb,amsthm}
-\usepackage{hyperref}
-\usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{xcolor}
-\usepackage{cleveref}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 % --- Theorem environments ---
 \newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 \newtheorem{observation}{Observation}
-\newtheorem{definition}{Definition}
+\newtheorem{proposition}{Proposition}
 
-% --- Anonymization placeholder ---
+% --- Custom commands ---
 \newcommand{\DEPLOYEDAPP}{[DEPLOYED\_APP]}
+\newcommand{\PEO}{\textsf{PEO}}
+\newcommand{\PEFO}{\textsf{PEFO}}
 
 \begin{document}
 
 \title{Atomic Inclusion Is Not Atomic Execution:\\
 Free Options in Rollup Sequencing Commitments}
+% Anonymous submission — author block omitted for review
 
 \maketitle
 
 \begin{abstract}
-% TODO: §Abstract
+Rollup sequencing commitments---issued by shared sequencers and
+preconfirmation layers---are commonly described as providing ``atomicity.''
+We show this term conflates two distinct properties: \emph{atomic execution}
+(all bundle legs succeed or none do) and \emph{economic atomicity} (no party
+extracts option value from the sequencing gap). Compensation-based
+mechanisms---bonds, slashing, insurance---close the latter but provably
+cannot close the former. Any deterministic protocol providing atomic execution
+over independent state transition functions must provide at least one of two
+operational capabilities: pre-execution success-predicate evidence, or
+authority to prevent partial irreversible effects. Probabilistic and
+cryptoeconomic guarantees, including restaking and relay attestation, provide
+neither; they are A4 mechanisms, not A2 mechanisms. We demonstrate the
+resulting \emph{free options} through two attack families---the
+\textbf{Preconfirmation Exercise Option} (\PEO{}) on a production
+preconfirmation reference implementation, and the \textbf{Partial-Execution
+Free Option} (\PEFO{}) including a coordinated-disclosure demonstration on
+\DEPLOYEDAPP{}'s testnet---and bound option value through a 12-month
+counterfactual replay over Optimism, Base, Arbitrum, and Polygon~zkEVM,
+calibrated to empirically estimated power-law tail behavior.
 \end{abstract}
 
 \input{sections/01-introduction}

@@ -1,0 +1,251 @@
+% Section 4 — Attack 2: PEFO (~2.1 pages, weight 30%)
+%
+% REVIEW STATUS: §4.1–4.3 complete draft. §4.4–4.5 partially drafted;
+% §4.4.2/4.4.4 are PoC/vendor-dependent (populated at Week 10–23).
+%
+% OPEN: §4.4.1 candidate name = [DEPLOYED_APP] (placeholder until Task 2.1)
+% OPEN: §4.4.2 testnet transactions (populated after Milestone 2a, Task 5.2)
+% OPEN: §4.4.4 case file (swap-in from templates at Task 9.4)
+
+\section{Attack 2: Partial-Execution Free Option (PEFO)}
+\label{sec:pefo}
+
+\subsection{Concrete Instance: Cross-Rollup Intent Filler}
+\label{sec:pefo-instance}
+
+We instantiate the PEFO attack through a cross-rollup intent filler protocol
+deployed on two rollups $R_1, R_2$ sharing an Astria shared sequencer
+$\mathcal{S}$. The architecture is representative of the class of applications
+that rely on shared-sequencer ordering without providing execution atomicity.
+
+\paragraph{Application model.}
+A user posts an intent $\mathcal{I} = (\text{sell } a_1 \text{ on } R_1,
+\text{receive } a_2 \text{ on } R_2)$: sell asset $a_1$ on rollup $R_1$ and
+receive asset $a_2$ on rollup $R_2$. A filler $\mathcal{F}$ monitors both
+rollup mempools, identifies profitable intents, and submits fill transactions:
+$\tau_1$ (take the sell on $R_1$) and $\tau_2$ (deliver the buy on $R_2$).
+Both $\tau_1, \tau_2$ enter their respective Composers, which forward them
+to the shared Astria sequencer mempool. The sequencer includes both in a single
+\emph{meta block} — a joint commitment $\Gamma(\tau_1, \tau_2)$ over both
+rollup namespaces.
+
+\paragraph{Assumption violated.}
+The filler implicitly assumes that if both $\tau_1$ and $\tau_2$ appear in the
+same meta block, both will execute successfully. This assumption is precisely
+the A2 claim that Theorem~\ref{thm:a2-necessary} shows cannot be provided by
+a lazy sequencer. The meta block commits to \emph{ordering}, not execution
+outcomes.
+
+%----------------------------------------------------------------------
+\subsection{Structural Conditions for PEFO}
+\label{sec:pefo-structural}
+
+The PEFO attack is possible whenever three structural conditions hold
+simultaneously.
+
+\begin{enumerate}
+  \item[\textbf{C1.}] \textbf{Shared commitment over independent STFs.}
+    The sequencer $\mathcal{S}$ issues a commitment $\Gamma(B)$ covering
+    bundle $B = (\tau_1, \tau_2)$ where $\tau_i$ executes on rollup $R_i$
+    with independent state transition function $\delta_i$
+    (Definition~\ref{def:independent}).
+
+  \item[\textbf{C2.}] \textbf{Independent execution legs.}
+    The legs $\tau_1, \tau_2$ are not connected by a protocol-level execution
+    dependency. In particular, there is no cross-chain message (LayerZero
+    \texttt{lzReceive}, Wormhole \texttt{receiveWormholeMessages}, etc.)
+    that makes $\tau_2$ contingent on $\tau_1$'s execution outcome.
+
+  \item[\textbf{C3.}] \textbf{Lazy sequencer.}
+    $\mathcal{S}$ is lazy (Definition~\ref{def:lazy}): $\Gamma(B)$ is issued
+    before $\delta_1(\sigma_1, \tau_1)$ or $\delta_2(\sigma_2, \tau_2)$ are
+    evaluated.
+\end{enumerate}
+
+\noindent When C1–C3 hold, the adversary can construct a free option:
+
+\begin{definition}[PEFO Payoff]
+\label{def:pefo-payoff}
+The PEFO payoff for an adversary $\mathcal{A}$ holding bundle $B$ under
+commitment $\Gamma(B)$ is:
+\[
+  \Pi^{\mathrm{PEFO}}(B) \;=\; \max\!\left(
+    \mathbb{E}[\delta_1(\sigma_1, \tau_1)]
+    - \mathbb{E}[\delta_2(\sigma_2, \tau_2)],\; 0
+  \right)
+\]
+where $\mathbb{E}[\delta_i(\sigma_i, \tau_i)]$ denotes the expected value
+of executing leg $i$. If leg 1 becomes profitable after $\Gamma(B)$ is issued
+but before leg 2 executes, $\mathcal{A}$ can selectively cause leg 2 to fail
+(by front-running the resource $\tau_2$ depends on) while allowing leg 1 to
+succeed. The payoff is $\Pi^{\mathrm{PEFO}} > 0$ whenever the expected value
+of leg 1 exceeds the expected value of leg 2 after the commitment.
+\end{definition}
+
+\noindent Conditions C1–C3 are satisfied by any lazy shared sequencer over
+independent rollup STFs. We confirm they are satisfied in our primary
+demonstration platform (Astria) by direct documentation evidence:
+
+\begin{itemize}
+  \item C1: \emph{``a single meta block consisting of transactions submitted
+    to its mempool by one or more rollups''}~\cite{Astria-TxFlow}
+  \item C3: \emph{``provides a guarantee on the ordering of transactions in
+    a block, but it doesn't execute the state transition function (STF) of
+    any given rollup''}~\cite{Astria-TxFlow}
+\end{itemize}
+
+\noindent C2 is application-level: the intent filler submits independent
+fill transactions to each rollup; no cross-chain message relay is in the
+critical path.
+
+%----------------------------------------------------------------------
+\subsection{PEFO as Theorem 1 Negation}
+\label{sec:pefo-negation}
+
+PEFO directly instantiates the contrapositive of Theorem~\ref{thm:a2-necessary}.
+In our construction:
+
+\begin{itemize}
+  \item The sequencer provides neither capability (i) nor capability (ii):
+    it issues $\Gamma(B)$ without a success predicate for either STF (no (i)),
+    and has no authority to revert $R_1$'s state after $\tau_1$ succeeds
+    (no (ii)).
+  \item By Theorem~\ref{thm:a2-necessary}, A2 is not guaranteed.
+  \item The PEFO attack constructs the execution scenario from the proof:
+    the adversary submits a conflicting transaction $\tau_2'$ that causes
+    $\delta_2(\sigma_2, \tau_2)$ to fail while $\delta_1(\sigma_1, \tau_1)$
+    succeeds, yielding $\Pi^{\mathrm{PEFO}} > 0$.
+\end{itemize}
+
+\paragraph{Relation to existing cross-rollup protocols.}
+Three existing protocols close the PEFO gap via capability (ii):
+
+\begin{itemize}
+  \item \textbf{Across Protocol} uses UMA oracle + escrow: origin-chain funds
+    are held until UMA confirms the destination fill, preventing partial
+    finality of the origin leg~\cite{Across-Protocol}.
+  \item \textbf{HTLC} uses a hashlock: $\tau_2$ can only execute if
+    $\tau_1$'s preimage is revealed, creating a sequential dependency that
+    prevents partial execution.
+  \item \textbf{UniswapX} signed orders require the filler to deliver the
+    exact output amount or the transaction reverts (within-chain atomicity),
+    providing a per-chain capability (ii)~\cite{UniswapX}.
+\end{itemize}
+
+\noindent None of the above use a shared sequencer in the sense of C1
+(they use independent sequencers per chain); they achieve A2 at the
+application level via capability (ii), consistent with Theorem~\ref{thm:a2-necessary}.
+The §7 design-space map classifies all three.
+
+%----------------------------------------------------------------------
+\subsection{Demonstration on Deployed-App Architecture: \DEPLOYEDAPP}
+\label{sec:pefo-deployed}
+
+\subsubsection{Target Selection and Architecture Analysis}
+\label{sec:pefo-target}
+
+We select \DEPLOYEDAPP{} as the primary demonstration target based on the
+thesis-fit filter defined in \S\ref{sec:candidate-selection} (Appendix~C).
+The selection is vendor-independent: the architectural facts below are
+derived from public contract code and sequencer documentation, independently
+of any vendor interaction.
+
+\paragraph{Filter outcomes.}
+All three mandatory thesis-fit conditions are satisfied:
+
+\begin{itemize}
+  \item \textbf{TF-1 (shared sequencer):} \DEPLOYEDAPP{} operates across
+    $R_1$ and $R_2$, both sequenced by [SEQUENCER] under a shared commitment
+    structure covering both rollup namespaces. [TO BE FILLED: Task 2.1 — cite
+    specific sequencer documentation and contract deployment evidence.]
+  \item \textbf{TF-2 (independent execution):} \DEPLOYEDAPP{}'s cross-rollup
+    operation submits independent transactions to each rollup; the fill on
+    $R_1$ does not depend on a cross-chain message from $R_2$. [TO BE FILLED:
+    Task 2.1 — cite specific function signatures.]
+  \item \textbf{TF-3 (lazy sequencer):} The shared sequencer issues commitment
+    $\Gamma$ before executing either rollup's STF. [TO BE FILLED: Task 2.3 —
+    confirm from sequencer codebase.]
+\end{itemize}
+
+\paragraph{AX-4: Theorem 1 mitigation absence.}
+The critical auxiliary check is whether \DEPLOYEDAPP{}'s architecture already
+instantiates capability (i) or (ii). We confirm:
+
+\begin{itemize}
+  \item \textbf{No capability (i):} No ZK proof of execution outcome appears
+    in the sequencer commitment path. [TO BE FILLED: Task 2.1.]
+  \item \textbf{No capability (ii):} The cross-rollup operation does not use
+    HTLC, escrow-with-revert, or any mechanism that prevents the irreversible
+    effect of $\tau_1$ on $R_1$ from persisting if $\tau_2$ on $R_2$ fails.
+    [TO BE FILLED: Task 2.1 — cite specific contract logic.]
+\end{itemize}
+
+\paragraph{PEFO condition instantiation.}
+The three PEFO structural conditions (C1–C3, \S\ref{sec:pefo-structural}) are
+instantiated in \DEPLOYEDAPP{} as follows:
+
+\begin{itemize}
+  \item C1: [TO BE FILLED — specific contract function / sequencer commitment reference]
+  \item C2: [TO BE FILLED — fill transaction architecture, absence of message relay]
+  \item C3: [TO BE FILLED — sequencer model reference]
+\end{itemize}
+
+\noindent The architecture analysis in this subsection is author-driven and
+does not depend on vendor disclosure. The vendor framing in
+\S\ref{sec:pefo-disclosure} is adjusted based on the actual disclosure outcome.
+
+\subsubsection{Testnet Exploit}
+\label{sec:pefo-testnet}
+% TO BE FILLED: Task 5.2 (Milestone 2a, Week 10)
+% If Milestone 2a PASS: populate with exploit details, transaction hashes,
+%   drained value, attacker capital.
+% If Milestone 2a FAIL (mitigation found): swap to case_6_mitigation_found.tex.
+[PLACEHOLDER — populated after Task 5.2]
+
+\input{sections/04-pefo-case-templates/case_SELECTED}
+
+\subsubsection{Mainnet Applicability Analysis}
+\label{sec:pefo-mainnet}
+% TO BE FILLED: Task 5.4 (based on Task 2.1 architecture analysis)
+% Three to four mainnet-distinguishing architectural facts:
+% 1. [FACT 1]
+% 2. [FACT 2]
+% 3. [FACT 3]
+% 4. [FACT 4]
+[PLACEHOLDER — populated after Task 2.1 + 5.4]
+
+\subsubsection{Coordinated Disclosure and Vendor Response}
+\label{sec:pefo-disclosure}
+% TO BE FILLED: Task 9.4 (Week 23)
+% Swap in the appropriate case template from:
+%   sections/04-pefo-case-templates/case_{3d,3b,3c,2,1,6}.tex
+[PLACEHOLDER — populated after Week 23 (Task 9.4)]
+
+%----------------------------------------------------------------------
+\subsection{What This Section Claims and Does Not Claim}
+\label{sec:pefo-scope}
+
+\paragraph{Claims.}
+\begin{enumerate}
+  \item The PEFO structural conditions (C1–C3) are instantiated in the
+    Astria devnet testbed and in \DEPLOYEDAPP{}'s architecture on the basis
+    of public documentation and contract analysis.
+  \item The PEFO attack is executable: the devnet testbed exploit
+    demonstrates end-to-end value extraction under the structural conditions.
+  \item Mainnet applicability of the structural conditions is established
+    by the architectural facts in \S\ref{sec:pefo-mainnet}.
+\end{enumerate}
+
+\paragraph{Does not claim.}
+\begin{enumerate}
+  \item This section does not claim that \DEPLOYEDAPP{} has been actively
+    exploited. We demonstrate exploitability, not observed exploitation.
+  \item This section does not characterize the magnitude of real-world
+    losses. The §5 measurement study bounds option value empirically, but
+    actual loss depends on attacker capital and market conditions.
+  \item [If Case 3c] We do not claim that \DEPLOYEDAPP{}'s design is
+    incorrect by their own specification. The claim is structural: the
+    architecture satisfies C1–C3 and therefore does not provide A2 by
+    Theorem~\ref{thm:a2-necessary}. Whether A2 was intended is a separate
+    question we leave as an industry-wide open question (\S\ref{sec:discussion}).
+\end{enumerate}
