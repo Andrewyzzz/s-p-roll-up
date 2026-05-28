@@ -282,25 +282,62 @@ For §1 Introduction and §2 Taxonomy motivating examples:
 
 **Selected §4.1:** Astria devnet intent filler (research-constructed)
 
-**Selected §4.4 Primary (UPDATED — Path B final):**
-Espresso "Intents and Solvers" Caff Node solver pattern.
+**Selected §4.4 Primary: UNVERIFIED — pending Week 4 go/no-go gate**
 
-After exhaustive search (N=30 applications, Espresso ecosystem, ApeChain/Rari/Molten
-specific apps including Camelot, Stargate, T3rn), no deployed third-party application
-satisfies TF-1 + TF-2 + TF-3 + AX-4 simultaneously. Root cause is structural:
-- All messaging protocols: TF-2 FAIL (sequential relay dependency)
-- All well-designed intent protocols (T3rn): AX-4 FAIL (have rollback = cap.(ii))
-- Single-chain DEX multichain deployments: no cross-rollup operation (TF-2 N/A)
+## Search result summary (exhaustive, N=30+)
 
-§4.4 target revised to Espresso platform's documented "intents and solvers" pattern:
-  Source: docs.espressosys.com/network/llms-full.txt
-  Verbatim: "Solvers query Caff Nodes to access the latest confirmed state of
-  source and destination chains, reducing both execution latency and the risk of
-  acting on stale state."
-This is the official Espresso-documented solver use case. Any solver implementing
-this pattern (simultaneous fills on two Espresso chains) faces PEFO conditions.
-Disclosure target: Espresso Systems (platform-level finding, broader impact than
-any single application).
+No deployed third-party application satisfies TF-1+TF-2+TF-3+AX-4 simultaneously.
+Root cause is structural (not search gap):
+- All messaging protocols (Stargate, Hop, deBridge): TF-2 FAIL
+- Well-designed intent protocols (T3rn): AX-4 FAIL — have rollback = cap.(ii)
+- Single-chain DEX multichain deployments (Camelot): no cross-rollup op, TF-2 N/A
+- Camelot Orbital: planned, no code deployed
+
+## Espresso Caff Node solver pattern — TF-2 UNVERIFIED
+
+**Evidence cited (verbatim):**
+> "Solvers query Caff Nodes to access the latest confirmed state of source and
+> destination chains, reducing both execution latency and the risk of acting on
+> stale state." — docs.espressosys.com
+
+**What this evidence actually says:** state query latency reduction.
+**What this evidence does NOT say:** sequencing commitment prevents partial fill.
+
+**⚠️ TF-2 OVERCLAIM CORRECTION:** This sentence was incorrectly used to label
+TF-2 PASS. It describes A4 improvement (faster state read), not A2 guarantee
+(joint execution commitment). Labeling TF-2 PASS from this sentence commits the
+exact A2/A4 conflation the paper argues against.
+
+## Week 4 go/no-go gate question (MUST answer before any further work)
+
+> When a Caff Node solver submits independent fill transactions to chain A and
+> chain B in the Espresso ecosystem, is partial execution (fill A succeeds,
+> fill B fails) prevented at the sequencer/protocol level by Espresso's
+> sequencing commitment — or does the solver bear inventory risk for partial fills?
+
+**If protocol-level prevention (joint inclusion guarantee):**
+  → TF-2 PASS confirmed; Espresso Caff Node solver = §4.4 PRIMARY; proceed.
+
+**If solver bears inventory risk (A4-only / no joint inclusion guarantee):**
+  → TF-2 FAIL; Caff Node solver = §7 A4-only example (not §4.4 target);
+    §4.4 reverts to anticipatory framing (Camelot Orbital planned architecture).
+
+## What is needed to answer the gate question
+
+NOT the Caff Node state-query API. Specifically:
+1. Espresso documentation on solver fill settlement semantics — does Espresso
+   guarantee joint inclusion of fills in the same block, or is this best-effort?
+2. Caff Node API for "submit transaction" — is there a "joint submit" endpoint
+   that atomically includes both fills, or are fills submitted independently per chain?
+3. Evidence that solvers DON'T hedge partial-fill risk (i.e., they price deals
+   assuming full execution) — this is necessary for the PEFO free option to exist
+
+## Revised Week 8 abort criteria
+
+WRONG: "Espresso confirms Caff Node solver pattern has deployments → continue"
+CORRECT: "Espresso confirms Caff Node solver pattern has deployments AND those
+          deployments depend on sequencing commitment (not inventory risk) for
+          fill atomicity → continue"
 
 **Selected §4.4 Co-Primary:** Astria Flame + second rollup application
 (TF-1/TF-3 confirmed PASS; second production rollup not yet identified)
