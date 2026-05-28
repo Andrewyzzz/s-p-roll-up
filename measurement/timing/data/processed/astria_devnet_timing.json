@@ -1,0 +1,132 @@
+{
+  "description": "Real-stack timing: t_commit to t_observed on Astria local devnet",
+  "chain_id": "pefo-test-chain",
+  "sequencer": "astria-sequencer v1.0.0",
+  "namespaces": [
+    "pefo-rollup-a",
+    "pefo-rollup-b"
+  ],
+  "paper_section": "\u00a75.1",
+  "blocks": [
+    {
+      "height": 187,
+      "block_time": "2026-05-28T10:51:11.878231Z",
+      "num_txs": 2,
+      "t_commit": 1779965471.878231,
+      "t_observed": 1779965474.134277,
+      "gap_ms": 2256.0460567474365
+    },
+    {
+      "height": 188,
+      "block_time": "2026-05-28T10:51:14.094549Z",
+      "num_txs": 2,
+      "t_commit": 1779965474.094549,
+      "t_observed": 1779965476.304897,
+      "gap_ms": 2210.348129272461
+    },
+    {
+      "height": 189,
+      "block_time": "2026-05-28T10:51:16.231373Z",
+      "num_txs": 2,
+      "t_commit": 1779965476.231373,
+      "t_observed": 1779965478.3846369,
+      "gap_ms": 2153.263807296753
+    },
+    {
+      "height": 190,
+      "block_time": "2026-05-28T10:51:18.336242Z",
+      "num_txs": 2,
+      "t_commit": 1779965478.336242,
+      "t_observed": 1779965480.54451,
+      "gap_ms": 2208.2679271698
+    },
+    {
+      "height": 191,
+      "block_time": "2026-05-28T10:51:20.47603Z",
+      "num_txs": 2,
+      "t_commit": 1779965480.47603,
+      "t_observed": 1779965482.647189,
+      "gap_ms": 2171.158790588379
+    },
+    {
+      "height": 192,
+      "block_time": "2026-05-28T10:51:22.579364Z",
+      "num_txs": 2,
+      "t_commit": 1779965482.579364,
+      "t_observed": 1779965484.898755,
+      "gap_ms": 2319.3910121917725
+    },
+    {
+      "height": 193,
+      "block_time": "2026-05-28T10:51:24.859403Z",
+      "num_txs": 2,
+      "t_commit": 1779965484.859403,
+      "t_observed": 1779965487.030206,
+      "gap_ms": 2170.8030700683594
+    },
+    {
+      "height": 194,
+      "block_time": "2026-05-28T10:51:26.979013Z",
+      "num_txs": 2,
+      "t_commit": 1779965486.979013,
+      "t_observed": 1779965489.178617,
+      "gap_ms": 2199.604034423828
+    },
+    {
+      "height": 195,
+      "block_time": "2026-05-28T10:51:29.138983Z",
+      "num_txs": 2,
+      "t_commit": 1779965489.138983,
+      "t_observed": 1779965491.2926972,
+      "gap_ms": 2153.714179992676
+    },
+    {
+      "height": 196,
+      "block_time": "2026-05-28T10:51:31.238617Z",
+      "num_txs": 2,
+      "t_commit": 1779965491.238617,
+      "t_observed": 1779965493.4162319,
+      "gap_ms": 2177.61492729187
+    },
+    {
+      "height": 197,
+      "block_time": "2026-05-28T10:51:33.362841Z",
+      "num_txs": 2,
+      "t_commit": 1779965493.362841,
+      "t_observed": 1779965495.5867279,
+      "gap_ms": 2223.8869667053223
+    },
+    {
+      "height": 198,
+      "block_time": "2026-05-28T10:51:35.516037Z",
+      "num_txs": 2,
+      "t_commit": 1779965495.516037,
+      "t_observed": 1779965497.715476,
+      "gap_ms": 2199.43904876709
+    },
+    {
+      "height": 199,
+      "block_time": "2026-05-28T10:51:37.670024Z",
+      "num_txs": 2,
+      "t_commit": 1779965497.670024,
+      "t_observed": 1779965499.810087,
+      "gap_ms": 2140.0630474090576
+    },
+    {
+      "height": 200,
+      "block_time": "2026-05-28T10:51:39.771265Z",
+      "num_txs": 2,
+      "t_commit": 1779965499.771265,
+      "t_observed": 1779965501.9828851,
+      "gap_ms": 2211.620092391968
+    },
+    {
+      "height": 201,
+      "block_time": "2026-05-28T10:51:41.917628Z",
+      "num_txs": 2,
+      "t_commit": 1779965501.917628,
+      "t_observed": 1779965504.1090298,
+      "gap_ms": 2191.401720046997
+    }
+  ]
+}
