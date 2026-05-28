@@ -1,50 +1,306 @@
-% Bibliography for "Atomic Inclusion Is Not Atomic Execution"
-% Organized by §10 Related Work categories
+% Bibliography for "Atomic Inclusion Is Not Atomic Execution:
+% Free Options in Rollup Sequencing Commitments"
+%
+% Organized by §10 Related Work categories.
+% Citation keys match all \cite{} calls in the paper source.
 
-% --- 1. Classical atomic commitment ---
-@article{gray1978notes,
+% ============================================================
+% 1. Classical Atomic Commitment
+% ============================================================
+
+@incollection{gray1978notes,
   author    = {Gray, Jim},
   title     = {Notes on Data Base Operating Systems},
+  booktitle = {Operating Systems: An Advanced Course},
+  publisher = {Springer},
   year      = {1978},
+  pages     = {393--481},
 }
 
-@inproceedings{herlihy1991wait,
+@article{herlihy1991wait,
   author    = {Herlihy, Maurice},
   title     = {Wait-Free Synchronization},
-  booktitle = {ACM TOPLAS},
+  journal   = {ACM Transactions on Programming Languages and Systems},
+  volume    = {13},
+  number    = {1},
+  pages     = {124--149},
   year      = {1991},
 }
 
-% --- 2. arXiv 2410.11552 ---
-% TODO: cite actual paper
+@article{garcia-molina1987sagas,
+  author    = {Garcia-Molina, Hector and Salem, Kenneth},
+  title     = {Sagas},
+  journal   = {ACM SIGMOD Record},
+  volume    = {16},
+  number    = {3},
+  pages     = {249--259},
+  year      = {1987},
+}
 
-% --- 3. CCS 2025 Denial of Sequencing ---
-% TODO: cite when published
+% ============================================================
+% 2. arXiv 2410.11552 — Concurrent Cross-Rollup Sequencing Work
+% ============================================================
 
-% --- 4. ethresear.ch preconfirmation ---
-% TODO: annotated references from Task 1.5
+% TODO: verify citation details when paper is accessible
+@misc{arxiv2410.11552,
+  author    = {{Author(s) TBD}},
+  title     = {{Cross-Rollup Sequencing} (arXiv:2410.11552)},
+  year      = {2024},
+  howpublished = {\url{https://arxiv.org/abs/2410.11552}},
+  note      = {To be verified},
+}
 
-% --- 5. Unity is Strength ---
+% ============================================================
+% 3. CCS 2025 — Denial of Sequencing
+% ============================================================
+
+% TODO: cite when published (CCS 2025)
+@misc{ccs2025dos,
+  author    = {{Author(s) TBD}},
+  title     = {Denial of Sequencing Attacks (CCS 2025)},
+  year      = {2025},
+  note      = {To be verified upon publication},
+}
+
+% ============================================================
+% 4. ethresear.ch Preconfirmation Taxonomies
+% ============================================================
+
+@misc{Drake2023-BasedPreconf,
+  author    = {Drake, Justin},
+  title     = {Based Preconfirmations},
+  year      = {2023},
+  month     = {November},
+  howpublished = {\url{https://ethresear.ch/t/based-preconfirmations/17353}},
+  note      = {ethresear.ch post},
+}
+
+@misc{Drake2023-BasedRollups,
+  author    = {Drake, Justin},
+  title     = {Based Rollups: Superpowers from {L1} Sequencing},
+  year      = {2023},
+  month     = {March},
+  howpublished = {\url{https://ethresear.ch/t/based-rollups-superpowers-from-l1-sequencing/15016}},
+  note      = {ethresear.ch post},
+}
+
+@misc{Drake2023-ExecTickets,
+  author    = {Drake, Justin and Neuder, Mike and Montoya, Francesco and Monnot, Barnab{\'e}},
+  title     = {Execution Tickets},
+  year      = {2023},
+  month     = {December},
+  howpublished = {\url{https://ethresear.ch/t/execution-tickets/17944}},
+  note      = {ethresear.ch post},
+}
+
+@misc{iso29147,
+  title     = {{ISO/IEC 29147:2018} -- Information technology -- Security techniques
+               -- Vulnerability disclosure},
+  organization = {International Organization for Standardization},
+  year      = {2018},
+}
+
+% ============================================================
+% 5. Unity is Strength — Cross-Domain MEV
+% ============================================================
+
 @misc{obadia2021unity,
-  author    = {Obadia, Alexandre and others},
-  title     = {Unity is Strength: A Formalization of Cross-Domain Maximal Extractable Value},
+  author    = {Obadia, Alexandre and Salnikov, Alejo and Bahrani, Alireza and
+               Nita-Rotaru, Cristina and Monnot, Barnab{\'e}},
+  title     = {Unity is Strength: A Formalization of Cross-Domain Maximal
+               Extractable Value},
   year      = {2021},
   howpublished = {\url{https://arxiv.org/abs/2112.01472}},
 }
 
-% --- 6. Flashbots cross-rollup ---
-% TODO
+% ============================================================
+% 6. Flashbots / MEV Infrastructure
+% ============================================================
 
-% --- 7. EigenLayer restaking ---
-% TODO
-
-% --- 8. L1 MEV literature ---
-@inproceedings{daian2020flash,
-  author    = {Daian, Philip and others},
-  title     = {Flash Boys 2.0},
-  booktitle = {IEEE S\&P},
-  year      = {2020},
+@misc{flashbots2021mev,
+  author    = {{Flashbots}},
+  title     = {{MEV-Boost}: Proposer-Builder Separation for {Ethereum}},
+  year      = {2021},
+  howpublished = {\url{https://boost.flashbots.net/}},
 }
 
-% --- 9. Smart contract analysis ---
-% TODO
+@misc{Flashbots2023,
+  author    = {{Flashbots}},
+  title     = {{MEV-Explore}: {MEV} Dashboard},
+  year      = {2023},
+  howpublished = {\url{https://explore.flashbots.net/}},
+  note      = {Accessed 2026},
+}
+
+% ============================================================
+% 7. EigenLayer Restaking
+% ============================================================
+
+@misc{eigenlayer-whitepaper,
+  author    = {Sreeram Kannan and others},
+  title     = {{EigenLayer}: The Restaking Collective},
+  year      = {2023},
+  howpublished = {\url{https://docs.eigenlayer.xyz/eigenlayer/overview/whitepaper}},
+}
+
+% ============================================================
+% 8. L1 MEV Literature
+% ============================================================
+
+@inproceedings{daian2020flash,
+  author    = {Daian, Philip and Goldfeder, Steven and Kell, Tyler and
+               Li, Yunqi and Zhao, Xueyuan and Bentov, Iddo and
+               Breidenbach, Lorenz and Juels, Ari},
+  title     = {Flash Boys 2.0: Frontrunning in Decentralized Exchanges,
+               Miner Extractable Value, and Consensus Instability},
+  booktitle = {Proceedings of the IEEE Symposium on Security and Privacy (S\&P)},
+  year      = {2020},
+  pages     = {910--927},
+}
+
+% ============================================================
+% 9. Smart Contract Analysis
+% ============================================================
+
+@inproceedings{luu2016making,
+  author    = {Luu, Loi and Chu, Duc-Hiep and Olickel, Hrishi and
+               Saxena, Prateek and Hobor, Aquinas},
+  title     = {Making Smart Contracts Smarter},
+  booktitle = {CCS},
+  year      = {2016},
+  pages     = {254--269},
+}
+
+% ============================================================
+% Primary source documentation (cited as evidence)
+% ============================================================
+
+@misc{Astria-TxFlow,
+  author    = {{Astria}},
+  title     = {Transaction Flow --- {Astria} Documentation},
+  howpublished = {\url{https://docs.astria.org/overview/transaction-flow}},
+  note      = {Accessed 2026},
+}
+
+@misc{Astria-README,
+  author    = {{Astria}},
+  title     = {{astriaorg/astria} {GitHub} repository {README}},
+  howpublished = {\url{https://github.com/astriaorg/astria}},
+  note      = {Accessed 2026. Claims ``atomic cross-rollup composability.''},
+}
+
+@misc{Espresso-Architecture,
+  author    = {{Espresso Systems}},
+  title     = {Espresso Confirmation Layer Architecture},
+  howpublished = {\url{https://github.com/EspressoSystems/espresso-network/blob/main/doc/architecture.md}},
+  note      = {Accessed 2026. Manually downloaded by authors.},
+}
+
+@misc{Espresso-Network,
+  author    = {{Espresso Systems}},
+  title     = {Espresso Network Documentation},
+  howpublished = {\url{https://docs.espressosys.com/network}},
+  note      = {Accessed 2026},
+}
+
+@misc{Espresso-Presto,
+  author    = {{Espresso Systems}},
+  title     = {Presto: Cross-Chain Minting},
+  howpublished = {\url{https://docs.espressosys.com/network/developer/dapp/deploy-presto}},
+  note      = {Accessed 2026. Uses Hyperlane with \texttt{onlyMailbox} modifier.},
+}
+
+@misc{MevCommit-Docs,
+  author    = {{Primev}},
+  title     = {mev-commit Documentation},
+  howpublished = {\url{https://docs.primev.xyz}},
+  note      = {Accessed 2026. Bid structure: \texttt{revertingTxHashes} field.},
+}
+
+@misc{MevCommit-Marketing,
+  author    = {{Primev}},
+  title     = {mev-commit: {Atomicity and Execution Guarantees}},
+  howpublished = {\url{https://primev.xyz}},
+  note      = {Accessed 2026. Marketing claim vs.\ technical bid structure.},
+}
+
+@misc{Bolt-Docs,
+  author    = {{Chainbound}},
+  title     = {Bolt: Proposer Commitments for {Ethereum}},
+  howpublished = {\url{https://github.com/chainbound/bolt}},
+  note      = {Archived February 2026 (v0.4.0-alpha).},
+}
+
+@misc{Across-Protocol,
+  author    = {{Risk Labs}},
+  title     = {Across Protocol},
+  howpublished = {\url{https://across.to}},
+  note      = {Accessed 2026. Capability (ii) via UMA oracle + escrow.},
+}
+
+@misc{UniswapX,
+  author    = {{Uniswap Labs}},
+  title     = {{UniswapX}: Gasless, MEV-Protected Swaps},
+  howpublished = {\url{https://uniswap.org/whitepaper-uniswapx.pdf}},
+  year      = {2023},
+}
+
+@misc{Stargate,
+  author    = {{LayerZero Labs}},
+  title     = {Stargate Finance},
+  howpublished = {\url{https://stargate.finance}},
+  note      = {Accessed 2026. LayerZero-based; TF-2 FAIL (sequential relay).},
+}
+
+@misc{opentimestamps,
+  author    = {Todd, Peter},
+  title     = {{OpenTimestamps}: Scalable, Trustless, Distributed Timestamping
+               with {Bitcoin}},
+  howpublished = {\url{https://opentimestamps.org}},
+  year      = {2016},
+}
+
+@misc{artifact-repo,
+  author    = {{Anonymous Authors}},
+  title     = {Artifact Repository},
+  howpublished = {\url{https://github.com/Andrewyzzz/s-p-roll-up}},
+  note      = {Anonymized for review. Released upon acceptance.},
+}
+
+% ============================================================
+% Statistics / Econometrics
+% ============================================================
+
+@article{Clauset2009,
+  author    = {Clauset, Aaron and Shalizi, Cosma Rohilla and Newman, M. E. J.},
+  title     = {Power-Law Distributions in Empirical Data},
+  journal   = {SIAM Review},
+  volume    = {51},
+  number    = {4},
+  pages     = {661--703},
+  year      = {2009},
+}
+
+@book{EmbrechtsKM1997,
+  author    = {Embrechts, Paul and Kl{\"u}ppelberg, Claudia and Mikosch, Thomas},
+  title     = {Modelling Extremal Events for Insurance and Finance},
+  publisher = {Springer},
+  year      = {1997},
+}
+
+@article{Gabaix2009,
+  author    = {Gabaix, Xavier},
+  title     = {Power Laws in Economics and Finance},
+  journal   = {Annual Review of Economics},
+  volume    = {1},
+  pages     = {255--294},
+  year      = {2009},
+}
+
+@book{MantegnaStanley1995,
+  author    = {Mantegna, Rosario N. and Stanley, H. Eugene},
+  title     = {Introduction to Econophysics: Correlations and Complexity
+               in Finance},
+  publisher = {Cambridge University Press},
+  year      = {2000},
+}
