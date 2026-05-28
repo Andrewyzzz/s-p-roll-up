@@ -1,0 +1,52 @@
+% §4.4.4 Case 6: Testnet PoC reveals existing mitigation
+% Swap this file in at Week 23 if testnet exploit reveals that the application
+% already implements a Theorem 1 capability (i) or (ii).
+% Probability: 12% (v8.A-final outcome distribution)
+% Key handling: Reframe as positive finding — "attack design and discovery of
+% mitigation" — and use as §7 design-space map positive example.
+% §4.4.2 becomes: "Attack Design and Discovery of Mitigation"
+
+\subsubsection{Coordinated Disclosure and Vendor Response}
+\label{sec:pefo-disclosure-6}
+
+During the testnet exploit development phase (\S\ref{sec:pefo-testnet}), we
+discovered that \DEPLOYEDAPP{} implements a mitigation that closes the PEFO
+condition identified in the structural analysis (\S\ref{sec:pefo-structural}).
+Specifically:
+
+\paragraph{Mitigation Discovered.}
+[DESCRIBE MITIGATION — fill from actual testnet investigation]
+
+This mitigation instantiates Theorem~\ref{thm:a2-necessary} Capability
+[i / ii — fill from actual finding]:
+
+\begin{itemize}
+  \item [IF CAPABILITY (i)]: The application requires [DESCRIPTION OF PRE-EXECUTION
+    EVIDENCE MECHANISM] before the sequencing commitment is issued, providing
+    pre-execution success-predicate evidence.
+  \item [IF CAPABILITY (ii)]: The application implements [DESCRIPTION OF
+    PARTIAL-EFFECT PREVENTION MECHANISM], ensuring that partial execution cannot
+    produce the irreversible leg-1 effect without leg-2 confirmation.
+\end{itemize}
+
+\paragraph{Significance as a Positive Finding.}
+This discovery is a positive finding for the paper's argument. Theorem~\ref{thm:a2-necessary}
+states that any deterministic protocol guaranteeing A2 must implement capability (i)
+or (ii). The presence of [MITIGATION] in \DEPLOYEDAPP{}'s architecture confirms that
+the development team independently arrived at a Theorem~1-compliant design.
+
+This case is reported in \S\ref{sec:designspace} as a positive example in the
+design-space map: \DEPLOYEDAPP{} instantiates Theorem~\ref{thm:a2-necessary}
+Capability [i/ii], and thereby closes the PEFO gap for the operations covered
+by [MITIGATION].
+
+\paragraph{Scope of Remaining Claim.}
+We note that [MITIGATION] covers [SCOPE OF MITIGATION — fill from analysis].
+Operations outside this scope may remain subject to the structural PEFO condition.
+The full scope analysis is presented in [REF TO MAINNET ANALYSIS].
+
+\paragraph{Disclosure.}
+We disclosed the discovery of the mitigation to \DEPLOYEDAPP{} on $D_3$
+(\S\ref{sec:disclosure}), framing the disclosure as a positive architectural
+confirmation rather than a vulnerability report. The team's response:
+[VENDOR RESPONSE — fill from actual response].

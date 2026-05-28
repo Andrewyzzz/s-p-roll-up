@@ -1,0 +1,52 @@
+% §4.4.4 Case 2: Vendor non-responsive (ghost)
+% Swap this file in at Week 23 if vendor does not respond to any outreach.
+% Probability: 30% (v8.A-final outcome distribution) — most likely case
+% Key handling: document all outreach attempts + timestamps; present architectural
+% analysis on its own merits without vendor validation.
+
+\subsubsection{Coordinated Disclosure and Vendor Response}
+\label{sec:pefo-disclosure-2}
+
+We initiated coordinated disclosure with \DEPLOYEDAPP{} on $D_3$
+(\S\ref{sec:disclosure}).
+
+\paragraph{Outreach Attempts.}
+Table~\ref{tab:outreach-2} documents all outreach attempts. Each attempt is
+independently verifiable via the corresponding OpenTimestamps proof in
+Appendix~\ref{app:disclosure}.
+
+\begin{table}[h]
+\centering
+\caption{Outreach attempts to \DEPLOYEDAPP{}.}
+\label{tab:outreach-2}
+\begin{tabular}{lll}
+\toprule
+Date & Channel & Response \\
+\midrule
+[DATE] & [CHANNEL 1] & No response \\
+[DATE] & [CHANNEL 2] & No response \\
+[DATE] & [CHANNEL 3] & No response \\
+$D_3 + 14$ days & Reminder email & No response \\
+$D_3 + 30$ days & Reminder email & No response \\
+$D_3 + 60$ days & Final reminder & No response \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Disclosure Without Vendor Engagement.}
+Having received no response within the $D_3 + 90$ day standard disclosure
+window~\cite{google-project-zero}, we proceed with public disclosure.
+
+We note that non-response does not affect the validity of the architectural
+analysis in \S\ref{sec:pefo-mainnet}. That analysis is based exclusively
+on publicly available contract code and architecture documentation. All three
+mainnet-distinguishing architectural facts are verifiable from the on-chain
+state and do not require vendor confirmation.
+
+\paragraph{Good-Faith Documentation.}
+All outreach attempts were made in good faith and are documented with
+cryptographic timestamps (Appendix~\ref{app:disclosure}). We attempted to
+reach the team through [N] independent channels. The absence of response
+is consistent with the range of vendor behaviors observed in blockchain
+security research and does not reflect on the technical validity of our
+findings.

@@ -1,0 +1,239 @@
+% Section 6 — Lower Bounds (~1.5 pages, weight 12%)
+% 6.1 Theorem 1 — Necessary Capability for Deterministic A2 (~0.4 page proof)
+% 6.2 Observation 1 — Capability classification
+% 6.3 Theorem 2 — Calibrated Bond Insufficiency (~0.3 page proof)
+% 6.4 Corollary — Empirical violation rate
+%
+% REVIEW STATUS: Draft. Awaiting Task 8.2 (distributed-systems colleague review).
+% OPEN: Theorem 1 proof Step "Construction" — confirm adversary model
+%       is consistent with §2.5 threat model.
+% OPEN: Theorem 2 — C and alpha_hat to be substituted from Task 7.4 results.
+
+\section{Lower Bounds}
+\label{sec:bounds}
+
+\subsection{Theorem 1: Necessary Capability for Deterministic A2}
+\label{sec:thm1}
+
+We first fix notation. Let $\mathcal{R} = \{R_1, R_2\}$ be two rollups sharing
+a sequencer $\mathcal{S}$. Each rollup $R_i$ has state $\sigma_i$ and state
+transition function $\delta_i(\sigma_i, \tau_i) \to \sigma_i'$, where $\tau_i$
+is a transaction. A \emph{bundle} $B = (\tau_1, \tau_2)$ pairs one transaction
+per rollup. The sequencer issues a \emph{commitment} $\Gamma(B)$ attesting to
+the inclusion and ordering of $B$ before execution.
+
+\begin{definition}[A2 — Execution Atomicity]
+\label{def:a2}
+A sequencer $\mathcal{S}$ provides \emph{A2 execution atomicity} for bundle $B$
+if, for every execution of $B$ under any admissible interleaving of $R_1, R_2$:
+\[
+  \delta_1(\sigma_1, \tau_1) \text{ succeeds} \iff \delta_2(\sigma_2, \tau_2) \text{ succeeds.}
+\]
+That is, either both legs apply their state transitions, or neither does.
+\end{definition}
+
+\begin{definition}[Lazy Sequencer]
+\label{def:lazy}
+A sequencer $\mathcal{S}$ is \emph{lazy} if it issues $\Gamma(B)$ without
+evaluating $\delta_1$ or $\delta_2$. Formally: the computation of $\Gamma(B)$
+does not depend on the output of $\delta_i(\sigma_i, \tau_i)$ for either $i$.
+\end{definition}
+
+\begin{definition}[Independent STFs]
+\label{def:independent}
+State transition functions $\delta_1, \delta_2$ are \emph{independent} if
+$\delta_1(\sigma_1, \tau_1)$ does not read or modify $\sigma_2$, and
+$\delta_2(\sigma_2, \tau_2)$ does not read or modify $\sigma_1$.
+\end{definition}
+
+\begin{definition}[Irreversibility Point]
+\label{def:irreversibility}
+For rollup $R_i$, the \emph{irreversibility point} of a transaction $\tau_i$
+is the first protocol-internal moment at which the effect of $\tau_i$ on
+$\sigma_i$ cannot be undone by any party within the protocol. Denote this
+moment $\pi_i(\tau_i)$.
+\end{definition}
+
+\begin{theorem}[Necessary Capability for Deterministic A2]
+\label{thm:a2-necessary}
+Let $\mathcal{S}$ be a deterministic sequencer that is lazy
+(Definition~\ref{def:lazy}) and sequences bundles over independent STFs
+(Definition~\ref{def:independent}). If $\mathcal{S}$ provides A2 execution
+atomicity (Definition~\ref{def:a2}), then $\mathcal{S}$ must implement at
+least one of the following capabilities:
+\begin{enumerate}
+  \item[(i)] \textbf{Pre-execution evidence:} Before issuing $\Gamma(B)$,
+    $\mathcal{S}$ obtains a success predicate $\phi(B)$ such that
+    $\phi(B) = \mathsf{true}$ implies both $\delta_1(\sigma_1, \tau_1)$ and
+    $\delta_2(\sigma_2, \tau_2)$ will succeed under any admissible execution.
+  \item[(ii)] \textbf{Partial-effect prevention:} $\mathcal{S}$ has authority
+    to prevent the irreversible effect of $\tau_i$ on $R_i$ from persisting if
+    $\delta_j(\sigma_j, \tau_j)$ fails for $j \neq i$. Formally, for any
+    execution where $\delta_1$ succeeds at $\pi_1(\tau_1)$ but $\delta_2$
+    subsequently fails, $\mathcal{S}$ can trigger a state revert of $R_1$ to
+    $\sigma_1$ before $\pi_1(\tau_1)$ is externally observable.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By contrapositive. Assume $\mathcal{S}$ satisfies neither (i) nor (ii); we
+construct an execution that violates A2.
+
+\medskip
+\noindent\textbf{Setup.} Since $\mathcal{S}$ is lazy, it issues $\Gamma(B)$
+without evaluating $\delta_1$ or $\delta_2$. Since (i) is not satisfied, there
+is no success predicate available to $\mathcal{S}$ at commitment time. Therefore,
+$\Gamma(B)$ may be issued even when one or both of $\delta_1(\sigma_1, \tau_1)$,
+$\delta_2(\sigma_2, \tau_2)$ would fail.
+
+\medskip
+\noindent\textbf{Construction of counterexample execution.} Because $\delta_1,
+\delta_2$ are independent (Definition~\ref{def:independent}), their outcomes
+depend only on their respective local states $\sigma_1, \sigma_2$. Consider
+the following scenario. An adversary $\mathcal{A}$ holds a bundle
+$B = (\tau_1, \tau_2)$, submits $B$ to $\mathcal{S}$, and obtains $\Gamma(B)$.
+Between $\Gamma(B)$ and the execution of $\tau_2$ on $R_2$, $\mathcal{A}$
+submits a conflicting transaction $\tau_2'$ to $R_2$ that exhausts the resource
+$\tau_2$ depends on, causing $\delta_2(\sigma_2, \tau_2)$ to fail.
+
+Such a $\tau_2'$ exists because: (a) $R_2$'s state evolves independently of
+$R_1$ (by Definition~\ref{def:independent}), so $\tau_2'$ can target $\sigma_2$
+without being blocked by any constraint on $R_1$; and (b) $\mathcal{S}$ is lazy
+and does not serialize access to $R_2$'s state between $\Gamma(B)$ and execution.
+
+\medskip
+\noindent\textbf{Result without capability (ii).} In the constructed execution,
+$\delta_1(\sigma_1, \tau_1)$ succeeds (its preconditions are unaffected by
+$\tau_2'$ due to independence) and reaches its irreversibility point
+$\pi_1(\tau_1)$. Meanwhile, $\delta_2(\sigma_2, \tau_2)$ fails due to
+$\tau_2'$. Since $\mathcal{S}$ does not have capability (ii), it cannot revert
+the effect of $\tau_1$ on $R_1$ after $\pi_1(\tau_1)$.
+
+\medskip
+\noindent\textbf{A2 violation.} Definition~\ref{def:a2} requires
+$\delta_1$ succeeds $\iff$ $\delta_2$ succeeds. In the constructed execution,
+$\delta_1$ succeeds and $\delta_2$ fails. This directly violates A2. \qed
+\end{proof}
+
+\noindent\textbf{Scope remark.} Theorem~\ref{thm:a2-necessary} applies to
+\emph{deterministic} protocols. Probabilistic and cryptoeconomic guarantees ---
+including bond-slashing and restaking --- do not provide either (i) or (ii).
+A bond guarantees that if A2 fails, the violating party loses stake; it does not
+prevent the A2 failure itself. This is the A4 guarantee, treated separately in
+Theorem~\ref{thm:bond-insufficient} and \S\ref{sec:obs1}.
+
+%-----------------------------------------------------------------------
+
+\subsection{Observation 1: Capability Classification of Deployed Mechanisms}
+\label{sec:obs1}
+
+Theorem~\ref{thm:a2-necessary} partitions deployed mechanisms into three classes.
+Table~\ref{tab:capability-class} classifies the mechanisms surveyed in
+\S\ref{sec:designspace}; boundary cases are analyzed in Appendix~\ref{app:boundary}.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Capability classification. Mechanisms providing only A4 guarantees
+  cannot close the A2 gap regardless of bond size. See Appendix~\ref{app:boundary}
+  for boundary case rationale.}
+\label{tab:capability-class}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Mechanism & Capability & Basis \\
+\midrule
+ZK proof gating           & (i)       & Commitment requires execution proof \\
+Eager simulation          & (i)       & Sequencer runs STF before committing \\
+Espresso exec-attest      & (i)       & HotShot execution attestation \\
+HTLC                      & (ii)      & Hashlock prevents partial finality \\
+Across Protocol escrow    & (ii)      & Funds locked until both legs confirm \\
+Astria bundle escrow      & (ii)      & App-level escrow over sequencer bundle \\
+Shutter encryption        & (i)+(ii)  & Threshold decryption prevents selective exercise \\
+Bond / slashing           & A4 only   & Compensates; does not prevent A2 failure \\
+EigenLayer restaking      & A4 only   & Extends slashing domain; same execution model \\
+MEV-Boost relay attest    & A4 only   & Economic attestation; no execution proof \\
+Bonded preconf (mev-commit, Bolt) & A4 only & Bond on inclusion; no STF execution \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-----------------------------------------------------------------------
+
+\subsection{Theorem 2: Calibrated Bond Insufficiency}
+\label{sec:thm2}
+
+We show that finite bonds cannot eliminate A4 violations under a power-law
+option-value tail, even when the bond is set optimally.
+
+\begin{definition}[A4 violation indicator]
+\label{def:a4-viol}
+For a commitment $c$ in window $t$, define the A4 violation indicator:
+\[
+  \mathbf{1}_{A4}(c_t) \;=\; \mathbf{1}\!\left[V(c_t) > B\right]
+\]
+where $V(c_t)$ is the option value of the commitment and $B$ is the sequencer's
+bond. A violation occurs when exercising the option is more profitable than
+forfeiting the bond.
+\end{definition}
+
+\begin{theorem}[Bond Insufficiency under Power-Law Tail]
+\label{thm:bond-insufficient}
+Let $V$ be the option value of a sequencing commitment with power-law tail:
+$\Pr[V > v] \sim C v^{-\alpha}$ for $v \to \infty$, tail index $\hat{\alpha} > 1$,
+$C > 0$. Let $B_{\max}$ be the maximum feasible bond, $w$ the number of
+measurement windows, and $\lambda$ the per-window commitment arrival rate.
+Then:
+\[
+  \mathbb{E}\!\left[\sum_{t=1}^{w} \mathbf{1}_{A4}(c_t)\right]
+  \;\geq\;
+  \rho_{\min}(\hat{\alpha},\, B_{\max},\, w,\, \lambda)
+  \;\triangleq\;
+  w \cdot \lambda \cdot C \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon)
+\]
+for any $\varepsilon > 0$. The bound $\rho_{\min}$ is strictly positive for any
+finite $B_{\max}$, $\hat{\alpha} > 1$, $w > 0$, $\lambda > 0$.
+\end{theorem}
+
+\begin{proof}
+For each window $t$, by the power-law tail assumption:
+\[
+  \Pr\!\left[V_t > B_{\max}\right] \;\geq\; C \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon)
+\]
+for sufficiently large $B_{\max}$ (and for all $B_{\max}$ if the inequality
+holds exactly). Since $V_t > B_{\max}$ implies $\mathbf{1}_{A4}(c_t) = 1$:
+\[
+  \Pr[\mathbf{1}_{A4}(c_t) = 1] \;\geq\; C \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon).
+\]
+There are $w \lambda$ commitment windows in expectation. By linearity of
+expectation (windows are independent by the system model in \S\ref{sec:model}):
+\[
+  \mathbb{E}\!\left[\sum_t \mathbf{1}_{A4}(c_t)\right]
+  \;\geq\; w \cdot \lambda \cdot C \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon). \qed
+\]
+\end{proof}
+
+The derivation of $\rho_{\min}$ in closed form, with empirical $\hat{C}$ and
+$\hat{\alpha}$ from the 12-month replay, is in Appendix~\ref{app:theorem2}.
+
+%-----------------------------------------------------------------------
+
+\subsection{Corollary: Empirical Violation Rate}
+\label{sec:corollary}
+
+Substituting the empirically estimated parameters from \S\ref{sec:meas-tailindex}:
+\[
+  \rho_{\min}\!\left(\hat{\alpha}_{\text{emp}},\; B_{\max}^{\text{obs}},\;
+    w_{\text{12mo}},\; \hat{\lambda}\right)
+  \;\geq\; \mathbf{[X\%]}
+  \quad \left(\text{95\% CI: } [\text{CI\_LOW}, \text{CI\_HIGH}]\right)
+\]
+where $\hat{\alpha}_{\text{emp}}$ is from the Hill estimator (\S\ref{sec:meas-tailindex}),
+$B_{\max}^{\text{obs}}$ is the largest bond observed in deployed preconf instances,
+and $w_{\text{12mo}}$ is the 12-month window count. Confidence interval accounts
+for bootstrap uncertainty in $\hat{\alpha}$ (Appendix~\ref{app:theorem2}).
+
+\noindent\textbf{Interpretation.} No finite bond can reduce expected A4 violations
+to zero. This is a structural consequence of the power-law tail, not a calibration
+artifact. Bonds are risk-management instruments; they do not transform A4
+into A2. The only mechanisms that close A2 are those in
+Theorem~\ref{thm:a2-necessary}: capability (i) or capability (ii).

@@ -1,0 +1,57 @@
+% §4.4.4 Case 3d: Vendor confirms mainnet applicability
+% Swap this file in at Week 23 if vendor provides substantive technical confirmation.
+% Probability: 7.5% (v8.A-final outcome distribution)
+
+\subsubsection{Coordinated Disclosure and Vendor Response}
+\label{sec:pefo-disclosure-3d}
+
+We initiated coordinated disclosure with \DEPLOYEDAPP{} on $D_3$
+(\S\ref{sec:disclosure}). The disclosure package included: (i) the structural
+condition analysis in \S\ref{sec:pefo-structural}, (ii) the testnet exploit
+in \S\ref{sec:pefo-testnet}, and (iii) the mainnet applicability analysis
+in \S\ref{sec:pefo-mainnet}.
+
+\paragraph{Vendor Response.}
+The \DEPLOYEDAPP{} team acknowledged the vulnerability within [X] days and
+confirmed that the mainnet architecture is subject to the PEFO condition
+identified in \S\ref{sec:pefo-mainnet}. Specifically, the team confirmed:
+
+\begin{enumerate}
+  \item [SPECIFIC ARCHITECTURAL CONFIRMATION — fill from actual response]
+  \item [SPECIFIC MAINNET DISTINGUISHING FACT CONFIRMED — fill from actual response]
+  \item [MITIGATION STATUS — fill from actual response]
+\end{enumerate}
+
+The team proposed [MITIGATION / TIMELINE — fill from actual response].
+We agreed to coordinate public disclosure at [DATE — fill from actual response],
+contingent on [CONDITIONS — fill from actual response].
+
+\paragraph{Disclosure Timeline.}
+Table~\ref{tab:disclosure-timeline-3d} summarizes the disclosure timeline.
+All events are independently verifiable via the OpenTimestamps proofs in
+Appendix~\ref{app:disclosure}.
+
+\begin{table}[h]
+\centering
+\caption{Disclosure timeline (\DEPLOYEDAPP{}, Case 3d).}
+\label{tab:disclosure-timeline-3d}
+\begin{tabular}{ll}
+\toprule
+Event & Date \\
+\midrule
+Initial outreach ($D_1$) & [DATE] \\
+Formal disclosure ($D_3$) & [DATE] \\
+Vendor acknowledgment & [DATE] \\
+Mainnet confirmation & [DATE] \\
+Agreed public disclosure & [DATE] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Implication.}
+The vendor's mainnet confirmation independently validates the architectural
+analysis in \S\ref{sec:pefo-mainnet}. We note that this confirmation does not
+affect the logical validity of Theorem~\ref{thm:a2-necessary}; the structural
+PEFO condition follows from the architecture, not from vendor acknowledgment.
+The confirmation provides an additional evidence type (vendor-authenticated
+architecture) that strengthens the empirical case.

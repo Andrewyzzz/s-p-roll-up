@@ -1,0 +1,67 @@
+% §4.4.4 Case 3c: Vendor disagrees with mainnet applicability / scope characterization
+% Swap this file in at Week 23 if vendor disputes the applicability or characterization.
+% Probability: 12% (v8.A-final outcome distribution)
+% Key handling: structural-not-normative claim in §4.5; reframe as "industry-wide
+% open question" linking to §9.
+
+\subsubsection{Coordinated Disclosure and Vendor Response}
+\label{sec:pefo-disclosure-3c}
+
+We initiated coordinated disclosure with \DEPLOYEDAPP{} on $D_3$
+(\S\ref{sec:disclosure}).
+
+\paragraph{Vendor Response.}
+The \DEPLOYEDAPP{} team responded to the disclosure within [X] days. The team
+disputes [SPECIFIC ASPECT OF OUR CLAIM — fill from actual response]. Specifically:
+
+``[VERBATIM QUOTE OF VENDOR DISAGREEMENT — fill from actual response].''
+
+The team's position is that [SUMMARY OF VENDOR'S ARCHITECTURAL ARGUMENT —
+fill from actual response].
+
+\paragraph{Our Reply.}
+We respond to the vendor's disagreement on the following technical grounds.
+
+First, our mainnet applicability claim in \S\ref{sec:pefo-mainnet} is a
+\emph{structural} observation: we identify the presence or absence of the three
+PEFO conditions (\S\ref{sec:pefo-structural}) in the publicly available contract
+code. This is a descriptive, not normative, claim. Whether the conditions
+constitute a ``vulnerability'' in the vendor's operational context is a separate
+question that we do not adjudicate here.
+
+Second, the specific architectural facts cited in \S\ref{sec:pefo-mainnet}
+are verifiable from the on-chain contract state at address
+[CONTRACT ADDRESS — fill from actual analysis], block [BLOCK NUMBER]. The
+vendor's disagreement concerns [SCOPE / CHARACTERIZATION — fill from actual
+response], not the architectural observation itself.
+
+Third, the question of whether cross-rollup sequencing commitments provide
+economic atomicity (A4) is an active area of research and design. We present
+our analysis as a contribution to this discussion, not as a final determination.
+\S\ref{sec:discussion} further explores the design implications.
+
+\paragraph{Documentation.}
+The full disclosure exchange is archived in Appendix~\ref{app:disclosure}.
+The vendor's response is reproduced [in full / in summary with permission —
+choose at camera-ready]. All communications are independently timestamped
+via OpenTimestamps proofs.
+
+\paragraph{Disclosure Timeline.}
+
+\begin{table}[h]
+\centering
+\caption{Disclosure timeline (\DEPLOYEDAPP{}, Case 3c).}
+\label{tab:disclosure-timeline-3c}
+\begin{tabular}{ll}
+\toprule
+Event & Date \\
+\midrule
+Initial outreach & [DATE] \\
+Formal disclosure ($D_3$) & [DATE] \\
+Vendor response (disagreement) & [DATE] \\
+Our reply & [DATE] \\
+$D_3 + 90$ day deadline & [DATE] \\
+Public disclosure & [DATE] \\
+\bottomrule
+\end{tabular}
+\end{table}
