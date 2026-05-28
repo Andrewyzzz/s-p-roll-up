@@ -1,8 +1,8 @@
 # Candidate Viability Assessment v1
 
 **Task:** 1.3 — Candidate viability assessment
-**Status:** v1.0 — initial assessment (2026-05-28)
-**Input:** survey_results_v2.md + live documentation research
+**Status:** v2.0 — updated 2026-05-28 with Espresso architecture.md manual read
+**Input:** survey_results_v2.md + live documentation + architecture.md (manual fetch)
 **Output:** Ranked candidates, selected Primary + Backup
 
 ---
@@ -98,28 +98,57 @@ identified.
 **Architecture:** An application deployed on two Espresso-sequenced rollups,
 assuming cross-rollup consistency.
 
-**Filter assessment:**
-- TF-1: CONDITIONAL PASS (Espresso HotShot sequences multiple rollups)
-- TF-2: Application-dependent
-- TF-3: UNCLEAR — depends on whether HotShot attests to execution outcomes
-  in its commitment. This is the critical open question for Espresso.
-- AX-4: Application-dependent
+**Filter assessment (UPDATED — based on architecture.md manual read):**
+- TF-1: **PASS** — architecture.md Glossary verbatim: *"Espresso block: a block
+  produced by Espresso Network containing transactions of multiple rollups"*
+  → single Espresso block is the joint commitment Γ(B) over multiple namespaces
+- TF-2: Application-dependent (unchanged)
+- TF-3: **PASS** — architecture.md Overview step 4 verbatim: *"Espresso produces
+  Espresso blocks containing rollup namespaces with confirmed rollup blocks.
+  L2 validators receive blocks and execute the state transition functions for
+  their rollups."* → STF execution occurs AFTER HotShot confirmation
+- AX-4: Application-dependent (unchanged)
 
-**Key open question for TF-3:** Does Espresso's HotShot provide a *joint*
-execution attestation for multi-rollup bundles? If yes → TF-3 FAIL (it's
-capability (i)). If no → TF-3 PASS.
+**TF-3 resolution (was UNCLEAR, now PASS):**
+The sequence from architecture.md is unambiguous:
+1. Rollup builds proposed block (ordering, no execution yet)
+2. Rollup sends block to Espresso
+3. HotShot consensus confirms → this is Γ(B)
+4. L2 validators **execute** STFs (after confirmation)
+5. ZK proof or fraud proof window (after execution)
+
+Execution is stated to happen after HotShot produces confirmed blocks.
+There is no execution outcome in the HotShot commitment — it commits to
+ordering/inclusion only.
+
+**No cross-rollup atomicity claimed** (confirmed): *"Espresso is complementary
+to messaging protocols."* — docs.espressosys.com/network/llms-full.txt
+
+**Production rollups currently using Espresso (mainnet):**
+- **Rari** (first integration, January 29, 2025)
+- **ApeChain** (Yuga Labs)
+- AppChain
+
+**Testnet:** Celo, Molten, T3rn, Huddle01 (Arbitrum Nitro forks)
+
+**Revised viability: HIGH** — TF-1/TF-3 confirmed PASS; mainnet TVL available
+via Rari + ApeChain; Espresso team is active on GitHub.
+
+**New specific candidate: Application on Rari + ApeChain**
+Both are Espresso-sequenced Arbitrum Nitro chains. Any application with
+cross-chain operations between Rari and ApeChain without HTLC/escrow
+satisfies TF-1/TF-2/TF-3 and is an AX-4 candidate.
+
+**Action required (Task 2.1 — now applies to Espresso track):**
+- Identify applications deployed on BOTH Rari AND ApeChain
+- Check for any cross-rollup intent/filler/swap pattern without Theorem 1 mitigation
+- Confirm AX-4: no HTLC, no escrow, no ZK proof in cross-rollup critical path
 
 **Vendor contact:**
 - GitHub: github.com/EspressoSystems
 - Discord: discord.gg/espresso-systems
 - Security: security@espressosys.com
-
-**Viability:** MEDIUM — gated on TF-3 confirmation.
-
-**Action required (Task 2.3):**
-- Read Espresso HotShot source code for execution attestation scope
-- Specifically: does `sequencer_client::SequencerBlock` include an execution
-  outcome predicate for multiple rollup namespaces jointly?
+- Source file location confirmed: espresso-network/doc/architecture.md
 
 ---
 
@@ -252,5 +281,12 @@ For §1 Introduction and §2 Taxonomy motivating examples:
 | 5 | Radius ecosystem | UNCLEAR | UNCLEAR | UNCLEAR | UNCLEAR | Unknown | Radius team | LOW |
 
 **Selected §4.1:** Astria devnet intent filler (research-constructed)
-**Selected §4.4 Primary:** Astria Flame + second rollup application
-**Selected §4.4 Backup:** Espresso ecosystem application
+
+**Selected §4.4 Primary (UPDATED 2026-05-28):** Application on Rari + ApeChain
+(both Espresso-sequenced Arbitrum Nitro mainnet chains — TF-1/TF-3 confirmed PASS
+from architecture.md manual read)
+
+**Selected §4.4 Co-Primary:** Astria Flame + second rollup application
+(TF-1/TF-3 confirmed PASS; second production rollup not yet identified)
+
+**Selected §4.4 Backup:** Based rollup application (Taiko + partner)

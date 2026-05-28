@@ -441,6 +441,70 @@ option structure described in §4.2.
 
 ---
 
+### [Espresso-Architecture] — Espresso Confirmation Layer Architecture
+**URL:** https://github.com/EspressoSystems/espresso-network/blob/main/doc/architecture.md
+**Author:** Espresso Systems team
+**Date:** 2024–2025 (living document)
+**Venue:** Official GitHub documentation
+**Source:** Manual download by author (architecture.md confirmed accessible)
+
+**Summary:** Describes the Espresso Confirmation Layer architecture with a
+step-by-step sequence diagram showing how HotShot consensus fits between
+rollup block building and rollup STF execution.
+
+**Key technical facts (verbatim):**
+
+Overview step 4:
+> "Espresso produces Espresso blocks containing rollup namespaces with confirmed
+> rollup blocks. L2 validators receive blocks and **execute the state transition
+> functions** for their rollups."
+
+Glossary:
+> "Espresso block: a block produced by Espresso Network **containing transactions
+> of multiple rollups**"
+
+Sequence diagram step 4:
+> "Clients, rollup validators and bridges are notified the L2 block is finalized
+> by Espresso. Interested parties can now derive the new state of the rollup
+> if desired."
+
+Sequence diagram step 6 (post-confirmation):
+> "A rollup node which has executed the block sends the new rollup state to the L1."
+
+**Commitment timing (definitive):**
+- Step 3: Rollup builds proposed block (ordering, no execution)
+- Step 4: Rollup sends to Espresso
+- Step 6: HotShot consensus creates confirmed block = **Γ(B)**
+- Step 7: Rollup produces final block with Espresso-finalized transactions
+- Step 6 (overview): L2 validators **execute STFs** — after HotShot confirmation
+
+**TF-3 verdict: PASS.** Execution happens after HotShot commitment.
+
+**TF-1 verdict: PASS.** Single Espresso block contains transactions of
+multiple rollups simultaneously (namespace model).
+
+**No atomicity claims.** Document does not use "atomic" or "atomicity."
+
+**Production rollups confirmed (from llms-full.txt):**
+Mainnet: Rari (Jan 2025), ApeChain (Yuga Labs), AppChain
+Testnet: Celo, Molten, T3rn, Huddle01 (Arbitrum Nitro forks)
+
+**Paper sections:**
+- §2.3 (deployed system mapping): Espresso = A0/A1 (ordering + finality, no A2).
+  Parallel to Astria. Both confirmed lazy sequencers from official docs.
+- §4.2 (PEFO structural conditions): Espresso block = joint Γ(B) for
+  TF-1. Sequence from architecture.md confirms TF-3.
+- §6 (Theorem 1): Espresso confirms ordering without execution outcomes →
+  no capability (i) in commitment path. Consistent with Theorem 1 scope.
+
+**Quotes for paper:**
+> "L2 validators receive blocks and execute the state transition functions
+> for their rollups." — architecture.md step 4 (TF-3 evidence)
+> "Espresso block: a block produced by Espresso Network containing transactions
+> of multiple rollups" — architecture.md Glossary (TF-1 evidence)
+
+---
+
 ### [Drake2023-ExecTickets] — Execution Tickets
 **URL:** https://ethresear.ch/t/execution-tickets/17944 ✅ LIVE
 **Authors:** Justin Drake, Mike Neuder (scribe), Francesco Montoya, Barnabé Monnot
