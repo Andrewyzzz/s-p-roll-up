@@ -1,0 +1,34 @@
+# LaTeX build artifacts
+paper/**/*.aux
+paper/**/*.log
+paper/**/*.out
+paper/**/*.toc
+paper/**/*.bbl
+paper/**/*.blg
+paper/**/*.fls
+paper/**/*.fdb_latexmk
+paper/**/*.synctex.gz
+paper/**/*.pdf
+!paper/figures/*.pdf
+
+# Measurement data (large files tracked separately)
+measurement/replay/data/raw/
+measurement/tail-index/data/raw/
+measurement/timing/data/raw/
+
+# Node / Python artifacts
+node_modules/
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+# Foundry artifacts
+poc/**/out/
+poc/**/cache/
+poc/**/.env
+
+# OS artifacts
+.DS_Store
+Thumbs.db

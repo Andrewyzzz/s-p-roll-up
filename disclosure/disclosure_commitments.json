@@ -1,0 +1,7 @@
+{
+  "_schema": "disclosure-commitments-v1",
+  "_description": "Per-attempt disclosure records. Each entry independently verifiable via OpenTimestamps.",
+  "_note": "Populated progressively from Task 3.3 (Week 6) through Task 9.4 (Week 23).",
+  "disclosure_attempts": [],
+  "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
+}

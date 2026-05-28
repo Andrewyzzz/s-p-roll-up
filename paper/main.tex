@@ -1,0 +1,58 @@
+% Main paper LaTeX source
+% Target: IEEE S&P 2027 Cycle 2
+% Target length: 12.7 pages IEEE double-column
+
+\documentclass[conference]{IEEEtran}
+
+% --- Packages ---
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{cleveref}
+
+% --- Theorem environments ---
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{observation}{Observation}
+\newtheorem{definition}{Definition}
+
+% --- Anonymization placeholder ---
+\newcommand{\DEPLOYEDAPP}{[DEPLOYED\_APP]}
+
+\begin{document}
+
+\title{Atomic Inclusion Is Not Atomic Execution:\\
+Free Options in Rollup Sequencing Commitments}
+
+\maketitle
+
+\begin{abstract}
+% TODO: §Abstract
+\end{abstract}
+
+\input{sections/01-introduction}
+\input{sections/02-taxonomy}
+\input{sections/03-peo}
+\input{sections/04-pefo}
+\input{sections/05-measurement}
+\input{sections/06-bounds}
+\input{sections/07-designspace}
+\input{sections/08-disclosure}
+\input{sections/09-discussion}
+\input{sections/10-related}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\appendix
+\input{appendix/A-boundary}
+\input{appendix/A4-theorem2}
+\input{appendix/B-poc}
+\input{appendix/C-survey}
+\input{appendix/D-measurement}
+\input{appendix/E-disclosure}
+\input{appendix/F-ethics}
+
+\end{document}
