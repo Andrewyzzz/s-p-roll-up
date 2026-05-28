@@ -1,0 +1,101 @@
+% Section 10 — Related Work (~0.8 pages)
+% Nine categories per v8.A-final outline.
+%
+% REVIEW STATUS: Draft. Categories 2 (arXiv 2410.11552), 3 (CCS 2025), 4
+% (ethresear.ch) to be expanded with Task 1.5 annotated bibliography.
+% All citation keys are placeholders pending references.bib population.
+
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{1. Classical Atomic Commitment.}
+The two-phase commit protocol~\cite{gray1978notes} and its variants are the
+canonical solution to distributed atomic commitment. Gray's original formulation
+requires a coordinator with authority to abort partially-committed participants
+— precisely our capability (ii). Herlihy's universal construction~\cite{herlihy1991wait}
+provides wait-free consensus but assumes a single shared memory object; the
+multi-rollup setting has independent state machines with no shared write path.
+The sagas pattern~\cite{garcia-molina1987sagas} allows long-running transactions
+to commit partially, using compensating transactions for recovery. Sagas are
+relevant to our analysis: a cross-rollup application using a saga pattern
+implements capability (ii) for the non-final leg, and is therefore A2-compliant
+within the saga's compensation scope. We note the structural similarity but
+distinguish our contribution: we apply these classical notions to a setting
+where the ``coordinator'' is a lazy sequencer with no execution access, which
+classical atomic commitment does not address.
+
+\paragraph{2. arXiv 2410.11552.}
+% TODO (Task 1.5): fill with actual citation and summary.
+% Placeholder: concurrent work on cross-rollup sequencing.
+[CITATION] studies cross-rollup sequencing from a [FOCUS] perspective. Our
+contribution is distinguished in [SPECIFIC WAY]: we provide the A2/A4 taxonomy
+that separates execution outcome from economic externality, and demonstrate
+the gap is non-vacuous via PoC attacks on deployed systems. [CITATION] does not
+address [OUR SPECIFIC CONTRIBUTION].
+
+\paragraph{3. CCS 2025 Denial of Sequencing.}
+% TODO (Task 1.5): fill when paper is available.
+[CITATION] identifies denial-of-sequencing as an attack vector on shared
+sequencer architectures. Our contribution is orthogonal: we study the case
+where the sequencer \emph{does} include the bundle (commits faithfully) but
+the inclusion commitment still admits free-option attacks due to the execution
+gap. Both attacks exploit properties of lazy sequencers; ours focuses on
+selective exercise of commitments, not denial.
+
+\paragraph{4. ethresear.ch Preconfirmation Taxonomies.}
+Several ethresear.ch posts propose taxonomies and design criteria for
+preconfirmations~\cite{PLACEHOLDER-ethresear-1, PLACEHOLDER-ethresear-2,
+PLACEHOLDER-ethresear-3}. These works focus primarily on L1 single-chain
+preconfirmations (a validator committing to include a transaction in the
+next block). Our contribution extends the analysis to the cross-rollup setting,
+where the commitment spans two independent STFs, and provides the first
+formal proof that A2 closure requires capability (i) or (ii) regardless of
+bond size.
+% TODO (Task 1.5): replace PLACEHOLDERs with actual citations from annotated bibliography.
+
+\paragraph{5. Unity is Strength.}
+Obadia et al.~\cite{obadia2021unity} formalize cross-domain MEV and introduce
+the notion of domain-crossing value extraction. Our A4 definition (economic
+atomicity as a counterfactual payoff bound) extends this framework to the
+sequencing commitment setting: the attacker's surplus is the option value
+extracted from the commitment gap, and the domain boundary is the pair of
+independent rollup STFs. The key distinction is that we study a structural
+property of the commitment protocol, not just the value extraction outcome.
+
+\paragraph{6. Flashbots Cross-Rollup Arbitrage Proposals.}
+Flashbots has published proposals for cross-rollup MEV coordination and atomic
+inclusion~\cite{PLACEHOLDER-flashbots-cross-rollup}. These proposals identify
+the coordination problem but propose economic solutions (bundler incentives,
+relay-mediated ordering). Our Theorem~\ref{thm:a2-necessary} provides the
+formal basis for why economic solutions (however well-designed) cannot close
+the A2 gap: they are A4 mechanisms by construction.
+
+\paragraph{7. EigenLayer Restaking.}
+EigenLayer~\cite{eigenlayer-whitepaper} introduces restaking as a mechanism for
+extending Ethereum's cryptoeconomic security to auxiliary services. Preconf
+protocols using EigenLayer (e.g., Lagrange, Witness Chain) use restaked ETH as
+collateral. As analyzed in Appendix~\ref{app:eigenlayer}, restaking increases
+bond size ($B_{\max}$) without providing capability (i) or (ii). Our
+Theorem~\ref{thm:bond-insufficient} shows that the resulting A4 guarantee
+is structurally insufficient: the power-law option-value tail guarantees a
+nonzero violation rate for any finite bond.
+
+\paragraph{8. L1 MEV Literature.}
+The MEV literature~\cite{daian2020flash, flashbots2021mev} establishes that
+miners (and validators) extract value by reordering, censoring, or inserting
+transactions. Our work is related but addresses a distinct mechanism: the
+free option arises not from reordering within a single domain but from the
+execution gap between a cross-domain commitment and execution. The sequencer
+does not need to reorder transactions to exploit the option; they need only
+observe partial execution outcomes and selectively honor or abandon the
+commitment.
+
+\paragraph{9. Smart Contract Vulnerability Analysis.}
+The smart contract security literature~\cite{PLACEHOLDER-sc-analysis} has
+catalogued re-entrancy, oracle manipulation, and price impact attacks.
+The PEFO attack we describe has structural similarity to price oracle
+manipulation: the attacker creates conditions that cause one leg to succeed
+and another to fail, extracting the price difference. The novel element is
+that the attack surface is the sequencing commitment layer, not the individual
+contract's logic. No single contract is buggy; the vulnerability is in the
+interaction between the lazy sequencer and the independent-STF architecture.

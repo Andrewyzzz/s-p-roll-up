@@ -1,0 +1,56 @@
+% Section 9 — Discussion (~0.4 pages)
+% Topics: based rollups, eager sequencing, A2/A4 for specification, EIP-7702 analogy
+%
+% REVIEW STATUS: Draft. Based rollup generalization argument (§9.1) and eager
+% sequencing treatment (§9.2) are ready for external review.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Generalization to Based Rollups.}
+Based rollups~\cite{justin-based-rollups} use Ethereum L1 validators as
+sequencers rather than a dedicated shared-sequencer layer. The A2/A4 separation
+developed in this paper applies directly. A based-rollup sequencer is lazy by
+Definition~\ref{def:lazy}: L1 validators include transactions in blocks without
+evaluating rollup STFs. The only difference from a dedicated shared sequencer is
+that the set of possible sequencers is larger (any L1 validator) and the
+commitment is the L1 block itself. The structural condition for PEFO
+(\S\ref{sec:pefo-structural}) holds: two based rollups that both use the same
+L1 block for inclusion lack execution atomicity across that block boundary.
+The based-rollup design space has the same Theorem~\ref{thm:a2-necessary}
+escape routes: a based-rollup application seeking A2 must implement capability
+(i) or (ii) at the application layer.
+
+\paragraph{Eager Sequencing.}
+An \emph{eager} sequencer — one that executes STFs before committing — is not
+lazy by Definition~\ref{def:lazy} and therefore falls outside the scope of
+Theorem~\ref{thm:a2-necessary}. This does not mean eager sequencing is without
+issues; it introduces its own complexity (sequencer must maintain full rollup
+state, latency increases, MEV extraction shifts to the sequencer). The key
+observation is that eagerness is a design choice with non-trivial engineering
+cost, and current production shared sequencers (Astria, Espresso, Radius) are
+all lazy. An eager sequencer that simulates both STFs before committing provides
+capability (i) by construction, but requires access to the full state of both
+rollups at commitment time.
+
+\paragraph{A2/A4 Separation as a Specification Tool.}
+The A2/A4 separation introduced in \S\ref{sec:taxonomy} has direct value as a
+specification tool. When a protocol claims to provide ``atomicity,'' the claim
+should be annotated with which level of the A0–A4 hierarchy is targeted. This
+is analogous to the ISO~7498 layering convention for networking protocols:
+specifying which layer a property operates at prevents conflation in both
+design and analysis. We propose that cross-rollup protocol specifications
+adopt this convention: state explicitly whether the claimed property is A2
+(execution outcome) or A4 (economic externality), and provide the corresponding
+closure mechanism.
+
+\paragraph{Relation to EIP-7702.}
+EIP-7702 (account code delegation) introduces a new class of cross-context
+state interactions: an account's code can be set to a delegate for a single
+transaction. This creates a form of within-transaction state coupling that
+partially resembles capability (ii): the delegated code can implement an
+atomic revert of multiple sub-operations within one L1 transaction. For
+cross-rollup applications that include an L1 coordination step, EIP-7702
+delegates could provide partial-effect prevention at the L1 level, while the
+rollup-level legs remain unprotected. The full interaction between EIP-7702
+and cross-rollup A2 is a topic for future work.
