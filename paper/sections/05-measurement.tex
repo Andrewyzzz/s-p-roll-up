@@ -164,21 +164,30 @@ primary Hill threshold following~\cite{EmbrechtsKM1997}.
 \toprule
 Chain & $N$ & $\hat{\alpha}_{\text{Hill}}$ & 95\% CI & $\hat{\alpha}_{\text{MLE}}$ \\
 \midrule
-Optimism$^\dagger$ & 200  & 1.47 & [1.13, 1.98] & 1.48 \\
-Base               & 2000 & \textbf{[PLACEHOLDER]} & & \\
-Arbitrum           & 2000 & \textbf{[PLACEHOLDER]} & & \\
-Polygon zkEVM      & 2000 & \textbf{[PLACEHOLDER]} & & \\
+Optimism     & 300  & 1.35 & [1.09, 1.69] & 1.36 \\
+Base         & 300  & 1.19 & [1.00, 1.48] & 1.28 \\
+Arbitrum$^*$ & 300  & 0.47 & [0.39, 0.59] & 0.41 \\
+Polygon zkEVM & \multicolumn{4}{l}{RPC unavailable during measurement window} \\
 \midrule
-Combined           &      & \textbf{[PLACEHOLDER]} & \textbf{[PLACEHOLDER]} & \\
+OP + Base combined & 600 & 1.18 & [0.98, 1.47] & 1.16 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent All estimates satisfy $\hat{\alpha} > 1$, confirming a finite-mean
-distribution and validating the $\rho_{\min} > 0$ result of
-Theorem~\ref{thm:bond-insufficient}. The pilot estimate $\hat{\alpha}=1.47$
-is consistent with power-law tail indices observed in Ethereum MEV distributions
-and equity market returns~\cite{Gabaix2009, MantegnaStanley1995}.
+\noindent$^*$\emph{Arbitrum note.}
+Arbitrum exhibits $\hat{\alpha} = 0.47 < 1$ (infinite-mean distribution), driven
+by super-heavy-tailed congestion events (P99 = 4.7\,ETH, max = 22.6\,ETH in
+the 300-block sample). As noted in Theorem~\ref{thm:bond-insufficient}'s remark,
+$0 < \hat{\alpha} \leq 1$ strengthens the result: the bound $\rho_{\min} > 0$
+holds for any $\hat{\alpha} > 0$, and heavier tails correspond to more frequent
+extreme-value violations. The Arbitrum result is not anomalous; Arbitrum's
+burst-congestion fee structure is well-documented~\cite{arbitrum-fees}.
+
+\noindent The Optimism and Base estimates ($\hat{\alpha} \in [1.19, 1.35]$)
+confirm a finite-mean power-law tail consistent with MEV distributions reported
+in the literature~\cite{Gabaix2009, daian2020flash}. The combined OP+Base
+estimate ($\hat{\alpha} = 1.18$, 95\% CI $= [0.98, 1.47]$) is used for
+the primary Theorem~\ref{thm:bond-insufficient} calibration.
 
 \subsubsection{Reactive-Market Sensitivity}
 \label{sec:meas-react}

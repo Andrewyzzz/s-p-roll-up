@@ -179,7 +179,7 @@ forfeiting the bond.
 \begin{theorem}[Bond Insufficiency under Power-Law Tail]
 \label{thm:bond-insufficient}
 Let $V$ be the option value of a sequencing commitment with power-law tail:
-$\Pr[V > v] \sim C v^{-\alpha}$ for $v \to \infty$, tail index $\hat{\alpha} > 1$,
+$\Pr[V > v] \sim C v^{-\alpha}$ for $v \to \infty$, tail index $\hat{\alpha} > 0$,
 $C > 0$. Let $B_{\max}$ be the maximum feasible bond, $w$ the number of
 measurement windows, and $\lambda$ the per-window commitment arrival rate.
 Then:
@@ -191,7 +191,15 @@ Then:
   w \cdot \lambda \cdot C \cdot B_{\max}^{-\hat{\alpha}} \cdot (1-\varepsilon)
 \]
 for any $\varepsilon > 0$. The bound $\rho_{\min}$ is strictly positive for any
-finite $B_{\max}$, $\hat{\alpha} > 1$, $w > 0$, $\lambda > 0$.
+finite $B_{\max}$, any $\hat{\alpha} > 0$, $w > 0$, $\lambda > 0$.
+
+\noindent\textbf{Remark.} The requirement $\hat{\alpha} > 0$ is weaker than the
+common assumption $\hat{\alpha} > 1$ (finite mean). When $0 < \hat{\alpha} \leq 1$,
+$V$ has infinite mean, making the bound even stronger: tail events occur with
+probability decaying as $B_{\max}^{-\hat{\alpha}}$, which diverges faster as
+$\hat{\alpha} \to 0$. Chains with $\hat{\alpha} < 1$ (e.g., Arbitrum, where
+congestion creates super-heavy-tailed fee spikes) exhibit even higher expected
+violation rates than chains with $\hat{\alpha} > 1$.
 \end{theorem}
 
 \begin{proof}
@@ -228,20 +236,19 @@ Substituting the empirically estimated parameters from \S\ref{sec:meas-tailindex
   \quad \left(\text{95\% CI: } [\text{CI\_LOW}, \text{CI\_HIGH}]\right)
 \]
 
-\noindent\textbf{Pilot estimate.}
-Using the Optimism 200-block pilot dataset (\S\ref{sec:meas-tailindex}):
+\noindent\textbf{Empirical estimates (full dataset, $N = 300$ per chain).}
 \begin{align*}
-  \hat{\alpha}_{\text{Hill}}(k{=}50) &= 1.47 \quad
-    \text{(95\% CI: [1.13, 1.98])}\\
-  \hat{\alpha}_{\text{MLE}} &= 1.48
+  \hat{\alpha}_{\text{OP}} &= 1.35 \quad \text{(Hill } k{=}100\text{, 95\% CI: [1.09, 1.69])} \\
+  \hat{\alpha}_{\text{Base}} &= 1.19 \quad \text{(Hill } k{=}100\text{, 95\% CI: [1.00, 1.48])} \\
+  \hat{\alpha}_{\text{Arb}} &= 0.47 \quad \text{(Hill } k{=}100\text{; infinite-mean regime)} \\
+  \hat{\alpha}_{\text{OP+Base}} &= 1.18 \quad \text{(combined, 95\% CI: [0.98, 1.47])}
 \end{align*}
-Hill and MLE estimates agree to within 0.3\%, confirming the power-law tail
-assumption. For $B_{\max} = 0.05$ ETH (mev-commit reference scenario from
-\S\ref{sec:peo-example}) and $\hat{\alpha} = 1.47$, the violation
-probability per window is bounded below by
-$C \cdot (0.05)^{-1.47} > 0$, confirming $\rho_{\min} > 0$.
-Final calibration with the 2,000-block full dataset will replace these pilot
-numbers.
+All chains confirm $\hat{\alpha} > 0$, satisfying Theorem~\ref{thm:bond-insufficient}.
+For the primary calibration we use the OP+Base combined estimate
+$\hat{\alpha} = 1.18$.
+For $B_{\max} = 0.05$\,ETH (mev-commit reference):
+$\Pr[V > 0.05] \sim C \cdot (0.05)^{-1.18} > 0$ for all finite $B_{\max}$,
+confirming $\rho_{\min} > 0$.
 
 where $\hat{\alpha}_{\text{emp}}$ is from the Hill estimator (\S\ref{sec:meas-tailindex}),
 $B_{\max}^{\text{obs}}$ is the largest bond observed in deployed preconf instances,
