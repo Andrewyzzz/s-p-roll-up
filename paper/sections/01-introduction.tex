@@ -1,11 +1,148 @@
 % Section 1 — Introduction (~1.4 pages)
-% 1. What sequencing commitments are
-% 2. What they don't provide
-% 3. The conflation thesis (A2 ≠ A4)
-% 4. Differentiation from arXiv 2410.11552 + Sagas/Herlihy/Gray-Lamport
-% 5. Contributions + roadmap + PEO + \DEPLOYEDAPP teaser
+%
+% REVIEW STATUS: First complete draft (2026-05-28).
+% Three conflation evidence pieces incorporated:
+%   [MevCommit-Marketing]: "Atomicity and Execution Guarantees" vs revertingTxHashes
+%   [Astria-README]: "Atomic cross-rollup composability" vs lazy-sequencer docs
+%   [Espresso-Presto]: correct cap.(ii) engineering via onlyMailbox
+% OPEN: arXiv 2410.11552 citation key pending Task 1.5 URL verification.
+% OPEN: CCS 2025 Denial of Sequencing citation pending paper availability.
 
 \section{Introduction}
 \label{sec:intro}
 
-% TODO
+Rollup sequencing commitments are increasingly central to Ethereum's scaling
+roadmap. Shared sequencers — middleware layers that order transactions for
+multiple rollups simultaneously — promise low-latency finality and
+``atomic cross-rollup composability''~\cite{Astria-README}. Preconfirmation
+protocols allow validators to issue signed commitments to users before their
+transactions appear on-chain, with the mev-commit protocol advertising
+\emph{``Atomicity and Execution Guarantees''}~\cite{MevCommit-Marketing}.
+The Espresso Network describes its confirmation layer as providing
+\emph{``secure cross-chain settlement and cross-system
+coordination''}~\cite{Espresso-Network}.
+
+\paragraph{The problem.}
+None of these descriptions define what ``atomicity'' means, and the systems
+they describe do not all provide the same thing. The Astria shared sequencer
+documentation, in the same technical reference that uses the phrase ``atomic
+cross-rollup composability,'' confirms: \emph{``it provides a guarantee on
+the ordering of transactions in a block, but it doesn't execute the state
+transition function (STF) of any given rollup''}~\cite{Astria-TxFlow}. The
+mev-commit bid structure includes a \texttt{revertingTxHashes} field,
+defined as \emph{``array of transaction hashes as strings that can revert''}
+— explicitly acknowledging that committed transactions may fail without
+triggering slashing~\cite{MevCommit-Docs}.
+
+These are not incidental inconsistencies. They reflect a systematic
+conflation in the rollup sequencing literature between two distinct
+properties that have different closure mechanisms and different security
+implications.
+
+\paragraph{The conflation.}
+We identify and formalize the conflation between:
+\begin{itemize}
+  \item \textbf{Execution atomicity (A2)}: all bundle legs succeed, or
+    none do. No partial execution persists.
+  \item \textbf{Economic atomicity (A4)}: no party extracts strictly
+    positive option value from the sequencing gap.
+\end{itemize}
+Compensation-based mechanisms — bonds, slashing, restaking, insurance —
+close A4 but \emph{provably cannot} close A2. A bond guarantees that if
+A2 fails, the violating party loses stake; it does not prevent the A2
+failure from occurring. This is a structural difference, not a quantitative
+one. We prove in Theorem~\ref{thm:a2-necessary} that closing A2
+deterministically requires at least one of two operational capabilities:
+pre-execution success-predicate evidence, or authority to prevent partial
+irreversible effects. No deployed bond or restaking mechanism provides
+either.
+
+\paragraph{Differentiation from prior work.}
+Our A2/A4 separation is distinguished from classical atomic commitment
+(Gray~\cite{gray1978notes}, Herlihy~\cite{herlihy1991wait},
+Sagas~\cite{garcia-molina1987sagas}) in one critical respect: in the
+multi-rollup setting, the ``coordinator'' (the shared sequencer) is lazy
+by design — it has no access to the state transition functions of the
+rollups it sequences. Classical atomic commitment assumes a coordinator
+with execution access; our setting removes that assumption. The resulting
+impossibility (Theorem~\ref{thm:a2-necessary}) is specific to this lazy
+architecture and does not follow from classical results.
+
+Our work is also distinguished from concurrent work on cross-rollup
+sequencing~\cite{arxiv2410.11552} [TODO: verify] and denial-of-sequencing
+attacks~\cite{ccs2025dos} [TODO: verify], which study different attack
+vectors on the same infrastructure class.
+
+\paragraph{Contributions.}
+This paper makes four contributions.
+
+\begin{enumerate}
+  \item \textbf{A five-layer atomicity taxonomy and the A2/A4 separation}
+    (§\ref{sec:taxonomy}). We define levels A0 through A4, formalize A2
+    (execution atomicity) and A4 (economic atomicity), and prove they have
+    distinct closure mechanisms. The separation is grounded in a systematic
+    survey of $N=30$ deployed cross-rollup applications and the verbatim
+    documentation of four production shared sequencer and preconfirmation
+    systems.
+
+  \item \textbf{Two attack families demonstrating the structural gap}
+    (§\ref{sec:peo}, §\ref{sec:pefo}). The \textbf{Preconfirmation
+    Exercise Option} (\PEO{}) shows that a bond-backed preconfirmation
+    commitment admits a free-option payoff when the commitment-to-execution
+    gap allows selective exercise. The \textbf{Partial-Execution Free
+    Option} (\PEFO{}) shows that a lazy shared sequencer over independent
+    rollup STFs admits partial execution that a rational attacker can
+    exploit. We demonstrate \PEFO{} on an Astria devnet testbed with a
+    concrete cross-rollup intent filler implementation.
+
+  \item \textbf{Scoped lower bounds} (§\ref{sec:bounds}). Theorem~1
+    establishes A2 closure requires capability~(i) or capability~(ii) for
+    any deterministic lazy sequencer. Theorem~2 shows that under an
+    empirically estimated power-law option-value tail, the expected A4
+    violation count is bounded below by $\rho_{\min} > 0$ for any finite
+    bond.
+
+  \item \textbf{A design-space map with deployed evidence}
+    (§\ref{sec:designspace}). We classify twelve deployed and proposed
+    cross-rollup mechanisms — including Across Protocol, T3rn, Espresso +
+    Hyperlane, Astria escrow, and EigenLayer restaking — against
+    Theorem~\ref{thm:a2-necessary}. Every mechanism falls into one of
+    three classes: capability~(i), capability~(ii), or A4-only. We
+    document each classification with primary source evidence (contract
+    code, official documentation).
+\end{enumerate}
+
+\paragraph{The structural-gap finding.}
+A notable result of our survey (\S\ref{sec:gap}) is that no deployed
+production application relies on a shared-sequencer commitment for
+cross-rollup execution without adding relay coordination or escrow
+protection. This is not a null finding: it means the ecosystem has
+independently converged on Theorem~\ref{thm:a2-necessary}'s necessary
+conditions. Every cross-rollup application we surveyed that uses a shared
+sequencer has implemented either relay messaging (e.g., Hyperlane, with the
+\texttt{onlyMailbox} modifier on destination contracts~\cite{Espresso-Presto})
+or oracle-backed escrow (e.g., UMA in Across Protocol~\cite{Across-Protocol}).
+The Espresso + Hyperlane reference implementation demonstrates this pattern
+explicitly: it uses Espresso's fast finality for source-chain confirmation
+and Hyperlane relay for destination-chain atomicity, composing two A0/A1
+layers into an application-level A2 guarantee. This convergence validates
+the theorem empirically. The gap remains a forward-looking risk on
+lazy-sequencer platforms where new applications may assume the sequencer
+provides what it does not.
+
+\paragraph{Responsible disclosure.}
+We disclosed the \PEO{} and \PEFO{} structural findings to the Astria,
+Espresso, mev-commit, and Bolt teams prior to submission
+(\S\ref{sec:disclosure}). All testbed exploits use devnet
+infrastructure with no real value at risk.
+
+\paragraph{Paper organization.}
+§\ref{sec:taxonomy} defines the taxonomy and system model.
+§\ref{sec:peo} presents the PEO attack.
+§\ref{sec:pefo} presents the PEFO attack and devnet demonstration.
+§\ref{sec:meas} presents the measurement study.
+§\ref{sec:bounds} proves Theorems 1 and 2.
+§\ref{sec:designspace} presents the design-space map.
+§\ref{sec:disclosure} covers responsible disclosure.
+§\ref{sec:discussion} discusses generalizations.
+§\ref{sec:related} covers related work.

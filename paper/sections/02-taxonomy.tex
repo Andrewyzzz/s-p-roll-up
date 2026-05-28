@@ -1,0 +1,250 @@
+% Section 2 — Atomicity Taxonomy and System Model (~2.0 pages)
+%
+% REVIEW STATUS: First complete draft (2026-05-28).
+% Evidence sources: Astria docs (TF-3 verbatim), Espresso architecture.md
+% (TF-3 verbatim), mev-commit docs (conflation), N=30 survey (§2.4).
+% OPEN: §2.3 table — Radius row pending Task 2.3 codebase review.
+
+\section{Atomicity Taxonomy and System Model}
+\label{sec:taxonomy}
+
+\subsection{The Five Layers}
+\label{sec:layers}
+
+Sequencing commitments in multi-rollup systems can provide different
+levels of ordering and execution guarantee. We distinguish five layers,
+A0 through A4, ordered from weakest to strongest.
+
+\begin{table}[h]
+\centering
+\small
+\caption{The A0–A4 atomicity taxonomy. Each layer strictly implies the
+  layers below it. ``Sequencing commitment'' refers to any commitment
+  issued by a shared sequencer or preconfirmation layer before rollup
+  execution.}
+\label{tab:taxonomy}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Level & Property & Mechanism closes it \\
+\midrule
+A0 & \textbf{Common ordering}: all rollups see the same transaction & Any shared sequencer \\
+   & order within a bundle commitment. & \\
+A1 & \textbf{Atomic inclusion}: both bundle legs are included in the & Joint block / meta block \\
+   & same sequencer block or commitment. & \\
+A2 & \textbf{Execution atomicity}: all bundle legs succeed, or none & Capability (i) or (ii) \\
+   & do. No partial execution persists. & (Theorem~\ref{thm:a2-necessary}) \\
+A3 & \textbf{State consistency}: the post-execution states of all & Cross-chain state \\
+   & rollups reflect the bundle as a unit. & synchronization \\
+A4 & \textbf{Economic atomicity}: no party extracts strictly positive & Bond / slashing / \\
+   & option value from the sequencing gap. & insurance (A4 only) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The term ``atomicity'' appears throughout the rollup sequencing
+literature without qualification. The Astria shared sequencer documentation
+claims \emph{``atomic cross-rollup composability''}~\cite{Astria-README},
+and the mev-commit preconfirmation protocol advertises \emph{``Atomicity
+and Execution Guarantees''}~\cite{MevCommit-Marketing}. As we show in
+\S\ref{sec:obs1} and \S\ref{sec:designspace}, both systems provide at most
+A1 and A4 guarantees. The conflation of these with A2 is the structural
+gap this paper addresses.
+
+%----------------------------------------------------------------------
+\subsection{The A2--A4 Separation}
+\label{sec:a2a4}
+
+The central observation of this paper is that A2 and A4 have distinct
+closure mechanisms that do not substitute for each other.
+
+\paragraph{A4 closes economic externality; A2 closes execution outcome.}
+A4 mechanisms (bonds, slashing, restaking) guarantee that if A2 fails, the
+violating party suffers a financial penalty proportional to the violation.
+This addresses the \emph{economic consequence} of partial execution but
+does not prevent it. An attacker who finds a commitment window in which
+$V > B$ — where $V$ is the option value and $B$ is the bond — will violate
+A2 and accept the slashing.
+
+\paragraph{A2 requires structural capability.}
+Theorem~\ref{thm:a2-necessary} (\S\ref{sec:thm1}) establishes that any
+deterministic protocol guaranteeing A2 must implement at least one of:
+(i) pre-execution success-predicate evidence, or (ii) authority to prevent
+partial irreversible effects. Probabilistic and cryptoeconomic guarantees
+do not provide either. This is not a quantitative difference; it is a
+categorical one.
+
+\paragraph{Preview of Theorem~\ref{thm:bond-insufficient}.}
+Theorem~\ref{thm:bond-insufficient} (\S\ref{sec:thm2}) shows that under
+a power-law option-value tail, finite bonds produce a strictly positive
+expected A4 violation count regardless of bond size. The structural gap
+between A4 and A2 therefore has an empirical consequence: even
+optimally-sized bonds cannot close it.
+
+%----------------------------------------------------------------------
+\subsection{Deployed System Mapping}
+\label{sec:mapping}
+
+Table~\ref{tab:mapping} maps the primary shared sequencer and
+preconfirmation systems to the A0–A4 taxonomy. All confirmed entries
+are derived from primary source documentation read verbatim.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Atomicity level provided by deployed shared sequencer and
+  preconfirmation systems. ``Confirmed'' entries cite verbatim primary
+  source documentation; ``Conditional'' entries depend on configuration
+  or version. $\dagger$See Appendix~\ref{app:boundary}.}
+\label{tab:mapping}
+\begin{tabular}{@{}lllp{4.5cm}@{}}
+\toprule
+System & Provides & Does not provide & Key evidence \\
+\midrule
+Astria shared seq. & A0, A1 & A2, A3, A4 &
+  \emph{``provides a guarantee on the ordering of transactions in a
+  block, but it doesn't execute the STF of any given rollup''}~\cite{Astria-TxFlow}\\
+Espresso HotShot & A0, A1 & A2, A3, A4 &
+  \emph{``L2 validators receive blocks and execute the STFs for their
+  rollups''} (after HotShot confirmation)~\cite{Espresso-Architecture} \\
+mev-commit (Primev) & A0, A1, A4 & A2, A3 &
+  \emph{``Array of transaction hashes that can revert''} in bid;
+  slashing on positioning failure~\cite{MevCommit-Docs} \\
+Bolt (Chainbound) & A0, A1, A4 & A2, A3 &
+  Signed preconf on inclusion; no execution outcome
+  predicate~\cite{Bolt-Docs} \\
+Espresso + Hyperlane$^\dagger$ & A0, A1, A2 (relay) & A3, A4 &
+  \texttt{onlyMailbox} modifier; destination executes only after
+  Hyperlane relay delivers source-chain
+  event~\cite{Espresso-Presto} \\
+Radius (encrypted seq.) & A0, A1 & A2, A3, A4 &
+  Encrypted transaction ordering; no joint
+  execution~\cite{Radius-Docs} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The Espresso + Hyperlane row warrants elaboration. The
+\texttt{onlyMailbox} modifier on destination contracts is a cap.~(ii)
+implementation: it prevents the destination from executing until the
+Hyperlane relay delivers confirmation of the source-chain event. This
+is not an atomicity guarantee from the sequencer — it is an
+application-level capability~(ii) built on top of a sequencer that
+provides only A0/A1. The sequencer's role is to provide fast
+source-chain finality (via Espresso HotShot), which the relay then
+uses to trigger destination execution. This is the correct engineering
+pattern~(\S\ref{sec:designspace}), and it is precisely what is absent in
+the attack scenario we demonstrate~(\S\ref{sec:pefo}).
+
+%----------------------------------------------------------------------
+\subsection{The Integration Gap}
+\label{sec:gap}
+
+\paragraph{Survey methodology.}
+We systematically surveyed $N=30$ cross-rollup applications against the
+three structural conditions required for PEFO vulnerability (detailed in
+Appendix~\ref{app:survey}). The mandatory filter requires: (TF-1) the
+application spans $\geq 2$ rollups under a shared sequencer commitment;
+(TF-2) bundle legs execute independently without messaging relay
+dependency; and (TF-3) the sequencer is lazy.
+
+\paragraph{Structural finding.}
+No deployed application in our survey relies on a shared-sequencer
+commitment for cross-rollup execution without adding relay coordination
+or escrow protection on the critical cross-rollup path. This is not a
+null result. It is a structural finding: TF-2 (independent execution legs
+without relay) is the binding constraint, and it is binding because the
+ecosystem has independently converged on closing it.
+
+Every cross-rollup application we surveyed that uses a shared sequencer
+routes around the A2 gap via one of two mechanisms:
+
+\begin{enumerate}
+  \item \textbf{Relay coordination} (capability (ii), application-level):
+    Hyperlane, LayerZero, Wormhole, and similar messaging layers enforce
+    a sequential source-relay-destination dependency that prevents partial
+    execution. Examples: Stargate~\cite{Stargate}, the Espresso+Hyperlane
+    reference pattern~\cite{Espresso-Presto}.
+  \item \textbf{Solver inventory or oracle escrow} (capability (ii) or
+    A4): Solvers absorb partial-fill risk (T3rn, Relay Protocol), or
+    origin-chain escrow is held until oracle confirmation (Across Protocol
+    via UMA~\cite{Across-Protocol}).
+\end{enumerate}
+
+\noindent This convergence is the strongest possible validation of
+Theorem~\ref{thm:a2-necessary}'s necessity claim: production engineers
+have independently identified that cross-rollup execution requires
+capability~(i) or (ii), and have deployed accordingly. The gap
+remains live as a forward-looking risk for applications that build
+on lazy-sequencer infrastructure without implementing either mechanism —
+precisely the condition we instantiate in \S\ref{sec:pefo}.
+
+%----------------------------------------------------------------------
+\subsection{System and Threat Model}
+\label{sec:model}
+
+\paragraph{Rollup architecture.}
+We consider two rollups $R_1, R_2$ sharing a lazy sequencer $\mathcal{S}$
+(Definition~\ref{def:lazy}). Each rollup $R_i$ has local state $\sigma_i$
+and independent state transition function $\delta_i$
+(Definition~\ref{def:independent}). The sequencer issues a commitment
+$\Gamma(B)$ for bundle $B = (\tau_1, \tau_2)$ before either STF executes.
+Full formal definitions are in \S\ref{sec:thm1}.
+
+\paragraph{Preconfirmation.}
+A preconfirmation is a signed commitment by a validator or proposer to
+include a specific transaction in a future block, issued before
+execution~\cite{Drake2023-BasedPreconf}. We distinguish three commitment
+levels following~\cite{Drake2023-BasedPreconf}: (strongest) post-execution
+state root; (medium) execution state diffs; (weakest) transaction inclusion.
+The weakest level is A0/A1 only; the strongest approaches capability~(i)
+for single-chain L2. We show in \S\ref{sec:thm1} that extending even the
+strongest level to multi-rollup bundles requires a \emph{joint} success
+predicate covering both STFs.
+
+\paragraph{Determinism scope.}
+Theorem~\ref{thm:a2-necessary} applies to \emph{deterministic} protocols.
+Probabilistic guarantees (e.g., optimistic execution with fraud proofs) and
+cryptoeconomic guarantees (e.g., restaking bonds) are A4 mechanisms.
+Non-deterministic execution outcomes do not change the structural analysis:
+if the sequencer cannot predict whether both legs will succeed, it cannot
+provide capability~(i), and if it lacks state-revert authority, it cannot
+provide capability~(ii).
+
+\paragraph{Irreversibility.}
+The \emph{irreversibility point} $\pi_i(\tau_i)$ of transaction $\tau_i$
+on rollup $R_i$ is the first protocol-internal moment at which the effect
+of $\tau_i$ on $\sigma_i$ cannot be undone by any party within the
+protocol (Definition~\ref{def:irreversibility}). For optimistic rollups,
+this is typically after the fraud-proof window closes. For ZK rollups,
+this is after the validity proof is accepted on L1. For the purposes of
+the attack, we consider the rollup sequencer's internal commitment to the
+execution result as the relevant irreversibility boundary.
+
+\paragraph{Adversary classes.}
+We consider three adversary classes:
+\begin{itemize}
+  \item $\mathcal{A}_{\text{lazy}}$: a sequencer that is lazy with respect
+    to one bundle and exploits the commitment for option value.
+  \item $\mathcal{A}_{\text{ext}}$: an external party (e.g., MEV
+    searcher) who observes the sequencer's commitment and submits a
+    conflicting transaction to cause partial execution.
+  \item $\mathcal{A}_{\text{solver}}$: a cross-rollup solver who
+    submits independent fill transactions, assuming joint execution.
+\end{itemize}
+In the PEO attack (\S\ref{sec:peo}), $\mathcal{A}_{\text{lazy}}$ is
+the relevant class. In the PEFO attack (\S\ref{sec:pefo}),
+$\mathcal{A}_{\text{ext}}$ exploits the position of an honest
+$\mathcal{A}_{\text{solver}}$.
+
+\paragraph{Out of scope.}
+We do not consider: (i) attacks on the consensus protocol of the sequencer
+itself; (ii) L1 reorg attacks; (iii) data availability failures; (iv)
+validator key compromise. These are orthogonal to the sequencing-commitment
+gap we analyze.
+
+\paragraph{Evidence types.}
+Following standard security research convention, we use three evidence
+types: $\alpha$ (testbed or emulation-based), $\beta$ (historical
+data-based counterfactual), and primary source documentation (verbatim
+from official protocol documentation, verified via WebFetch or manual
+download by the authors).
