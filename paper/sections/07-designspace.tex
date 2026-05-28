@@ -1,0 +1,133 @@
+% Section 7 — Theorem 1 as a Design-Space Map (~0.9 pages, weight 8%)
+% Closing claim: every surveyed mitigation instantiates (i), (ii), or A4-only.
+%
+% REVIEW STATUS: Draft. Table rows to be cross-checked against §6 Obs 1 for
+% consistency. Espresso and Across rows may need update pending Task 2.3
+% (preconfer selection) and Task 2.1 (architecture analysis).
+
+\section{Theorem 1 as a Design-Space Map}
+\label{sec:designspace}
+
+Theorem~\ref{thm:a2-necessary} partitions the design space of cross-rollup
+sequencing mechanisms into three exhaustive classes: those providing capability
+(i), those providing capability (ii), and those providing only A4 guarantees.
+This section validates that every deployed or actively proposed mitigation
+falls into exactly one of these classes, confirming the theorem is non-vacuous
+and covers the actual design landscape.
+
+Table~\ref{tab:designspace} maps 12 deployed and proposed mechanisms across
+the full classification. Boundary cases — where the classification requires
+careful argument — are analyzed in Appendix~\ref{app:boundary}; we summarize
+the classification rationale here.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{Design-space map: every surveyed cross-rollup mechanism instantiates
+  Theorem~\ref{thm:a2-necessary} capability (i), (ii), (i)+(ii), or A4 only.
+  ``Closes A2'' indicates whether the mechanism, if correctly deployed,
+  provides Definition~\ref{def:a2} execution atomicity.
+  $\dagger$ Boundary case; see Appendix~\ref{app:boundary}.}
+\label{tab:designspace}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}llllp{5.2cm}@{}}
+\toprule
+Mechanism & Class & Closes A2? & Evidence type & Classification rationale \\
+\midrule
+%--- Capability (i): Pre-execution evidence ---
+ZK proof gating
+  & (i) & Yes & Cryptographic
+  & Commitment requires verifiable proof that both STFs succeed;
+    $\phi(B)=\mathsf{true}$ is the ZK proof. \\
+Eager simulation (sequencer executes)
+  & (i) & Yes (local)
+  & Operational
+  & Sequencer runs $\delta_1, \delta_2$ locally before committing;
+    not lazy by Definition~\ref{def:lazy}. \\
+Espresso HotShot execution attestation$^\dagger$
+  & (i) & Conditional
+  & Operational
+  & Attestation covers execution outcome only if both rollups are
+    within same HotShot committee and proof covers both STFs. \\
+\midrule
+%--- Capability (ii): Partial-effect prevention ---
+HTLC (hash time-lock contract)
+  & (ii) & Yes & Cryptographic
+  & Hashlock ensures $\tau_2$ can only execute if $\tau_1$'s preimage
+    is revealed; partial finality blocked at protocol level. \\
+Across Protocol (UMA + escrow)$^\dagger$
+  & (ii) & Yes (for fills)
+  & Contractual
+  & Filler escrow released only upon UMA oracle confirmation of both
+    legs; revert path preserved until confirmation. \\
+Astria application-level escrow
+  & (ii) & Yes (app-level)
+  & Contractual
+  & Application holds funds in escrow over sequencer bundle; reverts
+    all if either leg fails within the rollup timeout. \\
+UniswapX cross-chain (signed orders)$^\dagger$
+  & (ii)+A4 & Partial
+  & Contractual + economic
+  & Fill is protected by signed-order constraints (ii); residual
+    timing gap covered by filler economics (A4). \\
+\midrule
+%--- Hybrid (i)+(ii) ---
+Shutter Network (threshold encryption)$^\dagger$
+  & (i)+(ii) & Yes (honest threshold)
+  & Cryptographic
+  & Encrypted intent prevents selective exercise of commitment (i);
+    threshold decryption prevents partial reveal (ii). \\
+\midrule
+%--- A4 only: compensation, not prevention ---
+Bond / slashing (generic)
+  & A4 only & No & Economic
+  & Bond compensates for A2 failure; does not provide $\phi(B)$
+    (no (i)) and does not revert partial effects (no (ii)). \\
+EigenLayer restaking (AVS preconf)$^\dagger$
+  & A4 only & No & Economic
+  & Restaking extends slashing to additional stake; same execution
+    model as generic bond. See Appendix~\ref{app:boundary}. \\
+MEV-Boost relay attestation
+  & A4 only & No & Economic
+  & Relay attests to block header inclusion, not execution outcome;
+    no success predicate, no revert authority. \\
+mev-commit / Bolt preconfirmation$^\dagger$
+  & A4 only & No & Economic
+  & Signed preconf commits to inclusion; bond slashed on
+    violation. No STF execution in commitment path. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Completeness of the classification.}
+Every mechanism in Table~\ref{tab:designspace} falls into one of the three
+classes. The hybrid (i)+(ii) class (Shutter) is a special case where both
+capabilities are simultaneously provided; Theorem~\ref{thm:a2-necessary}
+requires \emph{at least one}, and the hybrid exceeds this requirement.
+
+\paragraph{A4-only mechanisms cannot be upgraded to A2.}
+A common design pattern is to combine multiple A4-only mechanisms (e.g.,
+EigenLayer restaking + relay attestation + larger bond) in the expectation
+that their combination approaches A2. This intuition is incorrect: the sum
+of A4 guarantees is still A4. None of the A4-only mechanisms in
+Table~\ref{tab:designspace} provides a success predicate or a revert
+authority; their combination does not create either capability. The design
+escape route is not to combine A4 mechanisms but to introduce capability (i)
+or (ii).
+
+\paragraph{Positive-finding candidates.}
+Three mechanisms in Table~\ref{tab:designspace} provide A2 or conditional A2:
+ZK proof gating, HTLC, and Across Protocol. These are the architectures that
+correctly instantiate Theorem~\ref{thm:a2-necessary} and should serve as
+templates for new designs seeking to close the A2 gap. The constraint for the
+candidate analysis in \S\ref{sec:pefo} is precisely that the target application
+does \emph{not} already instantiate these patterns (AX-4 filter in
+\S\ref{sec:candidate-selection}).
+
+\paragraph{Design implication.}
+An application targeting A2 atomicity has two viable paths: embed a ZK proof
+of joint execution outcome into the sequencer commitment (capability (i), high
+engineering cost, strong guarantee), or implement application-level escrow
+with revert authority (capability (ii), lower cost, requires rollup cooperation
+for the revert path). Hybrid approaches (Shutter) provide stronger guarantees
+at the cost of liveness dependency on the threshold committee.

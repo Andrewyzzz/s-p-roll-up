@@ -1,0 +1,229 @@
+% Appendix A — Theorem 1 Boundary Cases
+% Analyzes the six mechanisms marked † in Table 1 (§7 design-space map).
+% Each entry: (1) mechanism description, (2) why it is a boundary case,
+% (3) capability classification with conditions, (4) conditions under which
+% classification changes.
+%
+% REVIEW STATUS: Draft. Espresso and mev-commit entries depend on Task 2.3
+% (preconfer codebase evaluation) for accurate technical detail.
+
+\section{Theorem 1 Boundary Cases}
+\label{app:boundary}
+
+This appendix analyzes the six mechanisms in Table~\ref{tab:designspace}
+marked as boundary cases ($\dagger$). For each mechanism, we state the
+conditions under which the classification holds and the conditions under
+which it would change.
+
+%-----------------------------------------------------------------------
+\subsection{Espresso HotShot Execution Attestation}
+\label{app:espresso}
+
+\paragraph{Mechanism.}
+Espresso's HotShot consensus provides a shared finality layer for multiple
+rollups. In the execution attestation variant, the HotShot committee attests
+to the execution outcome of a batch before it is finalized.
+
+\paragraph{Why a boundary case.}
+The attestation is capability (i) if and only if it covers the execution
+outcomes of \emph{both} rollup STFs jointly. If the attestation covers only
+one rollup's execution (or covers each independently without a joint predicate),
+then $\phi(B) = \mathsf{true}$ for the attestation does not guarantee that
+both $\delta_1$ and $\delta_2$ succeed.
+
+\paragraph{Classification conditions.}
+\begin{itemize}
+  \item \textbf{Capability (i) holds} if: the HotShot attestation is a joint
+    predicate $\phi(\delta_1, \delta_2)$ that is true iff both STFs succeed,
+    and the attestation is issued before the commitment $\Gamma(B)$ is
+    externally observable.
+  \item \textbf{A4 only} if: the attestation covers each rollup independently
+    (two separate attestations), or the attestation is issued after $\Gamma(B)$
+    is already final (i.e., the attestation is a post-hoc proof, not a
+    pre-commitment predicate).
+\end{itemize}
+
+\paragraph{Current assessment.}
+Based on public Espresso documentation~\cite{espresso-docs}, HotShot provides
+finality per rollup batch, not a joint predicate over multi-rollup bundles.
+The \emph{shared} component is ordering, not execution outcome. We therefore
+classify Espresso as \emph{conditional} capability (i): the classification
+would change if a joint execution attestation mechanism were added.
+
+% TODO (Task 2.3): cross-check against current HotShot codebase.
+
+%-----------------------------------------------------------------------
+\subsection{Across Protocol (UMA Oracle + Escrow)}
+\label{app:across}
+
+\paragraph{Mechanism.}
+Across Protocol is an intent-based bridging protocol. A user posts an intent;
+a filler executes on the destination chain immediately; the origin-chain funds
+are released from escrow after UMA oracle confirmation. The UMA Optimistic
+Oracle validates the fill before releasing origin funds.
+
+\paragraph{Why a boundary case.}
+Across uses UMA, an optimistic oracle with a challenge period. During the
+challenge window, the filler's origin-chain payment is not yet final — the
+UMA oracle can dispute the fill. This is capability (ii): the ``irreversible
+effect'' on the origin chain (fund release) is prevented until confirmation.
+However, the destination-chain fill is immediately final (no escrow on the
+destination side). This asymmetry makes the classification non-trivial.
+
+\paragraph{Classification conditions.}
+\begin{itemize}
+  \item \textbf{Capability (ii) holds for the origin-side effect}: The fund
+    release on the origin chain is blocked until UMA confirmation. If the fill
+    is disputed, origin funds are not released — partial-effect prevention holds
+    for the origin leg.
+  \item \textbf{Destination leg is not protected}: The filler's execution on
+    the destination chain is immediately final. If UMA disputes the fill after
+    destination execution, the filler bears the loss (an A4 mechanism, not A2).
+  \item \textbf{Full A2 for users}: From the \emph{user's} perspective, funds
+    are either moved completely (both legs final) or the origin escrow is
+    returned. This is A2 for user funds.
+  \item \textbf{Not A2 for fillers}: The filler's capital is exposed during the
+    challenge window. A filler can be penalized even after executing correctly.
+    This is an A4 risk for the filler.
+\end{itemize}
+
+\paragraph{Classification.}
+Across provides capability (ii) for user-facing fund atomicity, with a residual
+A4 exposure for fillers during the UMA challenge window. In the context of
+\S\ref{sec:designspace}, we classify Across as capability (ii) for the bundle
+as a whole, noting the filler-side A4 residual. This is the correct
+classification for determining whether a PEFO attacker could exploit the
+application: the user's funds are A2-protected, so the application is not a
+valid PEFO target for user-fund extraction.
+
+%-----------------------------------------------------------------------
+\subsection{UniswapX Cross-Chain Signed Orders}
+\label{app:uniswapx}
+
+\paragraph{Mechanism.}
+UniswapX uses signed order structures where a user signs an order specifying
+input token, output token, and a deadline. A filler executes the order
+on-chain. For cross-chain variants, the order may span two chains.
+
+\paragraph{Why a boundary case.}
+The signed-order constraint provides a form of capability (ii): the filler
+cannot execute a partial order (they must provide the full output amount or
+the transaction reverts). However, the cross-chain synchronization still
+depends on filler economics (they fill on chain A, then claim on chain B),
+which is A4.
+
+\paragraph{Classification.}
+Capability (ii) for the fill atomicity guarantee (within a single chain, the
+order is atomic). A4 for the cross-chain claim timing. Combined classification:
+(ii)+A4. The cross-chain synchronization gap is covered by filler incentives,
+not by a protocol-level capability (i) or (ii) spanning both chains.
+
+%-----------------------------------------------------------------------
+\subsection{Shutter Network (Threshold Encryption)}
+\label{app:shutter}
+
+\paragraph{Mechanism.}
+Shutter uses threshold encryption: transactions are encrypted before being
+submitted to the sequencer. The decryption key is released only after the
+block is committed. This prevents frontrunning and selective exercise.
+
+\paragraph{Why a boundary case.}
+Shutter provides both (i) and (ii) simultaneously, which is stronger than
+Theorem~\ref{thm:a2-necessary} requires. The hybrid classification warrants
+explanation.
+
+\paragraph{Capability (i) analysis.}
+The sequencer commits to the \emph{encrypted} bundle $\text{Enc}(B)$ before
+seeing the plaintext transactions. This prevents the sequencer from selectively
+including or excluding transactions based on execution outcomes. Once the
+decryption key is released and the transactions are decrypted, both $\tau_1$
+and $\tau_2$ execute atomically in the committed ordering. The pre-execution
+predicate is: ``both transactions will execute as committed'' — which holds by
+construction because the sequencer cannot modify the committed order after
+decryption.
+
+\paragraph{Capability (ii) analysis.}
+The threshold decryption requirement prevents partial execution: if the
+threshold committee withholds decryption (e.g., due to liveness failure), both
+legs are delayed together — not selectively. An attacker cannot cause $\tau_1$
+to execute while preventing $\tau_2$.
+
+\paragraph{Liveness caveat.}
+Shutter's A2 guarantee is contingent on threshold committee liveness. If the
+committee fails to release the decryption key within the timeout, both legs
+fail together (preserving A2) but the protocol halts (a liveness failure). This
+is a standard property of threshold cryptography and does not affect the safety
+classification.
+
+\paragraph{Classification.} (i)+(ii), conditional on threshold committee liveness.
+
+%-----------------------------------------------------------------------
+\subsection{EigenLayer Restaking (AVS Preconfirmation)}
+\label{app:eigenlayer}
+
+\paragraph{Mechanism.}
+EigenLayer allows operators to restake ETH and use it as collateral for Active
+Validator Services (AVS). An AVS providing preconfirmations can slash restaked
+operators who violate commitment terms.
+
+\paragraph{Why a boundary case.}
+Restaking extends the bond mechanism to larger stake. The question is whether
+the larger stake creates a new capability (i) or (ii), or whether it is
+fundamentally still A4.
+
+\paragraph{Analysis.}
+Restaking increases the size of $B_{\max}$ in Theorem~\ref{thm:bond-insufficient}.
+It does not:
+\begin{itemize}
+  \item Provide a success predicate $\phi(B)$ (the operator cannot evaluate
+    $\delta_1, \delta_2$ before the commitment — they are still lazy by
+    Definition~\ref{def:lazy});
+  \item Provide revert authority over either rollup's state (slashing removes
+    stake from the operator, it does not revert execution on $R_1$ or $R_2$).
+\end{itemize}
+Therefore, restaking is A4 only. The bound in Theorem~\ref{thm:bond-insufficient}
+applies: for any finite $B_{\max}$ (however large), there exists an option value
+$V > B_{\max}$ with nonzero probability, making violation profitable.
+
+\paragraph{Classification.} A4 only, regardless of stake size.
+
+%-----------------------------------------------------------------------
+\subsection{mev-commit / Bolt Preconfirmation}
+\label{app:mevcommit}
+
+\paragraph{Mechanism.}
+mev-commit (Primev) and Bolt are preconfirmation protocols where validators
+(or searchers acting as preconf providers) issue signed commitments to include
+specific transactions in a future block. The commitment is backed by a bond;
+failure to include results in slashing.
+
+\paragraph{Why a boundary case.}
+mev-commit and Bolt provide stronger guarantees than a simple bond: the signed
+preconfirmation is a named commitment to a specific transaction, verifiable
+on-chain. The question is whether the named commitment creates capability (i)
+or (ii).
+
+\paragraph{Analysis.}
+A mev-commit preconfirmation commits to \emph{inclusion} of a transaction, not
+to the \emph{execution outcome}. The preconf provider signs ``transaction $\tau$
+will be included in block $B$''; they do not sign ``$\delta(\sigma, \tau)$ will
+succeed.'' Specifically:
+\begin{itemize}
+  \item \textbf{No capability (i)}: The preconf provider does not evaluate the
+    STF before issuing the commitment. The signed preconf is not a success
+    predicate $\phi(\tau)$.
+  \item \textbf{No capability (ii)}: The preconf provider does not have authority
+    to revert the rollup state if execution fails after inclusion. Slashing
+    punishes the preconf provider, but $\pi_1(\tau_1)$ (the irreversibility point)
+    is determined by the rollup protocol, not the preconf provider.
+\end{itemize}
+
+\paragraph{Bond-slashing model.}
+The mev-commit bond is slashed if the committed transaction is not included.
+This is a compensation mechanism for inclusion failure, not an execution
+atomicity guarantee.
+
+% TODO (Task 2.3): cross-check against current mev-commit and Bolt codebase
+% for any features added after documentation was written.
+
+\paragraph{Classification.} A4 only.
