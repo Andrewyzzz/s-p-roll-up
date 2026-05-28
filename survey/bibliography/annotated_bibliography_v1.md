@@ -1,7 +1,8 @@
 # Annotated Bibliography: Preconfirmation and Shared Sequencing Literature
 
 **Task:** 1.5 — ethresear.ch preconfirmation threads systematic read
-**Status:** v1.0 — initial pass from live source reading (2026-05-28)
+**Status:** v2.0 — updated with mev-commit conflation evidence + Astria
+transaction flow verbatim quotes (2026-05-28)
 **Scope:** Primary sources read via WebFetch; manually verified URLs.
 **Note:** ethresear.ch URLs frequently 404 (posts moved/deleted); URL list
 includes both confirmed-live and known-dead entries flagged accordingly.
@@ -339,6 +340,134 @@ methods.
 - Radius encrypted sequencing documentation
 - CCS 2025 "Denial of Sequencing" paper (not yet available)
 - arXiv 2410.11552 (need manual lookup)
+
+---
+
+---
+
+## Category 3 (continued): mev-commit — A2/A4 Conflation Evidence
+
+### [MevCommit-Marketing] — mev-commit: "Atomicity and Execution Guarantees"
+**URL:** https://primev.xyz/ ✅ LIVE
+**Author:** Primev team
+**Date:** 2024–2025 (active)
+**Venue:** Protocol marketing page + documentation
+
+**Summary:** mev-commit is a preconfirmation protocol where validators/builders
+issue signed commitments to include transactions in future blocks. The
+commitment is backed by bond; failure to include results in slashing. The
+marketing page claims "Atomicity and Execution Guarantees."
+
+**Atomicity claims (marketing):**
+> "Atomicity and Execution Guarantees" — primev.xyz homepage
+
+**Technical reality (from bid structure docs, docs.primev.xyz):**
+The bid commitment structure contains `revertingTxHashes`:
+> "Array of transaction hashes as strings that can revert"
+— explicitly acknowledging that committed transactions can revert without
+triggering a violation.
+
+Slashing triggers are **positioning/inclusion** failures:
+> "if the transaction is not in the top 10%, the provider will be slashed"
+— not execution outcome failures.
+
+Technical description of the commitment:
+> "A binding commitment from a block builder to include a transaction"
+— docs.primev.xyz
+
+**Atomicity classification:**
+- A2 claim (execution atomicity): **Marketing says yes. Technical docs say no.**
+  The `revertingTxHashes` field is definitive: execution failures are explicitly
+  non-violating.
+- A4 claim (economic atomicity): **Yes** — bond slashing on inclusion failure.
+- Conflated/ambiguous: **YES — clear example of A2/A4 conflation.** The
+  marketing language ("Atomicity and Execution Guarantees") claims A2, but
+  the actual mechanism (inclusion commitment + bond) is A4.
+
+**Paper significance:** This is the strongest live example of the conflation
+the paper addresses. The marketing-vs-technical-spec gap is direct evidence
+that practitioners conflate A2 and A4. Recommend quoting in §1 (Introduction)
+as a motivating instance.
+
+**Quotes for paper:**
+> "Atomicity and Execution Guarantees" — primev.xyz (marketing claim)
+> "Array of transaction hashes as strings that can revert" — docs.primev.xyz
+> (technical bid structure, showing execution reverts are non-violating)
+
+---
+
+### [Astria-TxFlow] — Astria Transaction Flow Documentation
+**URL:** https://docs.astria.org/overview/transaction-flow ✅ LIVE
+**Author:** Astria team
+**Date:** 2024–2025 (living document)
+**Venue:** Official documentation
+
+**Summary:** Documents the full write path for transactions submitted to
+Astria-sequenced rollups. Introduces the "meta block" concept.
+
+**Key technical facts (verbatim):**
+> "the proposer decides on block transactions and creates commitments to
+> rollup data for each rollup_id"
+
+> "provides a guarantee on the ordering of transactions in a block, but it
+> doesn't execute the state transition function (STF) of any given rollup"
+
+> "a single meta block consisting of transactions submitted to its mempool
+> by one or more rollups"
+
+**Commitment timing:**
+- Soft commitment: ~1-second Astria block times
+- Firm commitment: ~11-second Celestia DA finality
+- Execution: **after** the Conductor receives the ordered block
+
+**Cross-rollup implication:**
+The "single meta block" that covers transactions from "one or more rollups"
+is the PEFO bundle `B = (τ₁, τ₂)`. An attacker's transactions to Rollup A
+and Rollup B co-occur in the same meta block commitment, which is issued
+*before* execution on either rollup. This is the exact lazy-sequencer free
+option structure described in §4.2.
+
+**Atomicity claims:**
+- A2 claim: **None.** No atomicity language.
+- A4 claim: **None.**
+- Critical absence: The meta block commitment makes no execution atomicity
+  guarantee — it only commits to ordering. This is consistent with TF-3 PASS.
+
+**Paper sections:**
+- §2.3 (deployed system mapping): Astria = A0/A1 (ordering + inclusion, no A2).
+- §4.1 (PEFO structural conditions): Meta block = the shared commitment Γ(B).
+  TF-1 confirmed (multi-rollup coverage), TF-3 confirmed (lazy sequencer).
+- Verbatim quotes usable directly in §4.2 structural condition exposition.
+
+---
+
+### [Drake2023-ExecTickets] — Execution Tickets
+**URL:** https://ethresear.ch/t/execution-tickets/17944 ✅ LIVE
+**Authors:** Justin Drake, Mike Neuder (scribe), Francesco Montoya, Barnabé Monnot
+**Date:** December 23, 2023
+**Venue:** ethresear.ch
+
+**Summary:** Proposes "execution tickets" as vouchers granting future L1
+block proposal rights, separating beacon block validation from execution
+block production. Aims to firewall validators from MEV centralization.
+
+**Commitment type:**
+- Beacon proposers create "inclusion lists" specifying transactions that
+  "must be present in the execution block" — this is a **pre-execution
+  constraint**, not a post-execution proof.
+- Execution block proposer posts collateral "as an assurance that they will
+  produce a single execution block during the execution round."
+
+**Atomicity claims:**
+- A2 claim: **No.** Design provides inclusion constraints, not execution outcome
+  guarantees.
+- A4 claim: **Implicit** — collateral (bond) for execution block production.
+- Classification: A4 only (bond mechanism) for the execution guarantee;
+  inclusion list is a sequencing constraint, not a success predicate.
+
+**Paper sections:**
+- §6 Observation 1 table: execution tickets fall in the A4 category.
+- §10 (related work): Representative of the L1-preconf design space.
 
 ---
 
