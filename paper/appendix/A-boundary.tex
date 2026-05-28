@@ -188,14 +188,25 @@ $V > B_{\max}$ with nonzero probability, making violation profitable.
 \paragraph{Classification.} A4 only, regardless of stake size.
 
 %-----------------------------------------------------------------------
-\subsection{mev-commit / Bolt Preconfirmation}
+\subsection{mev-commit Preconfirmation}
 \label{app:mevcommit}
 
+\paragraph{Note on Bolt.}
+Bolt (Chainbound) was an alternative preconfirmation protocol based on the
+MEV-Boost stack with Kurtosis-based devnet. The repository was archived on
+February 23, 2026 (v0.4.0-alpha, last release January 2025) and is no longer
+maintained. We therefore use mev-commit as the sole reference implementation
+for the PEO attack (\S\ref{sec:peo}).
+
 \paragraph{Mechanism.}
-mev-commit (Primev) and Bolt are preconfirmation protocols where validators
-(or searchers acting as preconf providers) issue signed commitments to include
-specific transactions in a future block. The commitment is backed by a bond;
-failure to include results in slashing.
+mev-commit (Primev) is a production preconfirmation protocol where providers
+issue signed commitments to include specific transactions in a future block.
+The commitment is backed by a per-bid slash amount; failure to include
+results in slashing. The smart contract architecture comprises:
+\texttt{PreconfManager.sol} (commitment storage and reveal),
+\texttt{ProviderRegistry.sol} (stake management and slash execution),
+\texttt{BidderRegistry.sol} (bidder deposit management), and
+\texttt{Oracle.sol} (violation detection and slash initiation).
 
 \paragraph{Why a boundary case.}
 mev-commit and Bolt provide stronger guarantees than a simple bond: the signed
@@ -218,12 +229,23 @@ succeed.'' Specifically:
     is determined by the rollup protocol, not the preconf provider.
 \end{itemize}
 
-\paragraph{Bond-slashing model.}
-The mev-commit bond is slashed if the committed transaction is not included.
-This is a compensation mechanism for inclusion failure, not an execution
-atomicity guarantee.
+\paragraph{Commitment structure (code-level evidence, Task 2.3).}
+The \texttt{OpenedCommitment} struct in \texttt{PreconfManager.sol} contains:
+\texttt{txnHash} (committed transaction), \texttt{revertingTxHashes}
+(\emph{``array of transaction hashes that can revert''} — explicitly permitted
+to fail without slashing), \texttt{slashAmt} (per-bid penalty transferred to
+bidder on violation), and \texttt{blockNumber} (target L1 block).
+The \texttt{revertingTxHashes} field confirms this is an inclusion commitment,
+not an execution outcome commitment. Slashing is triggered by \texttt{Oracle.sol}
+calling \texttt{initiateSlash()}, which transfers \texttt{slashAmt} to the
+bidder post-hoc — after the block is finalized. This is compensatory, not
+preventive.
 
-% TODO (Task 2.3): cross-check against current mev-commit and Bolt codebase
-% for any features added after documentation was written.
+\textbf{Note on Bolt:} Bolt (Chainbound) was archived February 23, 2026
+(v0.4.0-alpha). mev-commit is the sole production preconfirmation reference
+implementation and is used for the PEO attack in \S\ref{sec:peo}.
 
-\paragraph{Classification.} A4 only.
+\paragraph{Classification.} A4 only. The PEO attack (\S\ref{sec:peo})
+exploits this gap: provider holds the free option to violate when
+$V > \texttt{slashAmt} \times 1.05$, where $V$ is the value of the
+alternative block composition.
