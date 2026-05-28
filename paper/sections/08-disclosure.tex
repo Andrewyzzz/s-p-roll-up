@@ -1,0 +1,177 @@
+% Section 8 — Responsible Disclosure (~0.4 pages)
+%
+% REVIEW STATUS: First complete draft (2026-05-28).
+% Vendor response table: placeholders — to be filled at Week 14–23 (Task 9.x).
+% Actual D1/D2 dates: to be filled after initial outreach (Task 3.3, Week 6).
+% OTS proof hashes: to be filled after stamp_attempt.sh runs (Task 3.4).
+%
+% NOTE: §4.4 [DEPLOYED_APP] disclosure (D3) is not applicable in this paper's
+% final form. The disclosure covers D1 (shared sequencer vendors) and D2
+% (preconfirmation protocol vendors) only.
+
+\section{Responsible Disclosure}
+\label{sec:disclosure}
+
+\subsection{Disclosure Scope}
+\label{sec:disclosure-scope}
+
+We identified two vendor categories whose deployed systems are directly
+affected by the structural findings in this paper, and disclosed to each
+prior to submission.
+
+\paragraph{$D_1$ — Shared sequencer vendors.}
+The PEFO structural conditions (C1/C2/C3, \S\ref{sec:pefo-structural}) are
+confirmed on three deployed shared sequencer platforms by primary source
+documentation. We disclosed to:
+
+\begin{itemize}
+  \item \textbf{Astria} — Lazy sequencer confirmed verbatim:
+    \emph{``provides a guarantee on the ordering of transactions in a block,
+    but it doesn't execute the STF of any given rollup''}~\cite{Astria-TxFlow}.
+    The Astria README's claim of \emph{``atomic cross-rollup
+    composability''}~\cite{Astria-README} directly instantiates the
+    A2/A4 conflation this paper analyzes.
+  \item \textbf{Espresso Systems} — Lazy sequencer confirmed verbatim:
+    \emph{``L2 validators receive blocks and execute the state transition
+    functions for their rollups''} (after HotShot confirmation)~\cite{Espresso-Architecture}.
+  \item \textbf{Radius} — Sequencer model under review; disclosed as
+    precautionary measure pending full architectural analysis.
+\end{itemize}
+
+The $D_1$ disclosure communicates that: (a) their platforms satisfy the
+PEFO structural conditions for any cross-rollup intent-filling application
+deployed on them; (b) the A2 gap cannot be closed by bond-based mechanisms
+alone (Theorem~\ref{thm:a2-necessary}); and (c) we demonstrate the gap
+on an Astria devnet testbed (\S\ref{sec:pefo}).
+
+\paragraph{$D_2$ — Preconfirmation protocol vendors.}
+The PEO attack (\S\ref{sec:peo}) is demonstrated on a faithful reimplementation
+of the mev-commit preconfirmation protocol~\cite{MevCommit-Docs}. We disclosed to:
+
+\begin{itemize}
+  \item \textbf{Primev (mev-commit)} — PEO demonstrated via Foundry PoC;
+    \texttt{OpenedCommitment.revertingTxHashes} field confirms inclusion-only
+    commitment; $\Delta\Pi = \max(\delta - s \cdot 1.05, 0)$ payoff model
+    with concrete $B = 1$ ETH, $s = 0.05$ ETH, $\delta = 0.12$ ETH worked example.
+  \item \textbf{Chainbound (Bolt)} — Bolt was archived in February 2026
+    (v0.4.0-alpha). We notified Chainbound as a precautionary measure,
+    noting that the PEO analysis applies to any inclusion-based bonded
+    preconfirmation system.
+\end{itemize}
+
+\subsection{Disclosure Rationale}
+\label{sec:disclosure-rationale}
+
+We follow responsible disclosure norms for system security
+research~\cite{iso29147}:
+
+\begin{enumerate}
+  \item \textbf{Structural, not exploit-specific.} The PEO and PEFO
+    findings are structural properties of the commitment model, not
+    vulnerabilities in specific contract implementations. The disclosures
+    communicate the structural condition so vendors can assess whether
+    their applications are affected.
+  \item \textbf{Pre-publication notification.} All disclosures were sent
+    at least 90 days before the submission deadline, providing vendors
+    opportunity to respond, patch, or coordinate public statements.
+  \item \textbf{Testbed-only PoC.} All proofs-of-concept use devnet
+    infrastructure with no real value at risk. No mainnet funds were accessed,
+    transferred, or put at risk at any point.
+  \item \textbf{No weaponization.} The PoC scripts in Appendix~\ref{app:poc}
+    require local deployment of test contracts. They are not usable against
+    live systems without significant adaptation, and we have not provided
+    such adaptation.
+\end{enumerate}
+
+\subsection{Vendor Responses}
+\label{sec:disclosure-responses}
+
+Table~\ref{tab:vendor-responses} summarizes the disclosure timeline and
+vendor responses as of the submission date.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Disclosure timeline and vendor responses. $D_1$/$D_2$ = date of
+  initial outreach; ``Resp.'' = date of substantive response (if any);
+  ``Outcome'' = vendor's characterization of the finding.
+  OTS proofs in \texttt{disclosure/attempts/}.}
+\label{tab:vendor-responses}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Vendor & Category & $D_x$ & Resp. & Outcome \\
+\midrule
+Astria       & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Espresso     & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Radius       & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Primev       & $D_2$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Chainbound   & $D_2$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent Vendor responses are reproduced (with vendor permission) in
+Appendix~\ref{app:disclosure}. All outreach attempts are timestamped
+per the scheme described in \S\ref{sec:disclosure-timestamps}.
+
+\subsection{Timestamping and Verifiability}
+\label{sec:disclosure-timestamps}
+
+All disclosure attempts are timestamped using a two-layer scheme to
+provide independent verifiable evidence of timing:
+
+\begin{enumerate}
+  \item \textbf{Per-attempt OpenTimestamps proof.} Each outreach message
+    is hashed (SHA-256) and submitted to the OpenTimestamps calendar
+    network~\cite{opentimestamps} immediately after sending. The resulting
+    \texttt{.ots} proof file anchors the content hash to a Bitcoin block,
+    providing a commitment that the message existed at or before the block
+    timestamp. Proof files are stored in
+    \texttt{disclosure/attempts/<date>\_<vendor>\_<channel>/content.txt.ots}.
+
+  \item \textbf{Git commit anchor.} Each outreach is committed to the
+    public artifact repository~\cite{artifact-repo} immediately after
+    sending, creating a second independent timestamp via the GitHub
+    commit timestamp. The commit hash for each disclosure attempt is
+    recorded in \texttt{disclosure/disclosure\_commitments.json}.
+\end{enumerate}
+
+\noindent The combination of (1) and (2) allows independent verification that
+the disclosure content was fixed before the submission date: the OTS proof
+is anchored in Bitcoin (tamper-evident, cannot be backdated), and the git
+commit history is publicly auditable.
+
+\paragraph{Verification.}
+\begin{verbatim}
+# Verify a specific disclosure attempt:
+ots verify disclosure/attempts/<attempt>/content.txt.ots
+# → Got 1 attestation(s) from calendar...
+# → Bitcoin block <N> attests data existed before <timestamp>
+
+# Check SHA-256 integrity:
+shasum -a 256 disclosure/attempts/<attempt>/content.txt
+# → matches content.txt.ots proof
+\end{verbatim}
+
+The aggregated disclosure record is in
+\texttt{disclosure/disclosure\_commitments.json}, containing per-attempt
+entries with fields: \texttt{vendor}, \texttt{date}, \texttt{channel},
+\texttt{git\_commit\_hash}, \texttt{opentimestamps\_proof},
+\texttt{content\_sha256}.
+
+\subsection{Fallback Policy}
+\label{sec:disclosure-fallback}
+
+This paper will be published regardless of vendor response. Our disclosure
+is a notification, not a permission request. If a vendor provides a
+substantive technical response before submission, we incorporate it in
+\S\ref{sec:disclosure-responses} with their permission. If a vendor
+requests additional time beyond the 90-day window, we evaluate the request
+on a case-by-case basis.
+
+The structural findings — Theorems~\ref{thm:a2-necessary}
+and~\ref{thm:bond-insufficient} — are mathematical results that are not
+subject to vendor dispute on empirical grounds; they hold for any system
+satisfying the definitional preconditions. Vendor responses may provide
+context about operational mitigations, design rationale, or planned changes,
+which we would document accurately in the vendor response table.
