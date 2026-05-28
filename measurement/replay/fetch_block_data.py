@@ -42,12 +42,12 @@ CHAINS = {
         "chain_id":   10,
     },
     "base": {
-        "rpc":        "https://base-rpc.publicnode.com",
+        "rpc":        "https://1rpc.io/base",
         "block_time": 2.0,
         "chain_id":   8453,
     },
     "arbitrum": {
-        "rpc":        "https://arbitrum-one-rpc.publicnode.com",
+        "rpc":        "https://arb-pokt.nodies.app",
         "block_time": 0.25,   # ~250ms Nitro blocks
         "chain_id":   42161,
     },
