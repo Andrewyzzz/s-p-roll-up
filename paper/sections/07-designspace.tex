@@ -46,11 +46,17 @@ Eager simulation (sequencer executes)
   & Operational
   & Sequencer runs $\delta_1, \delta_2$ locally before committing;
     not lazy by Definition~\ref{def:lazy}. \\
-Espresso HotShot execution attestation$^\dagger$
-  & (i) & Conditional
-  & Operational
-  & Attestation covers execution outcome only if both rollups are
-    within same HotShot committee and proof covers both STFs. \\
+Espresso HotShot (confirmation layer)$^\dagger$
+  & A0/A1 & No (lazy)
+  & Documentation
+  & \emph{``L2 validators receive blocks and execute the STFs for their
+    rollups''} after HotShot confirmation~\cite{Espresso-Architecture}.
+    Commits to ordering; no execution outcome in commitment. \\
+Espresso + Hyperlane (Presto pattern)
+  & (ii) & Yes (relay)
+  & Contractual + code
+  & \texttt{onlyMailbox} modifier on destination: destination executes
+    only after Hyperlane relay delivers source event~\cite{Espresso-Presto}. \\
 \midrule
 %--- Capability (ii): Partial-effect prevention ---
 HTLC (hash time-lock contract)
@@ -72,6 +78,12 @@ UniswapX cross-chain (signed orders)$^\dagger$
   & Contractual + economic
   & Fill is protected by signed-order constraints (ii); residual
     timing gap covered by filler economics (A4). \\
+t3rn (executor + proof relay)
+  & (ii) & Yes (rollback)
+  & Contractual + cryptographic
+  & Executors submit proofs to settlement layer; protocol rolls back
+    all legs on any failure. \emph{``No partial outcomes, no stranded
+    assets, just a clean reset.''}~\cite{t3rn-docs} \\
 \midrule
 %--- Hybrid (i)+(ii) ---
 Shutter Network (threshold encryption)$^\dagger$
