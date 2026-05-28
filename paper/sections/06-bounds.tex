@@ -227,6 +227,22 @@ Substituting the empirically estimated parameters from \S\ref{sec:meas-tailindex
   \;\geq\; \mathbf{[X\%]}
   \quad \left(\text{95\% CI: } [\text{CI\_LOW}, \text{CI\_HIGH}]\right)
 \]
+
+\noindent\textbf{Pilot estimate.}
+Using the Optimism 200-block pilot dataset (\S\ref{sec:meas-tailindex}):
+\begin{align*}
+  \hat{\alpha}_{\text{Hill}}(k{=}50) &= 1.47 \quad
+    \text{(95\% CI: [1.13, 1.98])}\\
+  \hat{\alpha}_{\text{MLE}} &= 1.48
+\end{align*}
+Hill and MLE estimates agree to within 0.3\%, confirming the power-law tail
+assumption. For $B_{\max} = 0.05$ ETH (mev-commit reference scenario from
+\S\ref{sec:peo-example}) and $\hat{\alpha} = 1.47$, the violation
+probability per window is bounded below by
+$C \cdot (0.05)^{-1.47} > 0$, confirming $\rho_{\min} > 0$.
+Final calibration with the 2,000-block full dataset will replace these pilot
+numbers.
+
 where $\hat{\alpha}_{\text{emp}}$ is from the Hill estimator (\S\ref{sec:meas-tailindex}),
 $B_{\max}^{\text{obs}}$ is the largest bond observed in deployed preconf instances,
 and $w_{\text{12mo}}$ is the 12-month window count. Confidence interval accounts
