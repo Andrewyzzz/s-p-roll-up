@@ -234,7 +234,7 @@ def fetch_chain(chain_name, num_samples=5000, output_dir=None):
     print(f"\nFetched {len(results)} blocks in {elapsed/60:.1f} min "
           f"({errors} errors)")
 
-    # Save raw data
+    # Save raw data (incremental: write after each successful batch)
     if output_dir:
         out_dir = Path(output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
