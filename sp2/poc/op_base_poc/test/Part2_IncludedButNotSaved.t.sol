@@ -160,7 +160,11 @@ contract Part2_IncludedButNotSavedTest is Test {
     uint256 hfAtT0;
     uint256 hfAfterDrop;
     uint256 borrowedUSDC;
-    uint256 adversaryWETHGained;
+    // Economic precision (issue E):
+    // adversaryWETHSeized  = gross collateral taken (victim's loss)
+    // adversaryNetProfit   = seized - debt_repaid_in_WETH_equivalent (= bonus portion)
+    uint256 adversaryWETHSeized;
+    uint256 adversaryNetProfitUSD;
 
     function setUp() public {
         oracle = IAaveOracle(AAVE_ORACLE);
@@ -234,72 +238,121 @@ contract Part2_IncludedButNotSavedTest is Test {
         console.log("Deposit will land at L2 block HEAD when window expires.");
 
         // ════════════════════════════════════════════════════════════════════
-        // T=0..12h: Adversarial sequencing window
-        // Adversary uses normal L2 blocks (victim's rescue excluded from all)
+        // T=0..6h: First half of adversarial window — price drops mid-window
+        //
+        // FIX (issue C): Liquidation now at T=6h, strictly BEFORE the earliest
+        // possible rescue landing at T=12h. This makes "too late" watertight:
+        // the rescue tx was NOT yet available to land when damage was done.
         // ════════════════════════════════════════════════════════════════════
-        console.log("\n--- T=0..12h: Adversarial sequencing window ---");
-        vm.warp(block.timestamp + SEQUENCING_WINDOW);
-        vm.roll(block.number + SEQUENCING_WINDOW / BASE_BLOCK_TIME);
-        console.log("Simulated: +12h, victim's rescue tx censored throughout.");
+        console.log("\n--- T=0..6h: Mid-window price drop + liquidation ---");
+        uint256 halfWindow = SEQUENCING_WINDOW / 2; // 6 hours
+        vm.warp(block.timestamp + halfWindow);
+        vm.roll(block.number + halfWindow / BASE_BLOCK_TIME);
+        console.log("T=+6h: victim rescue still excluded (window not expired).");
 
-        // Real market movement: WETH drops 20% — modeled via AaveOracle mock
-        // NOT oracle manipulation: represents normal price movement during 12h
-        // that victim cannot respond to because sequencer censors their rescue.
+        // WETH drops 20% mid-window — models real market movement
+        // NOT oracle manipulation: price fell while victim's rescue was censored.
+        // Victim would have responded (repaid) immediately IF sequencer were honest.
         wethPriceAtAttack = wethPriceAtT0 * 80 / 100; // -20%
         _mockWETHPrice(wethPriceAtAttack);
-        console.log("WETH -20%:", wethPriceAtT0, "->", wethPriceAtAttack);
+        console.log("WETH -20% at T=6h:", wethPriceAtT0, "->", wethPriceAtAttack);
 
         hfAfterDrop = lending.healthFactor(victim);
-        console.log("Victim HF after drop:", hfAfterDrop);
+        console.log("Victim HF at T=6h:", hfAfterDrop);
         assertLt(hfAfterDrop, 1e18, "Price drop must make victim liquidatable");
 
-        // Adversary liquidates victim in a normal L2 block (during the window)
-        uint256 debtToCover    = borrowedUSDC / 2;
-        uint256 advWETHBefore  = lending.collateralWETH(adversary);
+        // Adversary liquidates victim at T=6h — STRICTLY before T=12h rescue
+        uint256 debtToCover   = borrowedUSDC / 2;
+        uint256 advWETHBefore = lending.collateralWETH(adversary);
 
         vm.prank(adversary);
         lending.liquidate(victim, debtToCover);
 
-        adversaryWETHGained = lending.collateralWETH(adversary) - advWETHBefore;
-        console.log("\nAdversary liquidated victim (during 12h window).");
-        console.log("  WETH seized (wei):", adversaryWETHGained);
-        assertGt(adversaryWETHGained, 0, "Adversary must profit");
+        adversaryWETHSeized = lending.collateralWETH(adversary) - advWETHBefore;
+
+        // Economic precision (issue E):
+        // Victim loses: adversaryWETHSeized (collateral seized at discount)
+        // Adversary pays: debtToCover USDC to repay victim's debt
+        // Adversary gains: adversaryWETHSeized * attackPrice - debtToCover * $1
+        // Net profit = bonus portion = seized * bonus_rate = seized * 5%
+        // (because seized = debt_repaid / price * (1 + bonus))
+        uint256 seizedValueUSD_6dec = adversaryWETHSeized * wethPriceAtAttack / 1e8 / 1e12;
+        uint256 debtRepaidUSD_6dec  = debtToCover; // USDC = USD 1:1
+        adversaryNetProfitUSD = seizedValueUSD_6dec > debtRepaidUSD_6dec
+            ? seizedValueUSD_6dec - debtRepaidUSD_6dec : 0;
+
+        console.log("\nAdversary liquidated victim at T=6h (mid-window).");
+        console.log("  Collateral seized (victim loss, wei):", adversaryWETHSeized);
+        console.log("  Debt repaid by adversary (USDC):", debtToCover / 1e6);
+        console.log("  Adversary net profit (USD, 6dec):", adversaryNetProfitUSD / 1e6);
+        assertGt(adversaryWETHSeized,   0, "Adversary must seize collateral");
+        assertGt(adversaryNetProfitUSD, 0, "Adversary net profit must be positive");
 
         // ════════════════════════════════════════════════════════════════════
-        // T=12h+: Victim's force-included rescue lands at L2 block HEAD
-        // Per OP Stack derivation: deposit first in its derived block.
-        // Sequencer cannot front-run in THIS block. But damage is done.
+        // T=6h..12h: Second half of window — nothing the victim can do
         // ════════════════════════════════════════════════════════════════════
-        console.log("\n--- T=12h+: Rescue tx lands at L2 block head ---");
+        vm.warp(block.timestamp + halfWindow);
+        vm.roll(block.number + halfWindow / BASE_BLOCK_TIME);
+        console.log("\nT=+12h: Sequencing window expires.");
+
+        // ════════════════════════════════════════════════════════════════════
+        // T=12h+: Victim's force-included rescue LANDS at L2 block HEAD
+        //
+        // Per OP Stack derivation: deposit is placed first in its derived block.
+        // Sequencer could NOT front-run it in THIS block.
+        // But the adversary acted at T=6h — in PRECEDING blocks.
+        //
+        // Issue D (deposit funding): the victim's rescue carries USDC that was
+        // pre-positioned on L2 before censorship began. In the paper we note:
+        // a more robust rescue is ETH top-up via deposit._value -> WETHGateway
+        // (self-funding, requires no L2 pre-funds). Current test models the
+        // simpler repay scenario where victim had funds on L2.
+        // ════════════════════════════════════════════════════════════════════
+        console.log("\n--- T=12h+: Force-included rescue lands at L2 block HEAD ---");
+        console.log("Deposit position: BLOCK HEAD (no same-block front-running).");
+        console.log("But adversary acted at T=6h in preceding blocks. Damage done.");
+
+        // Victim had USDC pre-positioned on L2 before censorship began
         deal(USDC, victim, borrowedUSDC);
         vm.startPrank(victim);
         usdc.approve(address(lending), type(uint256).max);
         lending.repay(borrowedUSDC);
         vm.stopPrank();
-        console.log("Victim repay() ran (force-included). Collateral already seized.");
+        console.log("Victim repay() ran (force-included tx). Collateral already seized.");
 
         // Results
+        uint256 victimCollateralRemaining = lending.collateralWETH(victim);
+        uint256 victimCollateralLost      = 5 ether > victimCollateralRemaining
+            ? 5 ether - victimCollateralRemaining : 0;
+
         console.log("\n==========================================");
         console.log("RESULTS");
         console.log("==========================================");
-        console.log("Force-inclusion:             SUCCESS");
-        console.log("Victim liquidated in window: YES");
-        console.log("WETH price at T=0  :", wethPriceAtT0);
-        console.log("WETH price at T=12h:", wethPriceAtAttack, "(-20%)");
-        console.log("Victim HF at T=0   :", hfAtT0);
-        console.log("Victim HF at T=12h :", hfAfterDrop);
-        console.log("Adversary WETH (wei):", adversaryWETHGained);
+        console.log("Force-inclusion:               SUCCESS");
+        console.log("Victim liquidated (T=6h):      YES (before rescue at T=12h)");
+        console.log("------------------------------------------");
+        console.log("WETH price at T=0   :", wethPriceAtT0);
+        console.log("WETH price at T=6h  :", wethPriceAtAttack, "(-20%)");
+        console.log("Victim HF at T=0    :", hfAtT0);
+        console.log("Victim HF at T=6h   :", hfAfterDrop);
+        console.log("------------------------------------------");
+        console.log("Victim: collateral seized (wei):", adversaryWETHSeized);
+        console.log("Victim: collateral remaining   :", victimCollateralRemaining);
+        console.log("Adversary: net profit (USD)    :", adversaryNetProfitUSD / 1e6);
+        console.log("(Net profit = liquidation bonus = 5% of seized value)");
+        console.log("------------------------------------------");
         console.log("AaveOracle:  REAL (Base fork)");
         console.log("Chainlink:   REAL (discovered at", wethFeed, ")");
-        console.log("Pool params: REAL (LT=83%, Bonus=5%, verified on-chain)");
+        console.log("Pool params: REAL (LT=83%, Bonus=5%, cast-verified on-chain)");
         console.log("==========================================");
         console.log("[PASS] INCLUDED BUT NOT SAVED");
         console.log("==========================================");
 
         // Core assertions
-        assertGt(hfAtT0,          1e18, "Victim healthy at T=0 (could rescue with honest seq)");
-        assertLt(hfAfterDrop,     1e18, "Victim liquidatable after 12h window price drop");
-        assertGt(adversaryWETHGained, 0, "Adversary profits from liquidation");
+        assertGt(hfAtT0,          1e18, "Victim healthy at T=0");
+        assertLt(hfAfterDrop,     1e18, "Victim liquidatable at T=6h");
+        assertGt(adversaryWETHSeized,   0, "Adversary seizes collateral");
+        assertGt(adversaryNetProfitUSD, 0, "Adversary earns liquidation bonus");
     }
 
     // ────────────────────────────────────────────────────────────────────────
