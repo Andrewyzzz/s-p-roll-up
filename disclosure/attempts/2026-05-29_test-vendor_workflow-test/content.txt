@@ -1,0 +1,4 @@
+Disclosure test message — Task 3.4 verification run
+Date: 2026-05-29
+Purpose: verify stamp_attempt.sh workflow end-to-end
+Content SHA-256 will be anchored to Bitcoin via OpenTimestamps.
