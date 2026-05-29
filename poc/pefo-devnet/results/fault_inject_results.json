@@ -1,0 +1,79 @@
+{
+  "description": "\u00a75.2 Fault-injected PoC \u2014 Monte Carlo simulation (N=10000)",
+  "method": "Analytical simulation using empirical baseline N(2199, 44\u00b2)",
+  "baseline_source": "measurement/timing/data/processed/timing_stats.json",
+  "chain": "pefo-test-chain (Astria devnet)",
+  "fill_b_eth": 0.08,
+  "results": {
+    "n_sim": 10000,
+    "baseline": {
+      "mean_ms": 2199.1,
+      "std_ms": 43.5
+    },
+    "delay_50ms": {
+      "attacker_delay_ms": 50,
+      "feasible_fraction": 1.0,
+      "effective_window_ms": 2148.6541304194907
+    },
+    "delay_200ms": {
+      "attacker_delay_ms": 200,
+      "feasible_fraction": 1.0,
+      "effective_window_ms": 1998.6541304194905
+    },
+    "delay_500ms": {
+      "attacker_delay_ms": 500,
+      "feasible_fraction": 1.0,
+      "effective_window_ms": 1698.6541304194905
+    },
+    "delay_1000ms": {
+      "attacker_delay_ms": 1000,
+      "feasible_fraction": 1.0,
+      "effective_window_ms": 1198.6541304194905
+    },
+    "delay_1500ms": {
+      "attacker_delay_ms": 1500,
+      "feasible_fraction": 1.0,
+      "effective_window_ms": 698.6541304194903
+    },
+    "p_fail_10pct": {
+      "p_fail": 0.1,
+      "expected_payoff_eth": 0.007704,
+      "theoretical_eth": 0.008
+    },
+    "p_fail_25pct": {
+      "p_fail": 0.25,
+      "expected_payoff_eth": 0.019768,
+      "theoretical_eth": 0.02
+    },
+    "p_fail_50pct": {
+      "p_fail": 0.5,
+      "expected_payoff_eth": 0.039576,
+      "theoretical_eth": 0.04
+    },
+    "p_fail_100pct": {
+      "p_fail": 1.0,
+      "expected_payoff_eth": 0.08,
+      "theoretical_eth": 0.08
+    },
+    "jitter_50ms": {
+      "sigma_ms": 50,
+      "feasible_above_100ms": 1.0,
+      "mean_window_ms": 2198.2404591844347
+    },
+    "jitter_100ms": {
+      "sigma_ms": 100,
+      "feasible_above_100ms": 1.0,
+      "mean_window_ms": 2199.2893061077043
+    },
+    "jitter_200ms": {
+      "sigma_ms": 200,
+      "feasible_above_100ms": 1.0,
+      "mean_window_ms": 2195.731710263129
+    },
+    "jitter_500ms": {
+      "sigma_ms": 500,
+      "feasible_above_100ms": 1.0,
+      "mean_window_ms": 2196.5959877706705
+    }
+  }
+}
