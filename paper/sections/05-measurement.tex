@@ -20,7 +20,7 @@ This section provides three categories of empirical evidence supporting the
 structural claims in \S\ref{sec:peo}--\ref{sec:bounds}:
 (1) real-stack timing on a deployed sequencer substrate ($\alpha$-evidence);
 (2) structural condition verification on the PEFO devnet testbed ($\alpha$-evidence);
-and (3) a 12-month counterfactual replay over four production L2 chains
+and (3) a 12-month counterfactual replay over three production L2 chains (OP, Base, Arbitrum)
 ($\beta$-evidence) for tail-index estimation and A4 violation rate bounding.
 
 %----------------------------------------------------------------------
@@ -132,33 +132,10 @@ parameterized by the empirical baseline timing $\mu = 2{,}199$\,ms,
 $\sigma = 44$\,ms (Table~\ref{tab:timing}).
 
 \paragraph{(a) Attacker network delay.}
-Even if the attacker has additional network latency $d$, the attack is
-feasible whenever the PEFO window exceeds $d$. Table~\ref{tab:faultinject}
-reports the feasibility rate and effective window.
-
-\begin{table}[h]
-\centering
-\small
-\caption{Fault (a): Attacker delay. Feasibility = fraction of windows where
-  attacker can still react after accounting for delay.}
-\label{tab:faultinject}
-\begin{tabular}{@{}lrr@{}}
-\toprule
-Delay $d$ & Feasible & Effective window \\
-\midrule
-50\,ms  & 100\% & 2,149\,ms \\
-200\,ms & 100\% & 1,999\,ms \\
-500\,ms & 100\% & 1,699\,ms \\
-1,000\,ms & 100\% & 1,199\,ms \\
-1,500\,ms & 100\% & 699\,ms \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\noindent The baseline window of 2,199\,ms is so much larger than typical
-MEV searcher latency ($\sim$10--50\,ms)~\cite{daian2020flash} that even
-1,500\,ms of attacker delay leaves a 699\,ms effective window --- orders of
-magnitude above the reaction threshold.
+The 2,199\,ms baseline window greatly exceeds typical MEV searcher latency
+($\sim$10--50\,ms~\cite{daian2020flash}). Even with 1,500\,ms of additional
+attacker latency, the effective window remains 699\,ms. PEFO is feasible at
+all tested delays ($d \in \{50, 200, 500, 1000, 1500\}$\,ms).
 
 \paragraph{(b) Partial failure probability.}
 If the attacker causes $\tau_2$ to fail with probability $p_{\text{fail}}$,
@@ -189,7 +166,7 @@ capability~(i) or~(ii) per Theorem~\ref{thm:a2-necessary} eliminates it.
 \label{sec:meas-tailindex}
 
 \paragraph{Setup.}
-We collect block-level fee data from four L2 chains over a 12-month window:
+We collect block-level fee data from three L2 chains over a 12-month window:
 Optimism (OP, $N=1{,}000$), Base ($N=300$), and Arbitrum~One ($N=300$).
 Polygon~zkEVM was excluded due to RPC unavailability; three-chain coverage
 is sufficient for tail-index estimation. For each sampled block,
@@ -403,32 +380,15 @@ the fee proxy and true per-commitment MEV; Theorem~\ref{thm:bond-insufficient}
 remains the primary result and holds for any finite $B_{\max}$.
 
 %----------------------------------------------------------------------
-\subsection{What We Do Not Claim}
+\subsection{Scope Limitations}
 \label{sec:meas-limits}
 
-\begin{enumerate}
-  \item \textbf{No claim about actual losses.} The measurement study bounds
-    the option value distribution and the expected violation rate. Actual
-    losses depend on attacker capital, network latency, and smart contract
-    architecture --- we make no claim about realized losses in production.
-
-  \item \textbf{No claim about Optimism-specific exploitability.} The Optimism
-    block data is used to estimate the tail-index parameter $\hat{\alpha}$,
-    which calibrates Theorem~\ref{thm:bond-insufficient}. We do not claim that
-    Optimism blocks are PEO/PEFO attack opportunities; the replay is a
-    calibration exercise, not an exploit identification exercise.
-
-  \item \textbf{Conservative option-value proxy.} $V(\text{block})$ counts
-    transaction fee revenue only; it excludes sandwich MEV, liquidation
-    revenue, and oracle manipulation. The true option-value distribution has
-    a heavier tail than what we measure. Our $\hat{\alpha}$ estimate is
-    therefore an \emph{upper bound} on the true tail index (lighter tail
-    $\Rightarrow$ higher $\alpha$), making $\rho_{\min}$ a lower bound.
-
-  \item \textbf{Confidence interval width.} The Optimism CI
-    ($[1.09, 1.63]$ at $N=1{,}000$, $k=100$) reflects the fundamental
-    variability of block-level fee data. Wider intervals are an honest
-    reflection of the data, not a methodological weakness: the key
-    structural result ($\hat{\alpha} > 0$, hence $\rho_{\min} > 0$) is
-    robust across the entire CI range.
-\end{enumerate}
+The measurement study bounds the option-value distribution and expected
+violation rate; it does not characterize actual losses (which depend on
+attacker capital and market conditions). The block-level fee proxy
+$V(\text{block})$ excludes MEV, making $\hat{\alpha}$ an upper bound on
+the true tail index and $\rho_{\min}$ a lower bound on the true violation
+rate --- the conservative direction is favourable. The Optimism CI
+($[1.09, 1.63]$, $N=1{,}000$) is an honest reflection of data variability;
+the structural result ($\hat{\alpha} > 0 \Rightarrow \rho_{\min} > 0$)
+holds robustly across the full CI range.
