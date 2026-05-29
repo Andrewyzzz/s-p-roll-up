@@ -41,6 +41,14 @@
       "git_commit_hash": "c752aeba41f7e534abe7f78e4381452d3d0a2008",
       "opentimestamps_proof": "disclosure/attempts/2026-05-29_D2-mevcommit_formal-disclosure-package/content.txt.ots",
       "content_sha256": "2422dd43135569f1723d5d884447798ae91d5310c24490bc21496c7faebaa7a9"
+    },
+    {
+      "vendor": "D2-chainbound",
+      "date": "2026-05-29",
+      "channel": "formal-disclosure-package",
+      "git_commit_hash": "1fbb9ccfe816e777c45fd44d06bdac51ce8e1a74",
+      "opentimestamps_proof": "disclosure/attempts/2026-05-29_D2-chainbound_formal-disclosure-package/content.txt.ots",
+      "content_sha256": "b3f021c2275428c65fe37f43b729c182d6d97be8a8a3ff76099d42584f83b9dd"
     }
   ],
   "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
