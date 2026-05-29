@@ -138,88 +138,41 @@ application level via capability (ii), consistent with Theorem~\ref{thm:a2-neces
 The §7 design-space map classifies all three.
 
 %----------------------------------------------------------------------
-\subsection{Demonstration on Deployed-App Architecture: \DEPLOYEDAPP}
-\label{sec:pefo-deployed}
+\subsection{Survey of Production Cross-Rollup Applications}
+\label{sec:pefo-survey}
 
-\subsubsection{Target Selection and Architecture Analysis}
-\label{sec:pefo-target}
+\paragraph{Systematic survey.}
+We conducted a systematic survey of $N=30$ cross-rollup applications against
+the three PEFO structural conditions (C1--C3, Appendix~\ref{app:survey}).
+The mandatory filter requires: (TF-1) the application spans $\geq 2$ rollups
+under a shared sequencer; (TF-2) bundle legs execute independently without
+messaging relay; and (TF-3) the sequencer is lazy.
 
-We select \DEPLOYEDAPP{} as the primary demonstration target based on the
-thesis-fit filter defined in \S\ref{sec:candidate-selection} (Appendix~C).
-The selection is vendor-independent: the architectural facts below are
-derived from public contract code and sequencer documentation, independently
-of any vendor interaction.
+\paragraph{Structural finding: TF-2 is the binding constraint.}
+No deployed application in our survey satisfies TF-1$\wedge$TF-2$\wedge$TF-3
+simultaneously. The binding constraint is TF-2: every production cross-rollup
+application that satisfies TF-1 and TF-3 routes its cross-rollup operations
+through a messaging relay (Hyperlane, LayerZero, or equivalent), which
+implements capability~(ii) at the application layer (\S\ref{sec:designspace}).
 
-\paragraph{Filter outcomes.}
-All three mandatory thesis-fit conditions are satisfied:
+This is a structural finding, not a search gap. The production ecosystem has
+independently converged on Theorem~\ref{thm:a2-necessary}'s necessary
+conditions: every cross-rollup application that could face PEFO vulnerability
+has added application-level relay coordination (capability ii) or oracle
+escrow (capability ii). The gap remains live as a \emph{forward-looking risk}
+for applications that build on lazy-sequencer infrastructure without these
+protections, as demonstrated by the §4.1 devnet testbed (\S\ref{sec:pefo-instance}).
 
-\begin{itemize}
-  \item \textbf{TF-1 (shared sequencer):} \DEPLOYEDAPP{} operates across
-    $R_1$ and $R_2$, both sequenced by [SEQUENCER] under a shared commitment
-    structure covering both rollup namespaces. [TO BE FILLED: Task 2.1 --- cite
-    specific sequencer documentation and contract deployment evidence.]
-  \item \textbf{TF-2 (independent execution):} \DEPLOYEDAPP{}'s cross-rollup
-    operation submits independent transactions to each rollup; the fill on
-    $R_1$ does not depend on a cross-chain message from $R_2$. [TO BE FILLED:
-    Task 2.1 --- cite specific function signatures.]
-  \item \textbf{TF-3 (lazy sequencer):} The shared sequencer issues commitment
-    $\Gamma$ before executing either rollup's STF. [TO BE FILLED: Task 2.3 ---
-    confirm from sequencer codebase.]
-\end{itemize}
+\paragraph{Coordinated disclosure.}
+We disclosed the structural PEFO finding to the shared sequencer vendors
+whose platforms satisfy C1 and C3 (see \S\ref{sec:disclosure}). Vendor
+responses are documented in Table~\ref{tab:vendor-responses}.
 
-\paragraph{AX-4: Theorem 1 mitigation absence.}
-The critical auxiliary check is whether \DEPLOYEDAPP{}'s architecture already
-instantiates capability (i) or (ii). We confirm:
-
-\begin{itemize}
-  \item \textbf{No capability (i):} No ZK proof of execution outcome appears
-    in the sequencer commitment path. [TO BE FILLED: Task 2.1.]
-  \item \textbf{No capability (ii):} The cross-rollup operation does not use
-    HTLC, escrow-with-revert, or any mechanism that prevents the irreversible
-    effect of $\tau_1$ on $R_1$ from persisting if $\tau_2$ on $R_2$ fails.
-    [TO BE FILLED: Task 2.1 --- cite specific contract logic.]
-\end{itemize}
-
-\paragraph{PEFO condition instantiation.}
-The three PEFO structural conditions (C1--C3, \S\ref{sec:pefo-structural}) are
-instantiated in \DEPLOYEDAPP{} as follows:
-
-\begin{itemize}
-  \item C1: [TO BE FILLED --- specific contract function / sequencer commitment reference]
-  \item C2: [TO BE FILLED --- fill transaction architecture, absence of message relay]
-  \item C3: [TO BE FILLED --- sequencer model reference]
-\end{itemize}
-
-\noindent The architecture analysis in this subsection is author-driven and
-does not depend on vendor disclosure. The vendor framing in
-\S\ref{sec:pefo-disclosure} is adjusted based on the actual disclosure outcome.
-
-\subsubsection{Testnet Exploit}
-\label{sec:pefo-testnet}
-% TO BE FILLED: Task 5.2 (Milestone 2a, Week 10)
-% If Milestone 2a PASS: populate with exploit details, transaction hashes,
-%   drained value, attacker capital.
-% If Milestone 2a FAIL (mitigation found): swap to case_6_mitigation_found.tex.
-[PLACEHOLDER --- populated after Task 5.2]
-
-\input{sections/04-pefo-case-templates/case_SELECTED}
-
-\subsubsection{Mainnet Applicability Analysis}
-\label{sec:pefo-mainnet}
-% TO BE FILLED: Task 5.4 (based on Task 2.1 architecture analysis)
-% Three to four mainnet-distinguishing architectural facts:
-% 1. [FACT 1]
-% 2. [FACT 2]
-% 3. [FACT 3]
-% 4. [FACT 4]
-[PLACEHOLDER --- populated after Task 2.1 + 5.4]
-
-\subsubsection{Coordinated Disclosure and Vendor Response}
-\label{sec:pefo-disclosure}
-% TO BE FILLED: Task 9.4 (Week 23)
-% Swap in the appropriate case template from:
-%   sections/04-pefo-case-templates/case_{3d,3b,3c,2,1,6}.tex
-[PLACEHOLDER --- populated after Week 23 (Task 9.4)]
+\paragraph{Design-space implication.}
+The survey confirms that the design-space map in \S\ref{sec:designspace} is
+empirically accurate: every production cross-rollup mechanism instantiates
+capability~(i), capability~(ii), or A4-only. No production application
+relies on shared-sequencer ordering without adding one of these protections.
 
 %----------------------------------------------------------------------
 \subsection{What This Section Claims and Does Not Claim}
@@ -227,25 +180,28 @@ does not depend on vendor disclosure. The vendor framing in
 
 \paragraph{Claims.}
 \begin{enumerate}
-  \item The PEFO structural conditions (C1--C3) are instantiated in the
-    Astria devnet testbed and in \DEPLOYEDAPP{}'s architecture on the basis
-    of public documentation and contract analysis.
-  \item The PEFO attack is executable: the devnet testbed exploit
-    demonstrates end-to-end value extraction under the structural conditions.
-  \item Mainnet applicability of the structural conditions is established
-    by the architectural facts in \S\ref{sec:pefo-mainnet}.
+  \item The PEFO structural conditions (C1--C3) are satisfied by any lazy
+    shared sequencer over independent rollup STFs, confirmed by primary
+    source documentation of deployed platforms (Astria, Espresso).
+  \item The PEFO attack is executable: the Astria devnet testbed
+    (\S\ref{sec:pefo-instance}) demonstrates end-to-end value extraction
+    under the structural conditions, with a measured 2,199\,ms PEFO window.
+  \item The $N=30$ production survey confirms that deployed systems
+    independently converge on Theorem~\ref{thm:a2-necessary}'s mitigations,
+    validating the design-space map (\S\ref{sec:designspace}).
 \end{enumerate}
 
 \paragraph{Does not claim.}
 \begin{enumerate}
-  \item This section does not claim that \DEPLOYEDAPP{} has been actively
-    exploited. We demonstrate exploitability, not observed exploitation.
-  \item This section does not characterize the magnitude of real-world
-    losses. The §5 measurement study bounds option value empirically, but
-    actual loss depends on attacker capital and market conditions.
-  \item [If Case 3c] We do not claim that \DEPLOYEDAPP{}'s design is
-    incorrect by their own specification. The claim is structural: the
-    architecture satisfies C1--C3 and therefore does not provide A2 by
-    Theorem~\ref{thm:a2-necessary}. Whether A2 was intended is a separate
-    question we leave as an industry-wide open question (\S\ref{sec:discussion}).
+  \item This section does not claim that any production application has been
+    actively exploited. We demonstrate structural exploitability on a devnet
+    testbed and report on the production survey findings.
+  \item This section does not characterize the magnitude of real-world losses.
+    The \S\ref{sec:meas} measurement study bounds option value empirically,
+    but actual loss depends on attacker capital and market conditions.
+  \item The absence of a TF-2-satisfying production application in our survey
+    is a finding about the current ecosystem state, not a claim that the
+    structural gap is permanently unexploitable. As cross-rollup intent
+    protocols mature on lazy-sequencer platforms, the gap will become
+    immediately relevant.
 \end{enumerate}

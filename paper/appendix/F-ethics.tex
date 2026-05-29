@@ -1,0 +1,41 @@
+% Appendix F — Ethics Statement
+
+\section{Ethics Statement}
+\label{app:ethics}
+
+\paragraph{No harm to live systems.}
+All proof-of-concept demonstrations were conducted on local devnet
+infrastructure with no real assets at risk. The PEO exploit
+(\S\ref{sec:peo}) uses a locally deployed, faithful reimplementation of the
+mev-commit contract architecture on Foundry/Anvil. The PEFO structural
+demonstration (\S\ref{sec:pefo-instance}) runs on an Astria local devnet
+with synthetic rollup namespaces. No mainnet transactions were submitted and
+no real funds were accessed or put at risk at any point.
+
+\paragraph{Responsible disclosure.}
+We followed responsible disclosure norms~\cite{iso29147}. Structural findings
+were communicated to the affected shared sequencer and preconfirmation protocol
+vendors prior to submission, with a 90-day window for response. All disclosure
+attempts are timestamped via OpenTimestamps (Bitcoin calendar anchor) and
+committed to a public artifact repository~\cite{artifact-repo}, providing
+tamper-evident evidence of the disclosure timeline.
+
+\paragraph{No vulnerability exploitation.}
+The paper identifies structural properties of sequencing commitment protocols,
+not exploitable vulnerabilities in specific deployed contracts. The PEFO
+structural conditions (C1/C2/C3) are necessary consequences of the
+lazy-sequencer architecture, documented in vendor publications. No
+undisclosed zero-day vulnerability was identified or exploited.
+
+\paragraph{Dual-use considerations.}
+The PoC scripts in Appendix~\ref{app:poc} are designed for research
+reproducibility. They require local deployment of test contracts and cannot
+be directly applied to live systems without substantial adaptation. We have
+not provided such adaptation and have no intention of doing so.
+
+\paragraph{Survey and measurement.}
+The $N=30$ application survey (Appendix~\ref{app:survey}) used only publicly
+available information: deployed contract addresses, public documentation, and
+on-chain data. No private or non-public information was accessed. The
+12-month counterfactual replay uses publicly available block data from
+production RPC endpoints; no proprietary MEV infrastructure was accessed.

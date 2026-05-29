@@ -101,11 +101,11 @@ vendor responses as of the submission date.
 \toprule
 Vendor & Category & $D_x$ & Resp. & Outcome \\
 \midrule
-Astria       & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Espresso     & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Radius       & $D_1$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Primev       & $D_2$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Chainbound   & $D_2$ & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Astria       & $D_1$ & [date] & [date] & pending \\
+Espresso     & $D_1$ & [date] & [date] & pending \\
+Radius       & $D_1$ & [date] & --- & precautionary \\
+Primev       & $D_2$ & [date] & [date] & pending \\
+Chainbound   & $D_2$ & [date] & --- & archived (Feb 2026) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -145,12 +145,12 @@ commit history is publicly auditable.
 \begin{verbatim}
 # Verify a specific disclosure attempt:
 ots verify disclosure/attempts/<attempt>/content.txt.ots
-# → Got 1 attestation(s) from calendar...
-# → Bitcoin block <N> attests data existed before <timestamp>
+# -> Got 1 attestation(s) from calendar...
+# -> Bitcoin block <N> attests data existed before <timestamp>
 
 # Check SHA-256 integrity:
 shasum -a 256 disclosure/attempts/<attempt>/content.txt
-# → matches content.txt.ots proof
+# -> matches content.txt.ots proof
 \end{verbatim}
 
 The aggregated disclosure record is in
