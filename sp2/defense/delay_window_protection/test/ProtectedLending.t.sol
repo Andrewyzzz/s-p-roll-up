@@ -109,9 +109,14 @@ contract ProtectedLendingTest is Test {
         console.log("\n=== SCENARIO 2: Defense active - liquidation BLOCKED ===");
         _openPosition();
 
-        // T=0: Victim submits L1 deposit AND registers rescue protection
+        // T=0: Victim submits L1 deposit (victim is CENSORED on L2 — cannot tx)
+        // Watcher observes TransactionDeposited on L1 and calls registerRescue
+        // on behalf of victim. registerRescue() has NO msg.sender restriction.
+        address watcher_addr = makeAddr("watcher");
         watcher.setPendingRescue(victim, true);
+        vm.prank(watcher_addr);  // watcher calls, NOT victim
         lending.registerRescue(victim);
+        console.log("Watcher registered rescue for victim (victim is censored, cannot call L2 tx).");
 
         assertTrue(lending.isProtected(victim), "Victim should be protected");
         console.log("Rescue registered. Grace period active for 12h.");

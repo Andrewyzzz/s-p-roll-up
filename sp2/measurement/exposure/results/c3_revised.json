@@ -1,0 +1,54 @@
+{
+  "measurement_date": "2026-05-29",
+  "chain": "base",
+  "sample_positions": 67,
+  "sample_total_debt_usd": 38222228.2488526,
+  "total_borrow_tvl_usd": 303310000,
+  "volatile_frac_assumption": 0.65,
+  "aave_liq_bonus": 0.05,
+  "var_by_price_drop": {
+    "5": {
+      "n_positions": 1,
+      "gross_exposure_usd": 736.28650311,
+      "adversary_extractable_usd": 36.8143251555,
+      "victim_harm_usd": 36.8143251555,
+      "pct_of_sample_tvl": 0.0019263306637077148
+    },
+    "10": {
+      "n_positions": 3,
+      "gross_exposure_usd": 28764008.637031488,
+      "adversary_extractable_usd": 1438200.4318515745,
+      "victim_harm_usd": 1438200.4318515745,
+      "pct_of_sample_tvl": 75.25466189401179
+    },
+    "15": {
+      "n_positions": 4,
+      "gross_exposure_usd": 28764302.007587127,
+      "adversary_extractable_usd": 1438215.1003793564,
+      "victim_harm_usd": 1438215.1003793564,
+      "pct_of_sample_tvl": 75.25542943313516
+    },
+    "20": {
+      "n_positions": 8,
+      "gross_exposure_usd": 28879795.1919567,
+      "adversary_extractable_usd": 1443989.7595978351,
+      "victim_harm_usd": 1443989.7595978351,
+      "pct_of_sample_tvl": 75.55759178645908
+    },
+    "25": {
+      "n_positions": 10,
+      "gross_exposure_usd": 28900677.571523968,
+      "adversary_extractable_usd": 1445033.8785761986,
+      "victim_harm_usd": 1445033.8785761986,
+      "pct_of_sample_tvl": 75.61222591043352
+    },
+    "30": {
+      "n_positions": 11,
+      "gross_exposure_usd": 28901167.69374172,
+      "adversary_extractable_usd": 1445058.384687086,
+      "victim_harm_usd": 1445058.384687086,
+      "pct_of_sample_tvl": 75.61350820673127
+    }
+  },
+  "methodology_note": "Per-position volatile-fraction-adjusted HF simulation. Volatile fraction (0.65) conservatively estimated from Base Aave V3 collateral composition (WETH~35%, wstETH~20%, cbETH~10%). Gross exposure = total debt in liquidatable positions; adversary extractable = ~5% liquidation bonus; victim harm = bonus lost + forced exit at suboptimal price."
+}

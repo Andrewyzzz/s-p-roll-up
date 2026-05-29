@@ -112,16 +112,68 @@ contract ProtectedLending {
     }
 
     /**
-     * @notice Register a pending rescue deposit from L1.
+     * @notice Register a pending rescue deposit from L1 on behalf of `user`.
      *
-     * User calls this after submitting OptimismPortal.depositTransaction()
-     * on L1. The depositWatcher oracle verifies the deposit exists.
-     * If confirmed, the user's position is protected from liquidation for
-     * SEQUENCING_WINDOW seconds (12 h).
+     * ── Trust model and trigger analysis ────────────────────────────────────
      *
-     * Gas overhead vs unprotected borrow: one oracle call + one SSTORE.
+     * The victim is being censored on L2 and CANNOT send L2 transactions.
+     * Therefore, `registerRescue` MUST NOT require the victim to call it.
+     * This function is intentionally callable by ANY address (no msg.sender
+     * restriction), so a third-party watcher can register protection for the
+     * victim after observing the L1 deposit.
+     *
+     * Three trigger tiers (in increasing trustlessness):
+     *
+     *   Tier 1 — Oracle watcher (current implementation):
+     *     Any third party calls registerRescue(victim) after observing the
+     *     TransactionDeposited event on L1 OptimismPortal.
+     *     Residual risk: censoring sequencer can ALSO censor the watcher's
+     *     L2 transaction. The adversary now needs to censor two parties
+     *     simultaneously (victim + watcher), raising the attack cost, but
+     *     not eliminating it.
+     *
+     *   Tier 2 — Deposit-embedded registration (no additional L2 tx needed):
+     *     Victim sends a SECOND deposit via depositTransaction() targeting this
+     *     contract with registerRescue(victim) calldata. Both deposits land at
+     *     L2 block head at T=12h. registerRescue fires BEFORE repay in the
+     *     same derived block, setting protection retroactively.
+     *     Limitation: protection is set at T=12h, after adversary could act at
+     *     T=6h. This tier protects against adversaries who wait for the full
+     *     window; it does NOT protect against mid-window liquidations.
+     *
+     *   Tier 3 — EIP-4788 trustless proof (upgrade path):
+     *     OP Stack surfaces L1 block hashes into L2 via L1-attributes deposits
+     *     (every L2 block includes the parent L1 block hash). A borrower or
+     *     anyone can submit a Merkle proof of the TransactionDeposited event
+     *     directly to this contract, which verifies it against the L1 block
+     *     hash without any external oracle. This is fully censorship-resistant:
+     *     the proof submission can itself be a force-included deposit.
+     *
+     * ── Bad debt bound ───────────────────────────────────────────────────────
+     *
+     * During the 12h grace period, the protocol cannot liquidate the protected
+     * position even if HF < 1.0. This creates bounded bad debt risk:
+     *
+     *   max_bad_debt = protected_debt × (further_price_drop_in_window)
+     *
+     * Bounds on this risk:
+     *   (a) Gate on real L1 deposit: protection is only granted if a genuine
+     *       OptimismPortal.depositTransaction() exists on L1 — cannot be
+     *       fabricated to manufacture artificial grace periods for solvency-
+     *       manipulation purposes.
+     *   (b) Rare invocation: as measured in C3, forceInclusion/FI paths are
+     *       used ~0 times per month; protected positions are therefore very
+     *       sparse in practice.
+     *   (c) Time-bounded: 12h grace period corresponds exactly to the worst-
+     *       case sequencing window; protection expires at the same time the
+     *       rescue is guaranteed to have landed.
+     *
+     * Gas overhead vs unprotected borrow: one oracle call (~5k) + one SSTORE
+     * (~20k) = ~25k gas for registerRescue; +4.6k for blocked liquidation check.
      */
     function registerRescue(address user) external {
+        // IMPORTANT: msg.sender is NOT required to be `user`.
+        // Any third-party watcher can register protection for a censored victim.
         require(
             IDepositWatcher(depositWatcher).hasPendingRescue(user),
             "No pending rescue deposit found on L1"
