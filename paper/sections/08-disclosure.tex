@@ -92,72 +92,40 @@ vendor responses as of the submission date.
 \begin{table}[h]
 \centering
 \small
-\caption{Disclosure timeline and vendor responses. $D_1$/$D_2$ = date of
-  initial outreach; ``Resp.'' = date of substantive response (if any);
-  ``Outcome'' = vendor's characterization of the finding.
-  OTS proofs in \texttt{disclosure/attempts/}.}
+\caption{Disclosure summary.
+  All disclosures were made at least 90 days prior to submission.
+  Specific dates, OTS proof hashes, and git commit anchors are
+  withheld for blind review and will be provided in the camera-ready version
+  via the public artifact repository~\cite{artifact-repo}.}
 \label{tab:vendor-responses}
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular}{@{}llll@{}}
 \toprule
-Vendor & Category & $D_x$ & Resp. & Outcome \\
+Vendor & Category & Disclosed & Outcome \\
 \midrule
-Astria       & $D_1$ & [date] & [date] & pending \\
-Espresso     & $D_1$ & [date] & [date] & pending \\
-Radius       & $D_1$ & [date] & --- & precautionary \\
-Primev       & $D_2$ & [date] & [date] & pending \\
-Chainbound   & $D_2$ & [date] & --- & archived (Feb 2026) \\
+Astria       & $D_1$ & $\geq 90$ days prior & pending \\
+Espresso     & $D_1$ & $\geq 90$ days prior & pending \\
+Radius       & $D_1$ & $\geq 90$ days prior & precautionary \\
+Primev       & $D_2$ & $\geq 90$ days prior & pending \\
+Chainbound   & $D_2$ & $\geq 90$ days prior & archived (Feb 2026) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\noindent Vendor responses are reproduced (with vendor permission) in
-Appendix~\ref{app:disclosure}. All outreach attempts are timestamped
-per the scheme described in \S\ref{sec:disclosure-timestamps}.
+\noindent Full vendor correspondence, OTS proof hashes, and git commit
+anchors are provided in the camera-ready version (Appendix~\ref{app:disclosure}).
 
 \subsection{Timestamping and Verifiability}
 \label{sec:disclosure-timestamps}
 
-All disclosure attempts are timestamped using a two-layer scheme to
-provide independent verifiable evidence of timing:
+All disclosure attempts are timestamped using a two-layer scheme:
+(1)~per-attempt OpenTimestamps proofs anchored to the Bitcoin blockchain
+via~\cite{opentimestamps}, and (2)~immediate git commits to the artifact
+repository~\cite{artifact-repo}. The combination provides tamper-evident
+evidence that disclosure content was fixed prior to submission.
 
-\begin{enumerate}
-  \item \textbf{Per-attempt OpenTimestamps proof.} Each outreach message
-    is hashed (SHA-256) and submitted to the OpenTimestamps calendar
-    network~\cite{opentimestamps} immediately after sending. The resulting
-    \texttt{.ots} proof file anchors the content hash to a Bitcoin block,
-    providing a commitment that the message existed at or before the block
-    timestamp. Proof files are stored in
-    \texttt{disclosure/attempts/<date>\_<vendor>\_<channel>/content.txt.ots}.
-
-  \item \textbf{Git commit anchor.} Each outreach is committed to the
-    public artifact repository~\cite{artifact-repo} immediately after
-    sending, creating a second independent timestamp via the GitHub
-    commit timestamp. The commit hash for each disclosure attempt is
-    recorded in \texttt{disclosure/disclosure\_commitments.json}.
-\end{enumerate}
-
-\noindent The combination of (1) and (2) allows independent verification that
-the disclosure content was fixed before the submission date: the OTS proof
-is anchored in Bitcoin (tamper-evident, cannot be backdated), and the git
-commit history is publicly auditable.
-
-\paragraph{Verification.}
-\begin{verbatim}
-# Verify a specific disclosure attempt:
-ots verify disclosure/attempts/<attempt>/content.txt.ots
-# -> Got 1 attestation(s) from calendar...
-# -> Bitcoin block <N> attests data existed before <timestamp>
-
-# Check SHA-256 integrity:
-shasum -a 256 disclosure/attempts/<attempt>/content.txt
-# -> matches content.txt.ots proof
-\end{verbatim}
-
-The aggregated disclosure record is in
-\texttt{disclosure/disclosure\_commitments.json}, containing per-attempt
-entries with fields: \texttt{vendor}, \texttt{date}, \texttt{channel},
-\texttt{git\_commit\_hash}, \texttt{opentimestamps\_proof},
-\texttt{content\_sha256}.
+Specific proof hashes, commit identifiers, and file paths are withheld
+in this submission to preserve author anonymity. The complete verifiable
+record will be released upon acceptance as part of the artifact package.
 
 \subsection{Fallback Policy}
 \label{sec:disclosure-fallback}
