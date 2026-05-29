@@ -1,0 +1,22 @@
+{
+  "chain": "ethereum_l1_mev_boost",
+  "source": "relay.ultrasound.money",
+  "data_type": "mev_boost_bid_value_eth",
+  "n_obs": 2000,
+  "hill_estimates": {
+    "100": {
+      "alpha_hill": 1.8447633326886486,
+      "ci_lo": 1.4972893680357464,
+      "ci_hi": 2.269729132246815
+    }
+  },
+  "mle": {
+    "alpha_mle": null
+  },
+  "primary_estimate": {
+    "k": 100,
+    "alpha_hat": 1.8447633326886486,
+    "ci_lo": 1.4972893680357464,
+    "ci_hi": 2.269729132246815
+  }
+}
