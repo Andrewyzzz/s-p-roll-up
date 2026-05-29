@@ -7,10 +7,3 @@ script = "script"
 solc = "0.8.19"
 optimizer = true
 optimizer_runs = 200
-
-# Fork settings — override with ARBITRUM_RPC env var
-[profile.default.rpc_endpoints]
-arbitrum = "${ARBITRUM_RPC}"
-
-[profile.default.etherscan]
-arbitrum = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }

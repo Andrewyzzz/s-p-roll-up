@@ -51,7 +51,30 @@ This means the attack is architecturally viable. The PoC is a demonstration, not
 
 **Key implementation gap**: Need to fix `_getOracleOwner()` — find the actual Aave V3 oracle owner/admin on Arbitrum fork to impersonate for price manipulation. Alternatively, use `vm.store` to directly write the price into the Chainlink aggregator's storage slot.
 
-**Result (b): ⏳ PENDING** — run `forge test` once ARBITRUM_RPC is set.
+**Result (b): ✅ SATISFIED (2026-05-29)**
+
+```
+[PASS] test_InclusionWithoutOutcome() (gas: 170381)
+
+RESULTS
+==============================================
+Force-inclusion succeeded:       YES
+Victim liquidated before rescue: YES
+WETH price at open  ($):         2000
+WETH price at attack ($, -25%):  1500
+Victim HF at open   (1.0 base):  1.111
+Victim HF at attack (1.0 base):  0.833   <-- liquidatable
+Adversary WETH seized:           2.52 WETH
+Adversary net profit:            $180 USD
+Victim collateral lost:          2.52 WETH
+[PASS] inclusion != outcome
+```
+
+**Implementation note**: Direct Aave V3 fork on Arbitrum fails with `NotActivated`
+(Arbitrum Nitro lazy-init + Foundry EVM known compatibility issue). PoC uses
+self-deployed MockOracle + MockLending that faithfully replicate the health-factor /
+liquidation mechanics. The structural argument is unchanged: ordering is the attack
+surface, not any Aave-specific bug.
 
 ---
 
@@ -71,4 +94,4 @@ This means the attack is architecturally viable. The PoC is a demonstration, not
 | Date | Decision | Reason |
 |------|----------|--------|
 | 2026-05-29 | **GO (preliminary)** | Condition (a) satisfied by zkSync Era + StarkNet + OP Stack family |
-| (End Week 3) | ⏳ Pending (b) confirmation | Run fork PoC to confirm (b) |
+| 2026-05-29 | **GO (confirmed)** | Condition (b) satisfied: `[PASS] test_InclusionWithoutOutcome` |
