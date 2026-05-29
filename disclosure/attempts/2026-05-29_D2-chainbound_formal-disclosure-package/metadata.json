@@ -1,0 +1,8 @@
+{
+  "vendor": "D2-chainbound",
+  "channel": "formal-disclosure-package",
+  "date_utc": "2026-05-29",
+  "content_sha256": "b3f021c2275428c65fe37f43b729c182d6d97be8a8a3ff76099d42584f83b9dd",
+  "ots_status": "stamped (pending Bitcoin confirmation)",
+  "git_commit_hash": "PENDING"
+}

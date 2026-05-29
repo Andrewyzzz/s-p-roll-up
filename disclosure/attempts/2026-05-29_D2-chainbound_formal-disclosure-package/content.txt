@@ -1,0 +1,65 @@
+FORMAL SECURITY DISCLOSURE — D2 (CHAINBOUND / BOLT)
+Recipients: Chainbound team
+Category: D2 — PEO structural finding applicable to bonded preconfirmation systems
+
+NOTE: We are aware that the Bolt repository was archived in February 2026
+(v0.4.0-alpha). This notification is sent as a courtesy to inform your
+team of the finding, which applies structurally to any inclusion-based
+bonded preconfirmation system, including any future work in this space.
+
+────────────────────────────────────────────────────────────
+SUMMARY
+────────────────────────────────────────────────────────────
+
+The Bolt preconfirmation design — like all inclusion-based bonded preconf
+systems — provides ordering and inclusion commitments backed by an
+EigenLayer AVS slashing mechanism. This is an A4 mechanism (economic
+compensation for violation) rather than an A2 mechanism (execution
+atomicity guarantee).
+
+The PEO attack applies to any such system:
+
+  ΔΠ = max(δ - bond_penalty × fee_multiplier, 0)
+
+where δ is the marginal MEV value of an alternative block composition.
+For any power-law tail MEV distribution, Pr[δ > bond] > 0 for any finite
+bond, so the expected violation rate is bounded below by ρ_min > 0
+regardless of bond size.
+
+────────────────────────────────────────────────────────────
+APPLICABILITY TO BOLT
+────────────────────────────────────────────────────────────
+
+Bolt's commitment model:
+  - Proposers sign commitments to include specific transactions (inclusion only).
+  - EigenLayer restaking backs the commitment with slashable collateral.
+  - Violation = non-inclusion → slashing.
+
+This is structurally identical to the mev-commit case (see D2_mevcommit
+disclosure). The key structural fact: the commitment covers INCLUSION, not
+execution outcome. The proposer holds a free option to violate whenever the
+alternative block composition is worth more than the slash penalty.
+
+────────────────────────────────────────────────────────────
+FINDING AND CONTEXT
+────────────────────────────────────────────────────────────
+
+We provide full technical details in the D2_mevcommit formal disclosure
+document. The finding and mitigations are structurally identical for Bolt.
+
+Given that Bolt is archived, we do not request any action beyond
+acknowledging receipt of this disclosure for our responsible disclosure record.
+
+If your team has plans for a future preconfirmation system, we would be
+happy to discuss the A2/A4 framework and capability (i)/(ii) paths to
+closing the execution atomicity gap.
+
+────────────────────────────────────────────────────────────
+TIMELINE
+────────────────────────────────────────────────────────────
+
+D_2 (this disclosure): [DATE — withheld for blind review]
+90-day window: informational only (no action expected given archived status)
+Academic submission: S&P 2027 Cycle 2
+
+This message is timestamped via OpenTimestamps + git commit upon sending.
