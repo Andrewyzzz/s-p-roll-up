@@ -25,6 +25,15 @@
     "response_date": "string \u2014 YYYY-MM-DD or null",
     "response_summary": "string \u2014 one-sentence summary or null"
   },
-  "disclosure_attempts": [],
+  "disclosure_attempts": [
+    {
+      "vendor": "D1-shared-sequencers",
+      "date": "2026-05-29",
+      "channel": "formal-disclosure-package",
+      "git_commit_hash": "4e29a6f6801cce2c9aaf55d6f4279ce7f290f430",
+      "opentimestamps_proof": "disclosure/attempts/2026-05-29_D1-shared-sequencers_formal-disclosure-package/content.txt.ots",
+      "content_sha256": "7001eee232e826da30b53d131e8353e2a9eba65c90b8dea2b50a1df9016ee8f7"
+    }
+  ],
   "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
 }
