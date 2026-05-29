@@ -1,23 +1,39 @@
 {
   "_schema": "disclosure-commitments-v1",
   "_description": "Per-attempt disclosure records. Each entry independently verifiable via OpenTimestamps + git.",
-  "_note": "Populated from Task 3.3 (Week 6) through Task 9.4 (Week 23). See §8.4 of paper.",
+  "_note": "Populated from Task 3.3 (Week 6) through Task 9.4 (Week 23). See \u00a78.4 of paper.",
   "_verification": "ots verify disclosure/attempts/<attempt>/content.txt.ots",
   "_vendors": {
-    "D1_shared_sequencers": ["Astria", "Espresso", "Radius"],
-    "D2_preconf_protocols": ["Primev (mev-commit)", "Chainbound (Bolt)"]
+    "D1_shared_sequencers": [
+      "Astria",
+      "Espresso",
+      "Radius"
+    ],
+    "D2_preconf_protocols": [
+      "Primev (mev-commit)",
+      "Chainbound (Bolt)"
+    ]
   },
   "_entry_schema": {
-    "vendor":                "string — vendor name",
-    "category":              "string — D1 or D2",
-    "date":                  "string — YYYY-MM-DD UTC",
-    "channel":               "string — twitter-dm / security-email / discord / forum",
-    "git_commit_hash":       "string — commit hash immediately after outreach",
-    "opentimestamps_proof":  "string — relative path to .ots file",
-    "content_sha256":        "string — SHA-256 of content.txt",
-    "response_date":         "string — YYYY-MM-DD or null",
-    "response_summary":      "string — one-sentence summary or null"
+    "vendor": "string \u2014 vendor name",
+    "category": "string \u2014 D1 or D2",
+    "date": "string \u2014 YYYY-MM-DD UTC",
+    "channel": "string \u2014 twitter-dm / security-email / discord / forum",
+    "git_commit_hash": "string \u2014 commit hash immediately after outreach",
+    "opentimestamps_proof": "string \u2014 relative path to .ots file",
+    "content_sha256": "string \u2014 SHA-256 of content.txt",
+    "response_date": "string \u2014 YYYY-MM-DD or null",
+    "response_summary": "string \u2014 one-sentence summary or null"
   },
-  "disclosure_attempts": [],
+  "disclosure_attempts": [
+    {
+      "vendor": "test-vendor",
+      "date": "2026-05-29",
+      "channel": "workflow-test",
+      "git_commit_hash": "6f5d144e8d9e84e951512c6147e27c07a221e1d3",
+      "opentimestamps_proof": "disclosure/attempts/2026-05-29_test-vendor_workflow-test/content.txt.ots",
+      "content_sha256": "20979b1dd7a64934f35ce86e9fb1e22039962bcd47ab402848dab93aa798882b"
+    }
+  ],
   "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
 }
