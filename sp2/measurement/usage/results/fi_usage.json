@@ -1,0 +1,35 @@
+[
+  {
+    "chain": "Arbitrum One",
+    "contract": "0x1c479675ad559DC151F6Ec7ed3FbF8ceE79582B6",
+    "function": "forceInclusion",
+    "total_txs": -1,
+    "fi_calls": -1,
+    "unique_callers": -1,
+    "first_block": "N/A",
+    "last_block": "N/A",
+    "note": "RPC not connected"
+  },
+  {
+    "chain": "Base",
+    "contract": "0x49048044D57e1C92A77f79988d21Fa8fAF74E97e",
+    "function": "depositTransaction",
+    "total_txs": -1,
+    "fi_calls": -1,
+    "unique_callers": -1,
+    "first_block": "N/A",
+    "last_block": "N/A",
+    "note": "No Etherscan API key; RPC fallback cannot filter by selector"
+  },
+  {
+    "chain": "Optimism",
+    "contract": "0x97cEbbf8959e2A5476fbe9B98A21806Ec234609B",
+    "function": "depositTransaction",
+    "total_txs": -1,
+    "fi_calls": -1,
+    "unique_callers": -1,
+    "first_block": "N/A",
+    "last_block": "N/A",
+    "note": "RPC not connected"
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "l1_block": 25200552,
+  "scan_window": "30 days",
+  "arbitrum_sequencer_batches_30d": 11,
+  "arbitrum_force_inclusion_batches_30d": 0,
+  "base_portal_deposits_30d": 15695,
+  "note": "Force-inclusion batches = SequencerBatchDelivered with non-zero delivery tag"
+}

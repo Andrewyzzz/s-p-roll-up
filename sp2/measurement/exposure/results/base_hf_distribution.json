@@ -1,0 +1,20 @@
+{
+  "chain": "base",
+  "block": 46631203,
+  "scan_blocks": 200000,
+  "borrowers_found": 76,
+  "n_with_active_debt": 63,
+  "total_debt_sample_usd": 38142935.36365942,
+  "at_risk_10pct_drop": {
+    "n": 6,
+    "debt_usd": 28699223.185469743
+  },
+  "at_risk_15pct_drop": {
+    "n": 12,
+    "debt_usd": 28835590.91724423
+  },
+  "at_risk_20pct_drop": {
+    "n": 13,
+    "debt_usd": 28836081.038326498
+  }
+}

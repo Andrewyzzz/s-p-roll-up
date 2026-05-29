@@ -1,0 +1,38 @@
+{
+  "measurement_date": "2026-05-29",
+  "chains": [
+    {
+      "chain": "Base",
+      "fi_window_h": 12,
+      "fi_type": "delay-window",
+      "total_borrow_tvl": 303310000,
+      "sample_users": 63,
+      "sample_debt_usd": 38142935,
+      "sample_pct_at_risk_20pct": 75.6,
+      "var_upper_bound_20pct": 229302536,
+      "var_lower_bound_20pct": 114651268,
+      "var_lower_bound_15pct": 114649320,
+      "var_lower_bound_10pct": 114107125
+    },
+    {
+      "chain": "Arbitrum",
+      "fi_window_h": 24,
+      "fi_type": "ordering-freedom",
+      "total_borrow_tvl": 348790000,
+      "sample_users": 84,
+      "sample_debt_usd": 1322623,
+      "sample_pct_at_risk_20pct": 44.1,
+      "var_upper_bound_20pct": 153935128,
+      "var_lower_bound_20pct": 76967564,
+      "var_lower_bound_15pct": 11038276,
+      "var_lower_bound_10pct": 4343185
+    }
+  ],
+  "combined_var_lower_usd": 191618832,
+  "combined_var_upper_usd": 383237664,
+  "fi_usage": {
+    "arb_force_batches_30d": 0,
+    "base_portal_deposits_30d": 15695
+  },
+  "methodology": "on-chain Borrow event scan \u2192 getUserAccountData HF \u2192 extrapolation with 50% haircut for conservatism"
+}

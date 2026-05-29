@@ -1,0 +1,21 @@
+{
+  "chain": "base",
+  "block": 46631108,
+  "sample_window_blocks": 2000,
+  "borrow_events": 22,
+  "unique_borrowers": 20,
+  "n_with_debt": 0,
+  "total_debt_usd_sample": 0,
+  "at_risk_10pct": {
+    "users": 0,
+    "debt_usd": 0
+  },
+  "at_risk_15pct": {
+    "users": 0,
+    "debt_usd": 0
+  },
+  "at_risk_20pct": {
+    "users": 0,
+    "debt_usd": 0
+  }
+}

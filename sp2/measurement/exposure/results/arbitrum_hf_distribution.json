@@ -1,0 +1,19 @@
+{
+  "chain": "arbitrum",
+  "block": 467873447,
+  "borrowers_found": 92,
+  "n_with_active_debt": 84,
+  "total_debt_sample_usd": 1322623.3566286897,
+  "at_risk_10pct_drop": {
+    "n": 4,
+    "debt_usd": 32938.623441799995
+  },
+  "at_risk_15pct_drop": {
+    "n": 10,
+    "debt_usd": 83714.68719508
+  },
+  "at_risk_20pct_drop": {
+    "n": 16,
+    "debt_usd": 583726.94951777
+  }
+}
