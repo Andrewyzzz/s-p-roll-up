@@ -25,15 +25,6 @@
     "response_date": "string \u2014 YYYY-MM-DD or null",
     "response_summary": "string \u2014 one-sentence summary or null"
   },
-  "disclosure_attempts": [
-    {
-      "vendor": "test-vendor",
-      "date": "2026-05-29",
-      "channel": "workflow-test",
-      "git_commit_hash": "6f5d144e8d9e84e951512c6147e27c07a221e1d3",
-      "opentimestamps_proof": "disclosure/attempts/2026-05-29_test-vendor_workflow-test/content.txt.ots",
-      "content_sha256": "20979b1dd7a64934f35ce86e9fb1e22039962bcd47ab402848dab93aa798882b"
-    }
-  ],
+  "disclosure_attempts": [],
   "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
 }

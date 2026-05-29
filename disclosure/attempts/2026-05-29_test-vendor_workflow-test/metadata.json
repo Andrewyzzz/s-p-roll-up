@@ -1,8 +1,0 @@
-{
-  "vendor": "test-vendor",
-  "channel": "workflow-test",
-  "date_utc": "2026-05-29",
-  "content_sha256": "20979b1dd7a64934f35ce86e9fb1e22039962bcd47ab402848dab93aa798882b",
-  "ots_status": "stamped (pending Bitcoin confirmation)",
-  "git_commit_hash": "PENDING"
-}
