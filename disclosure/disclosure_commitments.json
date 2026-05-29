@@ -33,6 +33,14 @@
       "git_commit_hash": "4e29a6f6801cce2c9aaf55d6f4279ce7f290f430",
       "opentimestamps_proof": "disclosure/attempts/2026-05-29_D1-shared-sequencers_formal-disclosure-package/content.txt.ots",
       "content_sha256": "7001eee232e826da30b53d131e8353e2a9eba65c90b8dea2b50a1df9016ee8f7"
+    },
+    {
+      "vendor": "D2-mevcommit",
+      "date": "2026-05-29",
+      "channel": "formal-disclosure-package",
+      "git_commit_hash": "c752aeba41f7e534abe7f78e4381452d3d0a2008",
+      "opentimestamps_proof": "disclosure/attempts/2026-05-29_D2-mevcommit_formal-disclosure-package/content.txt.ots",
+      "content_sha256": "2422dd43135569f1723d5d884447798ae91d5310c24490bc21496c7faebaa7a9"
     }
   ],
   "submission_aggregator_sha256": "TO_BE_COMPUTED_AT_TASK_10.5"
