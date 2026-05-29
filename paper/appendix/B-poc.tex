@@ -1,0 +1,35 @@
+% Appendix B --- PoC Code Listings
+
+\subsection{Proof-of-Concept Implementations}
+\label{app:poc}
+
+Full source code is in the artifact repository~\cite{artifact-repo}.
+
+\subsection*{B.1 PEO Attack (\texttt{poc/peo/})}
+
+Foundry reimplementation of mev-commit commitment architecture.
+Contracts: \texttt{PreconfManager.sol}, \texttt{ProviderRegistry.sol},
+\texttt{BidderRegistry.sol}, \texttt{MockOracle.sol}.
+
+Four tests, all passing: (1)~\texttt{testPEO\_ViolationProfit}:
+$B=1$\,ETH, $s=0.05$\,ETH, $\delta=0.12$\,ETH $\Rightarrow$ net
+$+0.0675$\,ETH; (2)~bond depletion at 19 violations;
+(3)~adversarial low $s$ amplification; (4)~honest baseline.
+
+\verb|cd poc/peo && forge test -vv|
+
+\subsection*{B.2 PEFO Structural Demonstration (\texttt{poc/pefo-devnet/})}
+
+\texttt{pefo\_exploit\_demo.py}: confirms C1/C2/C3 on Astria local devnet;
+measures 2,199\,ms PEFO window (\S\ref{sec:meas-timing}); computes
+$\Delta\Pi^{\text{PEFO}} = 0.08$\,ETH.
+
+\texttt{fault\_inject\_demo.py}: Monte Carlo $N=10{,}000$; PEFO feasible
+under attacker delays up to 1,500\,ms, partial failure probability
+$p \leq 1$, and sequencer jitter $\sigma \leq 500$\,ms
+(\S\ref{sec:meas-faultinject}).
+
+\begin{verbatim}
+~/bin/astria-go dev run --instance rollup-a --network local --headless
+python3 poc/pefo-devnet/pefo_exploit_demo.py
+\end{verbatim}

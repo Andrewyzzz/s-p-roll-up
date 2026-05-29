@@ -1,0 +1,30 @@
+% Appendix E --- Disclosure Timeline
+
+\subsection{Disclosure Timeline and Correspondence}
+\label{app:disclosure}
+
+\paragraph{Blind-review notice.}
+Specific disclosure dates, vendor correspondence, OpenTimestamps proof
+hashes, and git commit identifiers are withheld in this submission to
+preserve author anonymity. The complete, independently verifiable disclosure
+record---including per-attempt OTS proofs anchored to the Bitcoin
+blockchain and git commit timestamps---will be released in full upon
+acceptance as part of the artifact package~\cite{artifact-repo}.
+
+\paragraph{Summary.}
+All disclosures in Table~\ref{tab:vendor-responses} (\S\ref{sec:disclosure})
+were made at least 90 days prior to submission. The two-layer timestamping
+scheme (\S\ref{sec:disclosure-timestamps}) ensures that disclosure content
+is tamper-evidently fixed before the submission date.
+
+\paragraph{Structure of the disclosure record.}
+Each entry in \texttt{disclosure/disclosure\_commitments.json} contains:
+\texttt{vendor}, \texttt{category} (D1/D2), \texttt{date},
+\texttt{channel}, \texttt{git\_commit\_hash},
+\texttt{opentimestamps\_proof} (path to .ots file),
+\texttt{content\_sha256}, \texttt{response\_date}, \texttt{response\_summary}.
+
+\paragraph{Verification at camera-ready.}
+To verify a disclosure attempt: \texttt{ots verify content.txt.ots}
+(returns Bitcoin block attestation); \texttt{shasum -a 256 content.txt}
+(matches SHA-256 in \texttt{disclosure\_commitments.json}).

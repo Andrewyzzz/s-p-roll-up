@@ -90,9 +90,21 @@ and Polygon~zkEVM, calibrated to empirically estimated power-law tail behavior.
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
+%% Appendices: structured under two top-level sections to stay within
+%% IEEEtran conference counter limits.
 \appendix
+
+%% Appendix A: Theorem proofs and boundary cases
+\section{Theorem Proofs and Boundary Cases}
+\label{app:theorems}
+
 \input{appendix/A-boundary}
 \input{appendix/A4-theorem2}
+
+%% Appendix B: PoC, Survey, Measurement, Disclosure, Ethics
+\section{PoC Code, Survey, Measurement, Disclosure, and Ethics}
+\label{app:supplemental}
+
 \input{appendix/B-poc}
 \input{appendix/C-survey}
 \input{appendix/D-measurement}

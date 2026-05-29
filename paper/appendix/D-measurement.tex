@@ -1,0 +1,41 @@
+% Appendix D --- Measurement Methodology
+
+\subsection{Measurement Methodology}
+\label{app:measurement}
+
+\paragraph{Real-stack timing (\S\ref{sec:meas-timing}).}
+We run Astria shared sequencer v1.0.0 with CometBFT v0.38.11 locally
+(\verb|astria-go dev run --network local --headless|) with two rollup
+namespaces (\texttt{pefo-rollup-a}, \texttt{pefo-rollup-b}).
+We poll the CometBFT RPC at 50\,ms intervals and record:
+$t_{\text{commit}}$ = \texttt{block.header.time} (ISO 8601),
+$t_{\text{observed}}$ = wall-clock time of first successful poll for the
+target height. Gap $= t_{\text{observed}} - t_{\text{commit}}$. $N=15$
+consecutive blocks, heights 187--201, chain \texttt{pefo-test-chain}.
+
+\paragraph{Option-value data acquisition (\S\ref{sec:meas-tailindex}).}
+We call \texttt{eth\_getBlockByNumber} with \texttt{true} (full transaction
+objects) on each sampled block. Option value:
+$V = \sum_\tau \texttt{gasUsed}_\tau \times \texttt{effectiveGasPrice}_\tau$.
+Public RPC endpoints: Optimism (\texttt{mainnet.optimism.io}),
+Base (\texttt{base-pokt.nodies.app}),
+Arbitrum (\texttt{arb-pokt.nodies.app}).
+Rate limit: 10\,req/s. Block sampling: uniform with $\pm 5\%$ jitter,
+$N=300$ per chain (12-month window).
+
+\paragraph{Hill estimator parameters.}
+Primary threshold $k=100$; stability sweep $k \in \{50, 100, 200, 500\}$;
+bootstrap CI with 1,000 resamples; MLE (Clauset et al.~\cite{Clauset2009})
+as robustness check. L1 MEV cross-validation: 2,000 MEV-Boost bid values
+from \texttt{relay.ultrasound.money}~\cite{ultrasound-relay}.
+
+\paragraph{Counterfactual replay (\S\ref{sec:meas-replay}).}
+For each sampled block, the A4 violation indicator is
+$\mathbf{1}[V > B_{\max}]$. Violation rate $\hat{\rho}(B_{\max})$ computed
+across all $N$ windows. Theorem~2 bound $\rho_{\min}$ computed with
+empirical $\hat{C}$ and $\hat{\alpha}$ per chain.
+
+\paragraph{Reproducibility.}
+All scripts are in \texttt{measurement/} in the artifact
+repository~\cite{artifact-repo}. Data files are provided where not
+restricted by RPC terms.

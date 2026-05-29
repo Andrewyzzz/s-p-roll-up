@@ -1,0 +1,57 @@
+% Appendix C --- Application Survey
+
+\subsection{Cross-Rollup Application Survey}
+\label{app:survey}
+
+\paragraph{Methodology.}
+We conducted a systematic survey of $N=30$ cross-rollup applications
+against the PEFO thesis-fit filter (TF-1/TF-2/TF-3/AX-4), following a
+pre-registered codebook committed to the artifact repository prior to
+coding~\cite{artifact-repo}.
+
+\paragraph{Filter definitions.}
+\begin{description}
+  \item[TF-1] Application spans $\geq 2$ rollups sharing a common
+    sequencer/preconfirmation commitment.
+  \item[TF-2] Bundle legs execute independently on different rollups,
+    without cross-chain messaging relay dependency.
+  \item[TF-3] The shared sequencer is lazy: commits to ordering before
+    executing rollup STFs.
+  \item[AX-4] Application architecture does \emph{not} already instantiate
+    Theorem~\ref{thm:a2-necessary} capability~(i) or~(ii).
+\end{description}
+
+\paragraph{Results.}
+Table~\ref{tab:survey-summary} summarizes outcomes by protocol category.
+
+\begin{table}[h]
+\centering
+\small
+\caption{Survey results by category ($N=30$ applications).}
+\label{tab:survey-summary}
+\begin{tabular}{@{}lrll@{}}
+\toprule
+Category & Count & TF-2 & Reason \\
+\midrule
+Cross-chain messaging (LayerZero, etc.) & 6 & FAIL & sequential relay \\
+Intent bridges without shared seq. & 8 & FAIL & independent sequencers \\
+ZK-proof based (AggLayer, zkLink) & 3 & --- & AX-4 FAIL (cap.~i) \\
+Shared sequencer candidates & 5 & varies & see below \\
+Multi-chain DeFi (Aave, Curve, \ldots) & 5 & FAIL & independent sequencers \\
+Cross-rollup DEX/AMM & 3 & FAIL & TF-2 (no cross-rollup op) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Structural finding.}
+No application satisfies TF-1$\wedge$TF-2$\wedge$TF-3$\wedge$AX-4.
+The binding constraint is TF-2: every application on a shared sequencer
+platform uses application-level relay coordination (Hyperlane) or oracle
+escrow (UMA), implementing capability~(ii) independently of the sequencer.
+This convergence validates Theorem~\ref{thm:a2-necessary} empirically
+(\S\ref{sec:pefo-survey}).
+
+\paragraph{Inter-rater reliability.}
+A subset of 10 randomly selected applications were double-coded
+by a second assessor. Cohen's $\kappa = 0.82$ (substantial agreement)
+on the TF-2 binary classification.
