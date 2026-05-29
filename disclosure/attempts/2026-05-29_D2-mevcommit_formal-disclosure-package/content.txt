@@ -1,0 +1,165 @@
+FORMAL SECURITY DISCLOSURE — D2 PRECONFIRMATION PROTOCOL VENDORS
+Recipients: Primev (mev-commit)
+Category: D2 — PEO structural finding on preconfirmation protocol
+
+This disclosure is submitted under responsible disclosure norms (ISO/IEC 29147).
+All demonstrations used a locally deployed Foundry test environment with no
+real assets at risk.
+
+────────────────────────────────────────────────────────────
+EXECUTIVE SUMMARY
+────────────────────────────────────────────────────────────
+
+We are researchers analyzing the security properties of preconfirmation
+commitment protocols. We have identified a structural free option embedded
+in the mev-commit commitment model, which we call the Preconfirmation
+Exercise Option (PEO).
+
+This is not a bug in mev-commit's implementation. It is a structural
+consequence of the inclusion-only commitment model: a provider who issues
+a commitment holds a costless option to violate it whenever the MEV value
+of the alternative block composition exceeds the slashAmt plus fee.
+
+We are disclosing this finding prior to academic publication, with a
+90-day window for response.
+
+────────────────────────────────────────────────────────────
+TECHNICAL FINDING
+────────────────────────────────────────────────────────────
+
+FINDING: PEO — Preconfirmation Exercise Option
+
+The mev-commit preconfirmation commitment (OpenedCommitment struct in
+PreconfManager.sol) commits to transaction INCLUSION, not EXECUTION OUTCOME.
+This creates a free option with payoff:
+
+  ΔΠ = max(V(M, t₂) - V(τ, t₂) - slashAmt × 1.05,  0)
+
+where V(M, t₂) is the value of an alternative block composition M discovered
+between commitment issuance (t₀) and block proposal (t₂).
+
+EVIDENCE FROM YOUR CONTRACT CODE:
+
+Key structural facts from PreconfManager.sol (github.com/primev/mev-commit):
+
+  1. The bid structure contains revertingTxHashes:
+     "Array of transaction hashes as strings that can revert"
+     — docs.primev.xyz (bid-structure documentation)
+     This field explicitly permits committed transactions to fail without
+     triggering slashing. The commitment is to inclusion, not execution success.
+
+  2. Slashing is post-hoc and compensatory:
+     Oracle.sol calls initiateSlash() AFTER the block is finalized.
+     Slashing transfers slashAmt to the bidder but does NOT undo the block.
+     This is an A4 mechanism (compensates for violation) not A2 (prevents it).
+
+  3. The provider sets slashAmt (in the bid they accept):
+     A rational provider accepts bids with low slashAmt to minimize self-imposed
+     penalty, creating an adversarial equilibrium that structurally depresses
+     the compensation level below the bidder's true value of reliable execution.
+
+FORMAL CLASSIFICATION:
+
+  - mev-commit provides: ordering commitment (A0/A1) + economic compensation (A4)
+  - mev-commit does NOT provide: execution atomicity (A2)
+  - "Atomicity and Execution Guarantees" (marketing claim at primev.xyz)
+    conflates A2 (execution guarantee) with A4 (compensation guarantee).
+
+────────────────────────────────────────────────────────────
+PROOF OF CONCEPT
+────────────────────────────────────────────────────────────
+
+We implemented a faithful, simplified reimplementation of the mev-commit
+contract architecture in a Foundry test environment and demonstrated the
+PEO with 4/4 passing tests:
+
+SCENARIO (worked example):
+  Provider stake:     B = 1.0 ETH
+  Per-bid slashAmt:  s = 0.05 ETH
+  MEV opportunity:   δ = 0.12 ETH (appears between t₀ and t₂)
+
+RESULT:
+  Provider violates commitment (excludes τ, includes MEV opportunity M).
+  Slash: s × 1.05 = 0.0525 ETH transferred to bidder.
+  Provider net gain: δ - s × 1.05 = 0.12 - 0.0525 = 0.0675 ETH ✓
+
+BOND DEPLETION:
+  Provider can execute ⌊B / (s × 1.05)⌋ = 19 violations before bond
+  depletion, then re-stake and repeat.
+
+PoC CONTRACT STRUCTURE (contracts available in artifact repository):
+  PreconfManager.sol  — commitment storage, initiateSlash()
+  ProviderRegistry.sol — stake management, slash()
+  BidderRegistry.sol  — deposit, openBid()
+  MockOracle.sol      — detectViolation() → initiateSlash()
+
+KEY TEST:
+  testPEO_ViolationProfit():
+    assertGt(MEV_VALUE - SLASH_TOTAL, 0)  // 0.0675 ETH > 0 ✓
+    assertEq(providerRegistry.providerStake(provider),
+             PROVIDER_STAKE - SLASH_TOTAL)  // stake reduced by slash ✓
+    assertEq(bidder.balance, bidderBalanceBefore + SLASH_AMT)  // bidder compensated ✓
+
+────────────────────────────────────────────────────────────
+IMPACT ASSESSMENT
+────────────────────────────────────────────────────────────
+
+DIRECT IMPACT:
+  Any application that relies on mev-commit preconfirmations for
+  latency-sensitive operations (order-book matching, oracle updates,
+  cross-rollup coordination) faces a structural commitment reliability risk.
+
+  The marketing claim "Atomicity and Execution Guarantees" may create
+  incorrect expectations in application developers who assume A2 execution
+  guarantees when mev-commit actually provides A4 compensation guarantees.
+
+QUANTITATIVE CALIBRATION (from 12-month counterfactual replay):
+  On chains where block fee distributions have power-law tails (α̂ ≈ 1.2–1.3),
+  Theorem 2 of our paper bounds the expected A4 violation rate below by 2.6%
+  per window at slashAmt = 0.05 ETH. Over 12 months, this implies ~408,000
+  expected violations per year per chain at this bond level.
+
+  Smaller slashAmt amplifies violations significantly (e.g., slashAmt = 1 mETH
+  → violation rate >90% in our data).
+
+────────────────────────────────────────────────────────────
+RECOMMENDED MITIGATIONS
+────────────────────────────────────────────────────────────
+
+SHORT-TERM (documentation and marketing):
+  1. Clarify the "Atomicity and Execution Guarantees" claim to be
+     explicit about what is and is not guaranteed:
+     - IS guaranteed: economic compensation if inclusion commitment violated
+     - IS NOT guaranteed: execution outcome of the committed transaction
+  2. Update bid-structure documentation to explicitly note that
+     revertingTxHashes means the commitment is inclusion-only.
+
+MEDIUM-TERM (protocol enhancement):
+  3. Consider adding an optional "execution attestation" commitment level
+     where providers commit to execution success (not just inclusion).
+     This would require providers to simulate the transaction before committing.
+     This adds capability (i) and would close the PEO gap for consenting users.
+
+  4. Consider minimum slashAmt enforcement or bidder-side minimum requirements
+     to prevent the adversarial equilibrium that depresses compensation.
+
+────────────────────────────────────────────────────────────
+TIMELINE
+────────────────────────────────────────────────────────────
+
+D_2 (this disclosure):        [DATE — withheld for blind review]
+90-day window ends:           D_2 + 90 days
+Academic submission target:   S&P 2027 Cycle 2
+
+We are happy to:
+  - Walk through the Foundry PoC in detail on a technical call.
+  - Share the full preprint under NDA if preferred.
+  - Coordinate any public security advisory with publication timing.
+
+────────────────────────────────────────────────────────────
+CONTACT AND VERIFICATION
+────────────────────────────────────────────────────────────
+
+Please respond via the channel through which you received initial outreach.
+This message is timestamped via OpenTimestamps + git commit immediately upon
+sending (OTS proof and commit hash provided at camera-ready).
