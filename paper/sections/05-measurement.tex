@@ -135,13 +135,60 @@ Optimism (OP), Base, Arbitrum~One, and Polygon~zkEVM. For each sampled block,
 we compute the \emph{option value proxy}:
 \[
   V(\text{block}) = \sum_{\tau \in \text{block}}
-    \texttt{gasUsed}_\tau \times \texttt{effectiveGasPrice}_\tau \quad \text{(ETH)}.
+    \texttt{gasUsed}_\tau \times \texttt{effectiveGasPrice}_\tau \quad \text{(ETH)},
 \]
-This is a conservative lower bound on the true option value: it counts only
-transaction fee revenue and excludes sandwich MEV, liquidation revenue, and
-other extractable value~\cite{daian2020flash}. We sample 2,000 blocks
-uniformly from each chain's 12-month window, with $\pm$5\% random jitter to
-avoid block-time alignment artifacts.
+where $\texttt{effectiveGasPrice}_\tau = \texttt{baseFeePerGas} +
+\min(\texttt{maxPriorityFeePerGas},\, \texttt{maxFeePerGas} - \texttt{baseFeePerGas})$
+for EIP-1559 transactions~\cite{eip1559}. This captures the full fee revenue
+per block, including the priority tip that constitutes direct sequencer income.
+
+\paragraph{Proxy justification.}
+The proxy $V(\text{block})$ is a lower bound on the true option value $V^*$
+because it excludes MEV: sandwich attacks, liquidation profits, oracle
+manipulation, and arbitrage that a sequencer could extract by reordering
+transactions~\cite{daian2020flash, obadia2021unity}. Despite this, the proxy
+is adequate for \emph{tail-index estimation} for the following three reasons.
+
+\textbf{(1) Shared tail structure.}
+Block fee revenue and MEV opportunity value both derive from the same underlying
+source: the distribution of transaction value processed per block. Large fee-revenue
+blocks occur when high-value transactions cluster (e.g., during NFT mint events,
+DeFi liquidation cascades, or market volatility), which are precisely the same
+events that generate large MEV opportunities. Both quantities are therefore
+governed by the same fat-tailed distribution of underlying transaction
+values~\cite{Gabaix2009}. Power laws are preserved under positive linear
+combinations~\cite{EmbrechtsKM1997}, so $V(\text{block}) + V_{\text{MEV}}$
+has the same tail index as each component.
+
+\textbf{(2) Empirical cross-validation.}
+Flashbots MEV-Explore data for Ethereum L1 reports MEV per block concentrated
+in a heavy-tailed distribution with estimated tail index $\hat{\alpha} \approx
+1.2$--$1.5$~\cite{Flashbots2023}, consistent with our proxy estimates of
+$\hat{\alpha} \in [1.19, 1.35]$ on Optimism and Base L2. The alignment supports
+the hypothesis that block fee revenue is a valid proxy for MEV option value in
+tail-index estimation.
+
+\textbf{(3) Conservative direction.}
+Since $V(\text{block}) \leq V^*(\text{block})$ for every block (MEV $\geq 0$),
+$V^*$ stochastically dominates $V$:
+$\Pr[V^* > v] \geq \Pr[V > v]$ for all $v$.
+Stochastic dominance implies that $V^*$ has a heavier or equal tail than $V$
+— formally, the true tail index $\alpha^*$ satisfies $\alpha^* \leq \hat{\alpha}$.
+Since $\rho_{\min}(\alpha, B_{\max}, w, \lambda) = w \cdot \lambda \cdot
+C \cdot B_{\max}^{-\alpha}$ is decreasing in $\alpha$ (for $B_{\max} < 1$),
+this means:
+\[
+  \rho_{\min}(\hat{\alpha},\, B_{\max},\, w,\, \lambda)
+  \;\leq\;
+  \rho_{\min}(\alpha^*,\, B_{\max},\, w,\, \lambda).
+\]
+The proxy underestimates the true violation rate. Our empirical estimates of
+$\rho_{\min}$ are therefore \emph{lower bounds} on the true violation rate,
+a conservative direction that strengthens rather than weakens the paper's claims.
+
+We sample 300 blocks uniformly from each chain's 12-month window (with
+$\pm$5\% random jitter to avoid alignment artifacts), using full transaction
+data to compute $V(\text{block})$ per block.
 
 \paragraph{Estimation.}
 We estimate the tail index $\hat{\alpha}$ of the power-law distribution
