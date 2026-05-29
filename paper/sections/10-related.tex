@@ -24,23 +24,26 @@ distinguish our contribution: we apply these classical notions to a setting
 where the ``coordinator'' is a lazy sequencer with no execution access, which
 classical atomic commitment does not address.
 
-\paragraph{2. arXiv 2410.11552.}
-% TODO (Task 1.5): fill with actual citation and summary.
-% Placeholder: concurrent work on cross-rollup sequencing.
-[CITATION] studies cross-rollup sequencing from a [FOCUS] perspective. Our
-contribution is distinguished in [SPECIFIC WAY]: we provide the A2/A4 taxonomy
-that separates execution outcome from economic externality, and demonstrate
-the gap is non-vacuous via PoC attacks on deployed systems. [CITATION] does not
-address [OUR SPECIFIC CONTRIBUTION].
+\paragraph{2. Silva and Livshits~\cite{arxiv2410.11552}.}
+Silva and Livshits study the economics of atomic execution in shared
+sequencers, showing that switching to atomic execution does not always
+improve arbitrage profits. Their focus is on whether atomicity is
+\emph{worth providing} (economic optimality for MEV extraction).
+Our contribution is orthogonal: we study whether atomic execution
+\emph{can be provided at all} without capability~(i) or~(ii)
+(structural impossibility), and calibrate the economic cost of the
+gap that results. Silva and Livshits do not address the A2/A4
+separation, the capability taxonomy, or the empirical violation-rate
+calibration that constitute our main contributions.
 
-\paragraph{3. CCS 2025 Denial of Sequencing.}
-% TODO (Task 1.5): fill when paper is available.
-[CITATION] identifies denial-of-sequencing as an attack vector on shared
-sequencer architectures. Our contribution is orthogonal: we study the case
-where the sequencer \emph{does} include the bundle (commits faithfully) but
-the inclusion commitment still admits free-option attacks due to the execution
-gap. Both attacks exploit properties of lazy sequencers; ours focuses on
-selective exercise of commitments, not denial.
+\paragraph{3. CCS 2025 Denial of Sequencing~\cite{ccs2025dos}.}
+This work identifies denial-of-sequencing as an attack vector on shared
+sequencer architectures: an adversary withholds inclusion of a committed
+bundle. Our contribution is orthogonal: we study the case where the
+sequencer faithfully includes the bundle but the inclusion commitment still
+admits free-option attacks due to the execution gap. Both attacks exploit
+properties of lazy sequencers; ours focuses on selective exercise of the
+option value embedded in a commitment, not refusal to honor inclusion.
 
 \paragraph{4. ethresear.ch Preconfirmation Taxonomies.}
 Several ethresear.ch posts propose taxonomies and design criteria for
