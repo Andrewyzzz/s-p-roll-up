@@ -1,0 +1,172 @@
+FORMAL SECURITY DISCLOSURE — D1 SHARED SEQUENCER VENDORS
+Recipients: Astria, Espresso Systems, Radius
+Category: D1 — Structural finding on shared sequencer platforms
+
+This disclosure is submitted under responsible disclosure norms (ISO/IEC 29147).
+All demonstrations used local devnet infrastructure; no mainnet funds were
+accessed or put at risk.
+
+────────────────────────────────────────────────────────────
+EXECUTIVE SUMMARY
+────────────────────────────────────────────────────────────
+
+We are researchers working on the security of shared sequencer architectures.
+We have identified a structural property of lazy shared sequencers that creates
+a "free option" attack surface for cross-rollup applications. We call this the
+Partial-Execution Free Option (PEFO).
+
+This is not a bug in your sequencer implementation. It is a structural
+consequence of the lazy-sequencer design (ordering without execution) that
+affects any cross-rollup application built on your platform that does not
+implement specific application-level mitigations.
+
+We are disclosing this finding to you prior to academic publication, with a
+90-day window for response.
+
+────────────────────────────────────────────────────────────
+TECHNICAL FINDING
+────────────────────────────────────────────────────────────
+
+FINDING: PEFO — Partial-Execution Free Option
+
+A shared sequencer that (C1) covers multiple rollup namespaces in a single
+commitment, and (C3) commits to ordering before rollup execution, creates a
+structural window in which an attacker can:
+
+1. Observe that a filler's fill transaction τ₁ (on Rollup A) will succeed.
+2. Submit a competing transaction τ₂' to Rollup B that causes the filler's
+   fill τ₂ to fail — before τ₂ executes.
+3. Extract the option value: the filler delivered one leg of the fill but
+   not both, losing the capital committed to the failed leg.
+
+EVIDENCE FROM YOUR PLATFORM DOCUMENTATION:
+
+[Astria] Your documentation explicitly confirms:
+  - C1: "a single meta block consisting of transactions submitted to its
+    mempool by one or more rollups" — docs.astria.org/overview/transaction-flow
+  - C3: "provides a guarantee on the ordering of transactions in a block,
+    but it doesn't execute the state transition function of any given rollup"
+    — same source
+  Your README claims "atomic cross-rollup composability" — but as the above
+  shows, the sequencer provides ordering atomicity (A0/A1), not execution
+  atomicity (A2).
+
+[Espresso] Your architecture documentation confirms:
+  - C1: "Espresso block: a block produced by Espresso Network containing
+    transactions of multiple rollups" — architecture.md
+  - C3: "L2 validators receive blocks and execute the state transition
+    functions for their rollups" (after HotShot confirmation) — same source
+
+[Radius] Under review pending full architectural analysis. Precautionary
+  disclosure sent as courtesy notification.
+
+FORMAL DEFINITIONS:
+
+We prove (Theorem 1) that any deterministic lazy sequencer over independent
+rollup STFs cannot provide execution atomicity (A2) without one of:
+  (i) Pre-execution success-predicate evidence, or
+  (ii) Authority to prevent partial irreversible effects.
+
+Bond-slashing mechanisms (A4) compensate for A2 failures but cannot prevent
+them. This is a structural separation, not a quantitative one.
+
+────────────────────────────────────────────────────────────
+PROOF OF CONCEPT
+────────────────────────────────────────────────────────────
+
+We demonstrated PEFO on an Astria local devnet testbed (two rollup namespaces:
+pefo-rollup-a, pefo-rollup-b) with the following confirmed results:
+
+  C1 CONFIRMED: Single Astria meta block covers both namespaces simultaneously.
+  C2 CONFIRMED: Each namespace executes via independent Conductor (no relay).
+  C3 CONFIRMED: Mean commitment-to-execution gap = 2,199ms ±44ms (N=15 blocks).
+
+PEFO payoff (scenario): Filler submits 0.20 ETH combined bundle (0.12 ETH leg A
+  + 0.08 ETH leg B). Attacker causes leg B to fail during the 2,199ms window.
+  Filler loses 0.08 ETH. Structural payoff = 0.08 ETH > 0.
+
+PoC scripts available in the artifact repository (details withheld during
+blind review; released upon acceptance):
+  - poc/pefo-devnet/pefo_exploit_demo.py (structural conditions, timing)
+  - poc/pefo-devnet/fault_inject_demo.py (feasibility under adversarial conditions)
+
+────────────────────────────────────────────────────────────
+IMPACT ASSESSMENT
+────────────────────────────────────────────────────────────
+
+CURRENT PRODUCTION IMPACT: LOW TO MODERATE
+
+Our systematic survey (N=30 cross-rollup applications) found that NO currently
+deployed production application simultaneously satisfies the three PEFO
+conditions without implementing an application-level mitigation:
+  - All cross-chain bridging protocols use messaging relay (Hyperlane, LayerZero)
+    which prevents partial execution via the onlyMailbox pattern.
+  - Oracle-backed escrow protocols (Across UMA) hold origin funds until
+    destination confirmation.
+
+The gap exists as a FORWARD-LOOKING RISK: as cross-rollup intent protocols
+mature on lazy-sequencer platforms, applications that build without relay
+coordination or escrow will be immediately exposed.
+
+SPECIFIC RISK CATEGORIES:
+  1. Any intent-filling protocol on your platform where a solver submits
+     independent fills to two rollup namespaces in the same block commitment.
+  2. Cross-rollup liquidity rebalancing without atomic escrow.
+  3. Paired order execution across two rollups.
+
+────────────────────────────────────────────────────────────
+RECOMMENDED MITIGATIONS
+────────────────────────────────────────────────────────────
+
+SHORT-TERM (documentation):
+  1. Update documentation to clarify that the shared sequencer provides
+     ordering atomicity (A0/A1), NOT execution atomicity (A2).
+  2. Add explicit guidance for cross-rollup application developers on
+     the PEFO risk and required application-level mitigations.
+
+MEDIUM-TERM (developer guidance):
+  3. Publish a security advisory recommending that cross-rollup intent
+     fillers use one of:
+     (a) Relay coordination (Hyperlane, etc.) with onlyMailbox protection.
+     (b) Oracle-backed escrow with revert path.
+     (c) Application-level HTLC with joint hashlock.
+
+LONG-TERM (protocol changes, optional):
+  4. Consider optional "eager execution attestation" mode where the sequencer
+     executes a bundle before committing, providing capability (i).
+     This would change the lazy-sequencer model but close the A2 gap.
+
+────────────────────────────────────────────────────────────
+TIMELINE
+────────────────────────────────────────────────────────────
+
+D_1 (this disclosure):        [DATE — withheld for blind review]
+90-day window ends:           D_1 + 90 days
+Academic submission target:   S&P 2027 Cycle 2
+
+We will publish the paper regardless of vendor response at the end of the
+90-day window. If you provide a substantive technical response, we will
+incorporate it (with your permission) into the paper's disclosure section.
+
+We are happy to schedule a technical call to walk through the findings in
+detail.
+
+────────────────────────────────────────────────────────────
+CONTACT
+────────────────────────────────────────────────────────────
+
+Please respond to this disclosure via the channel through which you received
+the initial outreach. All correspondence will be timestamped via
+OpenTimestamps (Bitcoin blockchain anchor) for our disclosure record.
+
+────────────────────────────────────────────────────────────
+DISCLOSURE VERIFICATION
+────────────────────────────────────────────────────────────
+
+This message will be timestamped via the following scheme immediately upon
+sending:
+  1. SHA-256 hash submitted to OpenTimestamps calendar network.
+  2. Content committed to public artifact repository (git timestamp).
+
+The OTS proof and git commit hash will be provided at camera-ready time.
+This establishes tamper-evident evidence that disclosure preceded submission.
