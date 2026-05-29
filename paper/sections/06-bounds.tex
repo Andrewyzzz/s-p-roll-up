@@ -1,13 +1,13 @@
-% Section 6 — Lower Bounds (~1.5 pages, weight 12%)
-% 6.1 Theorem 1 — Necessary Capability for Deterministic A2 (~0.4 page proof)
-% 6.2 Observation 1 — Capability classification
-% 6.3 Theorem 2 — Calibrated Bond Insufficiency (~0.3 page proof)
-% 6.4 Corollary — Empirical violation rate
+% Section 6 --- Lower Bounds (~1.5 pages, weight 12%)
+% 6.1 Theorem 1 --- Necessary Capability for Deterministic A2 (~0.4 page proof)
+% 6.2 Observation 1 --- Capability classification
+% 6.3 Theorem 2 --- Calibrated Bond Insufficiency (~0.3 page proof)
+% 6.4 Corollary --- Empirical violation rate
 %
 % REVIEW STATUS: Draft. Awaiting Task 8.2 (distributed-systems colleague review).
-% OPEN: Theorem 1 proof Step "Construction" — confirm adversary model
+% OPEN: Theorem 1 proof Step "Construction" --- confirm adversary model
 %       is consistent with §2.5 threat model.
-% OPEN: Theorem 2 — C and alpha_hat to be substituted from Task 7.4 results.
+% OPEN: Theorem 2 --- C and alpha_hat to be substituted from Task 7.4 results.
 
 \section{Lower Bounds}
 \label{sec:bounds}
@@ -22,7 +22,7 @@ is a transaction. A \emph{bundle} $B = (\tau_1, \tau_2)$ pairs one transaction
 per rollup. The sequencer issues a \emph{commitment} $\Gamma(B)$ attesting to
 the inclusion and ordering of $B$ before execution.
 
-\begin{definition}[A2 — Execution Atomicity]
+\begin{definition}[A2 --- Execution Atomicity]
 \label{def:a2}
 A sequencer $\mathcal{S}$ provides \emph{A2 execution atomicity} for bundle $B$
 if, for every execution of $B$ under any admissible interleaving of $R_1, R_2$:
@@ -241,7 +241,7 @@ Table~\ref{tab:calibrated-rhomin} reports the empirical A4 violation rate
 $\hat{\rho}(B_{\max})$ and the Theorem~\ref{thm:bond-insufficient} lower bound
 $\rho_{\min}(\hat{\alpha}, B_{\max})$ at chain-calibrated thresholds.
 The calibrated $B_{\max}$ for each chain is the 90th percentile of $V$
-on that chain — the bond level at which the top 10\% of blocks would
+on that chain --- the bond level at which the top 10\% of blocks would
 trigger violations.
 
 \begin{table}[h]
@@ -314,7 +314,7 @@ Over a 12-month window with $\lambda = 1$ commitment per block and
 $w = 15{,}768{,}000$ Base blocks/year, the expected number of A4
 violations at the mev-commit reference bond is bounded below by
 $\rho_{\min} \times w = 0.026 \times 15.8\text{M} \approx 410{,}000$
-expected violations per year — a structural, not incidental, consequence
+expected violations per year --- a structural, not incidental, consequence
 of the power-law tail.
 
 \noindent\textbf{Interpretation.}

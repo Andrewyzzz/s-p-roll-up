@@ -1,9 +1,9 @@
-% Section 2 — Atomicity Taxonomy and System Model (~2.0 pages)
+% Section 2 --- Atomicity Taxonomy and System Model (~2.0 pages)
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
 % Evidence sources: Astria docs (TF-3 verbatim), Espresso architecture.md
 % (TF-3 verbatim), mev-commit docs (conflation), N=30 survey (§2.4).
-% OPEN: §2.3 table — Radius row pending Task 2.3 codebase review.
+% OPEN: §2.3 table --- Radius row pending Task 2.3 codebase review.
 
 \section{Atomicity Taxonomy and System Model}
 \label{sec:taxonomy}
@@ -18,7 +18,7 @@ A0 through A4, ordered from weakest to strongest.
 \begin{table}[h]
 \centering
 \small
-\caption{The A0–A4 atomicity taxonomy. Each layer strictly implies the
+\caption{The A0--A4 atomicity taxonomy. Each layer strictly implies the
   layers below it. ``Sequencing commitment'' refers to any commitment
   issued by a shared sequencer or preconfirmation layer before rollup
   execution.}
@@ -62,7 +62,7 @@ A4 mechanisms (bonds, slashing, restaking) guarantee that if A2 fails, the
 violating party suffers a financial penalty proportional to the violation.
 This addresses the \emph{economic consequence} of partial execution but
 does not prevent it. An attacker who finds a commitment window in which
-$V > B$ — where $V$ is the option value and $B$ is the bond — will violate
+$V > B$ --- where $V$ is the option value and $B$ is the bond --- will violate
 A2 and accept the slashing.
 
 \paragraph{A2 requires structural capability.}
@@ -85,7 +85,7 @@ optimally-sized bonds cannot close it.
 \label{sec:mapping}
 
 Table~\ref{tab:mapping} maps the primary shared sequencer and
-preconfirmation systems to the A0–A4 taxonomy. All confirmed entries
+preconfirmation systems to the A0--A4 taxonomy. All confirmed entries
 are derived from primary source documentation read verbatim.
 
 \begin{table}[h]
@@ -127,7 +127,7 @@ Radius (encrypted seq.) & A0, A1 & A2, A3, A4 &
 \texttt{onlyMailbox} modifier on destination contracts is a cap.~(ii)
 implementation: it prevents the destination from executing until the
 Hyperlane relay delivers confirmation of the source-chain event. This
-is not an atomicity guarantee from the sequencer — it is an
+is not an atomicity guarantee from the sequencer --- it is an
 application-level capability~(ii) built on top of a sequencer that
 provides only A0/A1. The sequencer's role is to provide fast
 source-chain finality (via Espresso HotShot), which the relay then
@@ -175,7 +175,7 @@ Theorem~\ref{thm:a2-necessary}'s necessity claim: production engineers
 have independently identified that cross-rollup execution requires
 capability~(i) or (ii), and have deployed accordingly. The gap
 remains live as a forward-looking risk for applications that build
-on lazy-sequencer infrastructure without implementing either mechanism —
+on lazy-sequencer infrastructure without implementing either mechanism ---
 precisely the condition we instantiate in \S\ref{sec:pefo}.
 
 %----------------------------------------------------------------------

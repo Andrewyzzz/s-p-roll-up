@@ -1,4 +1,4 @@
-% Appendix A.4 — Theorem 2 Power-Law Derivation
+% Appendix A.4 --- Theorem 2 Power-Law Derivation
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
 % Pilot empirical values: α̂=1.47 (Optimism, N=200). Full calibration
@@ -131,7 +131,7 @@ Polygon zkEVM & \multicolumn{4}{l}{RPC unavailable during measurement window} \\
 \midrule
 \textbf{OP+Base} & 600 & \textbf{1.18} & \textbf{[0.98, 1.47]} & 1.16 \\
 \midrule
-L1 ETH MEV-Boost$^\dagger$ & 2000 & 1.84 & [1.50, 2.27] & — \\
+L1 ETH MEV-Boost$^\dagger$ & 2000 & 1.84 & [1.50, 2.27] & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -148,8 +148,8 @@ $\lambda = 1$ commitment/window):
 
 \noindent\textit{Note:} Placeholders will be replaced with full-dataset
 estimates upon completion of the 2,000-sample run. The key structural
-result — $\rho_{\min} > 0$ for any finite $B_{\max}$ and $\hat{\alpha} > 1$
-— is established by Theorem~\ref{thm:bond-insufficient} and does not depend
+result --- $\rho_{\min} > 0$ for any finite $B_{\max}$ and $\hat{\alpha} > 1$
+--- is established by Theorem~\ref{thm:bond-insufficient} and does not depend
 on the specific numerical value.
 
 %----------------------------------------------------------------------
@@ -189,5 +189,5 @@ $\theta$ & $(1-\theta)^{1.47}$ & $\rho_{\min}^\theta / \rho_{\min}^0$ \\
 36\% of its no-impact value and remains strictly positive. The bound only
 collapses to zero under the trivial assumption $\theta = 1$ (100\% price
 impact absorbs all option value), which corresponds to a fully efficient market
-in which the attacked commitment has no residual option value — an assumption
+in which the attacked commitment has no residual option value --- an assumption
 inconsistent with observed MEV rates~\cite{Flashbots2023}.

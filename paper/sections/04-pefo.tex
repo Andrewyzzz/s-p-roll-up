@@ -1,7 +1,7 @@
-% Section 4 — Attack 2: PEFO (~2.1 pages, weight 30%)
+% Section 4 --- Attack 2: PEFO (~2.1 pages, weight 30%)
 %
-% REVIEW STATUS: §4.1–4.3 complete draft. §4.4–4.5 partially drafted;
-% §4.4.2/4.4.4 are PoC/vendor-dependent (populated at Week 10–23).
+% REVIEW STATUS: §4.1--4.3 complete draft. §4.4--4.5 partially drafted;
+% §4.4.2/4.4.4 are PoC/vendor-dependent (populated at Week 10--23).
 %
 % OPEN: §4.4.1 candidate name = [DEPLOYED_APP] (placeholder until Task 2.1)
 % OPEN: §4.4.2 testnet transactions (populated after Milestone 2a, Task 5.2)
@@ -26,7 +26,7 @@ rollup mempools, identifies profitable intents, and submits fill transactions:
 $\tau_1$ (take the sell on $R_1$) and $\tau_2$ (deliver the buy on $R_2$).
 Both $\tau_1, \tau_2$ enter their respective Composers, which forward them
 to the shared Astria sequencer mempool. The sequencer includes both in a single
-\emph{meta block} — a joint commitment $\Gamma(\tau_1, \tau_2)$ over both
+\emph{meta block} --- a joint commitment $\Gamma(\tau_1, \tau_2)$ over both
 rollup namespaces.
 
 \paragraph{Assumption violated.}
@@ -62,7 +62,7 @@ simultaneously.
     evaluated.
 \end{enumerate}
 
-\noindent When C1–C3 hold, the adversary can construct a free option:
+\noindent When C1--C3 hold, the adversary can construct a free option:
 
 \begin{definition}[PEFO Payoff]
 \label{def:pefo-payoff}
@@ -82,7 +82,7 @@ succeed. The payoff is $\Pi^{\mathrm{PEFO}} > 0$ whenever the expected value
 of leg 1 exceeds the expected value of leg 2 after the commitment.
 \end{definition}
 
-\noindent Conditions C1–C3 are satisfied by any lazy shared sequencer over
+\noindent Conditions C1--C3 are satisfied by any lazy shared sequencer over
 independent rollup STFs. We confirm they are satisfied in our primary
 demonstration platform (Astria) by direct documentation evidence:
 
@@ -156,14 +156,14 @@ All three mandatory thesis-fit conditions are satisfied:
 \begin{itemize}
   \item \textbf{TF-1 (shared sequencer):} \DEPLOYEDAPP{} operates across
     $R_1$ and $R_2$, both sequenced by [SEQUENCER] under a shared commitment
-    structure covering both rollup namespaces. [TO BE FILLED: Task 2.1 — cite
+    structure covering both rollup namespaces. [TO BE FILLED: Task 2.1 --- cite
     specific sequencer documentation and contract deployment evidence.]
   \item \textbf{TF-2 (independent execution):} \DEPLOYEDAPP{}'s cross-rollup
     operation submits independent transactions to each rollup; the fill on
     $R_1$ does not depend on a cross-chain message from $R_2$. [TO BE FILLED:
-    Task 2.1 — cite specific function signatures.]
+    Task 2.1 --- cite specific function signatures.]
   \item \textbf{TF-3 (lazy sequencer):} The shared sequencer issues commitment
-    $\Gamma$ before executing either rollup's STF. [TO BE FILLED: Task 2.3 —
+    $\Gamma$ before executing either rollup's STF. [TO BE FILLED: Task 2.3 ---
     confirm from sequencer codebase.]
 \end{itemize}
 
@@ -177,17 +177,17 @@ instantiates capability (i) or (ii). We confirm:
   \item \textbf{No capability (ii):} The cross-rollup operation does not use
     HTLC, escrow-with-revert, or any mechanism that prevents the irreversible
     effect of $\tau_1$ on $R_1$ from persisting if $\tau_2$ on $R_2$ fails.
-    [TO BE FILLED: Task 2.1 — cite specific contract logic.]
+    [TO BE FILLED: Task 2.1 --- cite specific contract logic.]
 \end{itemize}
 
 \paragraph{PEFO condition instantiation.}
-The three PEFO structural conditions (C1–C3, \S\ref{sec:pefo-structural}) are
+The three PEFO structural conditions (C1--C3, \S\ref{sec:pefo-structural}) are
 instantiated in \DEPLOYEDAPP{} as follows:
 
 \begin{itemize}
-  \item C1: [TO BE FILLED — specific contract function / sequencer commitment reference]
-  \item C2: [TO BE FILLED — fill transaction architecture, absence of message relay]
-  \item C3: [TO BE FILLED — sequencer model reference]
+  \item C1: [TO BE FILLED --- specific contract function / sequencer commitment reference]
+  \item C2: [TO BE FILLED --- fill transaction architecture, absence of message relay]
+  \item C3: [TO BE FILLED --- sequencer model reference]
 \end{itemize}
 
 \noindent The architecture analysis in this subsection is author-driven and
@@ -200,7 +200,7 @@ does not depend on vendor disclosure. The vendor framing in
 % If Milestone 2a PASS: populate with exploit details, transaction hashes,
 %   drained value, attacker capital.
 % If Milestone 2a FAIL (mitigation found): swap to case_6_mitigation_found.tex.
-[PLACEHOLDER — populated after Task 5.2]
+[PLACEHOLDER --- populated after Task 5.2]
 
 \input{sections/04-pefo-case-templates/case_SELECTED}
 
@@ -212,14 +212,14 @@ does not depend on vendor disclosure. The vendor framing in
 % 2. [FACT 2]
 % 3. [FACT 3]
 % 4. [FACT 4]
-[PLACEHOLDER — populated after Task 2.1 + 5.4]
+[PLACEHOLDER --- populated after Task 2.1 + 5.4]
 
 \subsubsection{Coordinated Disclosure and Vendor Response}
 \label{sec:pefo-disclosure}
 % TO BE FILLED: Task 9.4 (Week 23)
 % Swap in the appropriate case template from:
 %   sections/04-pefo-case-templates/case_{3d,3b,3c,2,1,6}.tex
-[PLACEHOLDER — populated after Week 23 (Task 9.4)]
+[PLACEHOLDER --- populated after Week 23 (Task 9.4)]
 
 %----------------------------------------------------------------------
 \subsection{What This Section Claims and Does Not Claim}
@@ -227,7 +227,7 @@ does not depend on vendor disclosure. The vendor framing in
 
 \paragraph{Claims.}
 \begin{enumerate}
-  \item The PEFO structural conditions (C1–C3) are instantiated in the
+  \item The PEFO structural conditions (C1--C3) are instantiated in the
     Astria devnet testbed and in \DEPLOYEDAPP{}'s architecture on the basis
     of public documentation and contract analysis.
   \item The PEFO attack is executable: the devnet testbed exploit
@@ -245,7 +245,7 @@ does not depend on vendor disclosure. The vendor framing in
     actual loss depends on attacker capital and market conditions.
   \item [If Case 3c] We do not claim that \DEPLOYEDAPP{}'s design is
     incorrect by their own specification. The claim is structural: the
-    architecture satisfies C1–C3 and therefore does not provide A2 by
+    architecture satisfies C1--C3 and therefore does not provide A2 by
     Theorem~\ref{thm:a2-necessary}. Whether A2 was intended is a separate
     question we leave as an industry-wide open question (\S\ref{sec:discussion}).
 \end{enumerate}

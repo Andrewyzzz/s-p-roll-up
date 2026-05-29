@@ -1,7 +1,7 @@
-% Section 8 — Responsible Disclosure (~0.4 pages)
+% Section 8 --- Responsible Disclosure (~0.4 pages)
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
-% Vendor response table: placeholders — to be filled at Week 14–23 (Task 9.x).
+% Vendor response table: placeholders --- to be filled at Week 14--23 (Task 9.x).
 % Actual D1/D2 dates: to be filled after initial outreach (Task 3.3, Week 6).
 % OTS proof hashes: to be filled after stamp_attempt.sh runs (Task 3.4).
 %
@@ -19,22 +19,22 @@ We identified two vendor categories whose deployed systems are directly
 affected by the structural findings in this paper, and disclosed to each
 prior to submission.
 
-\paragraph{$D_1$ — Shared sequencer vendors.}
+\paragraph{$D_1$ --- Shared sequencer vendors.}
 The PEFO structural conditions (C1/C2/C3, \S\ref{sec:pefo-structural}) are
 confirmed on three deployed shared sequencer platforms by primary source
 documentation. We disclosed to:
 
 \begin{itemize}
-  \item \textbf{Astria} — Lazy sequencer confirmed verbatim:
+  \item \textbf{Astria} --- Lazy sequencer confirmed verbatim:
     \emph{``provides a guarantee on the ordering of transactions in a block,
     but it doesn't execute the STF of any given rollup''}~\cite{Astria-TxFlow}.
     The Astria README's claim of \emph{``atomic cross-rollup
     composability''}~\cite{Astria-README} directly instantiates the
     A2/A4 conflation this paper analyzes.
-  \item \textbf{Espresso Systems} — Lazy sequencer confirmed verbatim:
+  \item \textbf{Espresso Systems} --- Lazy sequencer confirmed verbatim:
     \emph{``L2 validators receive blocks and execute the state transition
     functions for their rollups''} (after HotShot confirmation)~\cite{Espresso-Architecture}.
-  \item \textbf{Radius} — Sequencer model under review; disclosed as
+  \item \textbf{Radius} --- Sequencer model under review; disclosed as
     precautionary measure pending full architectural analysis.
 \end{itemize}
 
@@ -44,16 +44,16 @@ deployed on them; (b) the A2 gap cannot be closed by bond-based mechanisms
 alone (Theorem~\ref{thm:a2-necessary}); and (c) we demonstrate the gap
 on an Astria devnet testbed (\S\ref{sec:pefo}).
 
-\paragraph{$D_2$ — Preconfirmation protocol vendors.}
+\paragraph{$D_2$ --- Preconfirmation protocol vendors.}
 The PEO attack (\S\ref{sec:peo}) is demonstrated on a faithful reimplementation
 of the mev-commit preconfirmation protocol~\cite{MevCommit-Docs}. We disclosed to:
 
 \begin{itemize}
-  \item \textbf{Primev (mev-commit)} — PEO demonstrated via Foundry PoC;
+  \item \textbf{Primev (mev-commit)} --- PEO demonstrated via Foundry PoC;
     \texttt{OpenedCommitment.revertingTxHashes} field confirms inclusion-only
     commitment; $\Delta\Pi = \max(\delta - s \cdot 1.05, 0)$ payoff model
     with concrete $B = 1$ ETH, $s = 0.05$ ETH, $\delta = 0.12$ ETH worked example.
-  \item \textbf{Chainbound (Bolt)} — Bolt was archived in February 2026
+  \item \textbf{Chainbound (Bolt)} --- Bolt was archived in February 2026
     (v0.4.0-alpha). We notified Chainbound as a precautionary measure,
     noting that the PEO analysis applies to any inclusion-based bonded
     preconfirmation system.
@@ -169,8 +169,8 @@ substantive technical response before submission, we incorporate it in
 requests additional time beyond the 90-day window, we evaluate the request
 on a case-by-case basis.
 
-The structural findings — Theorems~\ref{thm:a2-necessary}
-and~\ref{thm:bond-insufficient} — are mathematical results that are not
+The structural findings --- Theorems~\ref{thm:a2-necessary}
+and~\ref{thm:bond-insufficient} --- are mathematical results that are not
 subject to vendor dispute on empirical grounds; they hold for any system
 satisfying the definitional preconditions. Vendor responses may provide
 context about operational mitigations, design rationale, or planned changes,

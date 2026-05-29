@@ -1,4 +1,4 @@
-% Appendix A — Theorem 1 Boundary Cases
+% Appendix A --- Theorem 1 Boundary Cases
 % Analyzes the six mechanisms marked † in Table 1 (§7 design-space map).
 % Each entry: (1) mechanism description, (2) why it is a boundary case,
 % (3) capability classification with conditions, (4) conditions under which
@@ -64,7 +64,7 @@ Oracle validates the fill before releasing origin funds.
 
 \paragraph{Why a boundary case.}
 Across uses UMA, an optimistic oracle with a challenge period. During the
-challenge window, the filler's origin-chain payment is not yet final — the
+challenge window, the filler's origin-chain payment is not yet final --- the
 UMA oracle can dispute the fill. This is capability (ii): the ``irreversible
 effect'' on the origin chain (fund release) is prevented until confirmation.
 However, the destination-chain fill is immediately final (no escrow on the
@@ -74,7 +74,7 @@ destination side). This asymmetry makes the classification non-trivial.
 \begin{itemize}
   \item \textbf{Capability (ii) holds for the origin-side effect}: The fund
     release on the origin chain is blocked until UMA confirmation. If the fill
-    is disputed, origin funds are not released — partial-effect prevention holds
+    is disputed, origin funds are not released --- partial-effect prevention holds
     for the origin leg.
   \item \textbf{Destination leg is not protected}: The filler's execution on
     the destination chain is immediately final. If UMA disputes the fill after
@@ -138,14 +138,14 @@ seeing the plaintext transactions. This prevents the sequencer from selectively
 including or excluding transactions based on execution outcomes. Once the
 decryption key is released and the transactions are decrypted, both $\tau_1$
 and $\tau_2$ execute atomically in the committed ordering. The pre-execution
-predicate is: ``both transactions will execute as committed'' — which holds by
+predicate is: ``both transactions will execute as committed'' --- which holds by
 construction because the sequencer cannot modify the committed order after
 decryption.
 
 \paragraph{Capability (ii) analysis.}
 The threshold decryption requirement prevents partial execution: if the
 threshold committee withholds decryption (e.g., due to liveness failure), both
-legs are delayed together — not selectively. An attacker cannot cause $\tau_1$
+legs are delayed together --- not selectively. An attacker cannot cause $\tau_1$
 to execute while preventing $\tau_2$.
 
 \paragraph{Liveness caveat.}
@@ -176,7 +176,7 @@ Restaking increases the size of $B_{\max}$ in Theorem~\ref{thm:bond-insufficient
 It does not:
 \begin{itemize}
   \item Provide a success predicate $\phi(B)$ (the operator cannot evaluate
-    $\delta_1, \delta_2$ before the commitment — they are still lazy by
+    $\delta_1, \delta_2$ before the commitment --- they are still lazy by
     Definition~\ref{def:lazy});
   \item Provide revert authority over either rollup's state (slashing removes
     stake from the operator, it does not revert execution on $R_1$ or $R_2$).
@@ -232,13 +232,13 @@ succeed.'' Specifically:
 \paragraph{Commitment structure (code-level evidence, Task 2.3).}
 The \texttt{OpenedCommitment} struct in \texttt{PreconfManager.sol} contains:
 \texttt{txnHash} (committed transaction), \texttt{revertingTxHashes}
-(\emph{``array of transaction hashes that can revert''} — explicitly permitted
+(\emph{``array of transaction hashes that can revert''} --- explicitly permitted
 to fail without slashing), \texttt{slashAmt} (per-bid penalty transferred to
 bidder on violation), and \texttt{blockNumber} (target L1 block).
 The \texttt{revertingTxHashes} field confirms this is an inclusion commitment,
 not an execution outcome commitment. Slashing is triggered by \texttt{Oracle.sol}
 calling \texttt{initiateSlash()}, which transfers \texttt{slashAmt} to the
-bidder post-hoc — after the block is finalized. This is compensatory, not
+bidder post-hoc --- after the block is finalized. This is compensatory, not
 preventive.
 
 \textbf{Note on Bolt:} Bolt (Chainbound) was archived February 23, 2026

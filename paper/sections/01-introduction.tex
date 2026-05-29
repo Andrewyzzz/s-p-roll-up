@@ -1,4 +1,4 @@
-% Section 1 — Introduction (~1.4 pages)
+% Section 1 --- Introduction (~1.4 pages)
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
 % Three conflation evidence pieces incorporated:
@@ -12,8 +12,8 @@
 \label{sec:intro}
 
 Rollup sequencing commitments are increasingly central to Ethereum's scaling
-roadmap. Shared sequencers — middleware layers that order transactions for
-multiple rollups simultaneously — promise low-latency finality and
+roadmap. Shared sequencers --- middleware layers that order transactions for
+multiple rollups simultaneously --- promise low-latency finality and
 ``atomic cross-rollup composability''~\cite{Astria-README}. Preconfirmation
 protocols allow validators to issue signed commitments to users before their
 transactions appear on-chain, with the mev-commit protocol advertising
@@ -31,7 +31,7 @@ the ordering of transactions in a block, but it doesn't execute the state
 transition function (STF) of any given rollup''}~\cite{Astria-TxFlow}. The
 mev-commit bid structure includes a \texttt{revertingTxHashes} field,
 defined as \emph{``array of transaction hashes as strings that can revert''}
-— explicitly acknowledging that committed transactions may fail without
+--- explicitly acknowledging that committed transactions may fail without
 triggering slashing~\cite{MevCommit-Docs}.
 
 These are not incidental inconsistencies. They reflect a systematic
@@ -47,7 +47,7 @@ We identify and formalize the conflation between:
   \item \textbf{Economic atomicity (A4)}: no party extracts strictly
     positive option value from the sequencing gap.
 \end{itemize}
-Compensation-based mechanisms — bonds, slashing, restaking, insurance —
+Compensation-based mechanisms --- bonds, slashing, restaking, insurance ---
 close A4 but \emph{provably cannot} close A2. A bond guarantees that if
 A2 fails, the violating party loses stake; it does not prevent the A2
 failure from occurring. This is a structural difference, not a quantitative
@@ -62,7 +62,7 @@ Our A2/A4 separation is distinguished from classical atomic commitment
 (Gray~\cite{gray1978notes}, Herlihy~\cite{herlihy1991wait},
 Sagas~\cite{garcia-molina1987sagas}) in one critical respect: in the
 multi-rollup setting, the ``coordinator'' (the shared sequencer) is lazy
-by design — it has no access to the state transition functions of the
+by design --- it has no access to the state transition functions of the
 rollups it sequences. Classical atomic commitment assumes a coordinator
 with execution access; our setting removes that assumption. The resulting
 impossibility (Theorem~\ref{thm:a2-necessary}) is specific to this lazy
@@ -108,8 +108,8 @@ This paper makes four contributions.
 
   \item \textbf{A design-space map with deployed evidence}
     (§\ref{sec:designspace}). We classify twelve deployed and proposed
-    cross-rollup mechanisms — including Across Protocol, T3rn, Espresso +
-    Hyperlane, Astria escrow, and EigenLayer restaking — against
+    cross-rollup mechanisms --- including Across Protocol, T3rn, Espresso +
+    Hyperlane, Astria escrow, and EigenLayer restaking --- against
     Theorem~\ref{thm:a2-necessary}. Every mechanism falls into one of
     three classes: capability~(i), capability~(ii), or A4-only. We
     document each classification with primary source evidence (contract

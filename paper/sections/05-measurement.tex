@@ -1,4 +1,4 @@
-% Section 5 — Measurement Study (~2.0 pages, weight 15%)
+% Section 5 --- Measurement Study (~2.0 pages, weight 15%)
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
 % Pilot data in §5.1 (N=15 blocks, Astria local devnet) and §5.3.1 (N=200,
@@ -113,7 +113,7 @@ mempool by one or more rollups.''}\cite{Astria-TxFlow}
 \end{quote}
 
 A filler submitting $\tau_1$ to namespace A and $\tau_2$ to namespace B
-will have both transactions included in the same Astria block — a single
+will have both transactions included in the same Astria block --- a single
 commitment $\Gamma(\tau_1, \tau_2)$ issued before either executes.
 
 \paragraph{C2: Independent execution legs.}
@@ -157,7 +157,7 @@ Delay $d$ & Feasible & Effective window \\
 
 \noindent The baseline window of 2,199\,ms is so much larger than typical
 MEV searcher latency ($\sim$10--50\,ms)~\cite{daian2020flash} that even
-1,500\,ms of attacker delay leaves a 699\,ms effective window — orders of
+1,500\,ms of attacker delay leaves a 699\,ms effective window --- orders of
 magnitude above the reaction threshold.
 
 \paragraph{(b) Partial failure probability.}
@@ -165,7 +165,7 @@ If the attacker causes $\tau_2$ to fail with probability $p_{\text{fail}}$,
 the expected PEFO payoff scales linearly:
 $\mathbb{E}[\Delta\Pi] = p_{\text{fail}} \times \texttt{FILL\_B}$.
 For $p_{\text{fail}} = 0.50$, $\mathbb{E}[\Delta\Pi] = 0.040$\,ETH per
-bundle — 49\% of the maximum payoff, structurally positive for any
+bundle --- 49\% of the maximum payoff, structurally positive for any
 $p_{\text{fail}} > 0$.
 
 \paragraph{(c) Sequencer timing jitter.}
@@ -223,7 +223,7 @@ has the same tail index as each component.
 We directly measure the tail index of L1 Ethereum MEV by fetching 2,000 recent
 MEV-Boost bid values from the Ultrasound relay
 (\url{relay.ultrasound.money})~\cite{ultrasound-relay}.
-Each entry represents the total block value a builder paid to a proposer —
+Each entry represents the total block value a builder paid to a proposer ---
 the closest available public proxy for true cross-block option value.
 
 Hill estimator (k=100): $\hat{\alpha}^{\text{L1-MEV}} = 1.84$,
@@ -256,7 +256,7 @@ Since $V(\text{block}) \leq V^*(\text{block})$ for every block (MEV $\geq 0$),
 $V^*$ stochastically dominates $V$:
 $\Pr[V^* > v] \geq \Pr[V > v]$ for all $v$.
 Stochastic dominance implies that $V^*$ has a heavier or equal tail than $V$
-— formally, the true tail index $\alpha^*$ satisfies $\alpha^* \leq \hat{\alpha}$.
+--- formally, the true tail index $\alpha^*$ satisfies $\alpha^* \leq \hat{\alpha}$.
 Since $\rho_{\min}(\alpha, B_{\max}, w, \lambda) = w \cdot \lambda \cdot
 C \cdot B_{\max}^{-\alpha}$ is decreasing in $\alpha$ (for $B_{\max} < 1$),
 this means:
@@ -354,7 +354,7 @@ $\theta$ & $(1{-}\theta)^{1.18}$ & $\rho_{\min}^\theta / \rho_{\min}^0$ \\
 impact), $\rho_{\min}$ retains 36\% of its no-impact value and remains
 strictly positive. The bound collapses only at $\theta = 1$, which requires
 a fully efficient market in which every option exercise is perfectly
-front-run by another party — inconsistent with observed MEV
+front-run by another party --- inconsistent with observed MEV
 rates~\cite{Flashbots2023}.
 
 %----------------------------------------------------------------------
@@ -403,7 +403,7 @@ remains the primary result and holds for any finite $B_{\max}$.
   \item \textbf{No claim about actual losses.} The measurement study bounds
     the option value distribution and the expected violation rate. Actual
     losses depend on attacker capital, network latency, and smart contract
-    architecture — we make no claim about realized losses in production.
+    architecture --- we make no claim about realized losses in production.
 
   \item \textbf{No claim about Optimism-specific exploitability.} The Optimism
     block data is used to estimate the tail-index parameter $\hat{\alpha}$,

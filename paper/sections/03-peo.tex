@@ -1,11 +1,11 @@
-% Section 3 — Attack 1: PEO (~1.8 pages, weight 25%)
+% Section 3 --- Attack 1: PEO (~1.8 pages, weight 25%)
 %
 % REVIEW STATUS: First complete draft (2026-05-28).
 % Reference implementation: mev-commit (Primev), selected in Task 2.3.
 % Code-level evidence: PreconfManager.sol (OpenedCommitment struct,
 %   revertingTxHashes, slashAmt, initiateSlash()).
-% OPEN: §3.5 measurement numbers — placeholders for Task 7.2 (real-stack timing).
-% OPEN: §3.4 concrete numbers — calibrate slashAmt and MEV values from
+% OPEN: §3.5 measurement numbers --- placeholders for Task 7.2 (real-stack timing).
+% OPEN: §3.4 concrete numbers --- calibrate slashAmt and MEV values from
 %   mev-commit mainnet data after Task 7.1 data acquisition.
 
 \section{Attack 1: Preconfirmation Exercise Option (PEO)}
@@ -19,9 +19,9 @@ a specific transaction in a future block, issued before the block is proposed.
 The commitment is backed by staked collateral: if the committed transaction is
 absent from the target block, the block producer is slashed.
 
-In mev-commit~\cite{MevCommit-Docs} — the production preconfirmation protocol
+In mev-commit~\cite{MevCommit-Docs} --- the production preconfirmation protocol
 we use as the reference implementation (selected in \S\ref{sec:preconfer-eval},
-Appendix~\ref{app:preconfer}) — the commitment structure is as follows. A
+Appendix~\ref{app:preconfer}) --- the commitment structure is as follows. A
 \emph{bidder} submits a bid containing:
 \begin{itemize}
   \item \texttt{txnHash}: the transaction to be included;
@@ -41,7 +41,7 @@ structure includes a \texttt{revertingTxHashes} field, defined as
 \emph{``array of transaction hashes that can revert''}~\cite{MevCommit-Docs},
 explicitly permitting committed transactions to fail without penalty. The
 provider does not evaluate the state transition function before committing,
-and the slashing mechanism operates post-hoc — after the block is finalized.
+and the slashing mechanism operates post-hoc --- after the block is finalized.
 This is an A4 mechanism (Definition, \S\ref{sec:layers}): it prices the cost
 of violation but does not prevent it.
 
@@ -71,7 +71,7 @@ slash cost including the 5\% protocol fee.
 \end{definition}
 
 \noindent The option is positive when the marginal value of switching
-to $M$ — defined as $\delta = V(M, t_2) - V(\tau, t_2)$ — exceeds the
+to $M$ --- defined as $\delta = V(M, t_2) - V(\tau, t_2)$ --- exceeds the
 slash cost $s \cdot 1.05$:
 \[
   \Delta\Pi^{\mathrm{PEO}} > 0 \;\iff\; \delta > s \cdot 1.05.
@@ -82,14 +82,14 @@ The provider pays nothing to issue the commitment at $t_0$. The bid
 amount \texttt{bidAmt} (paid to the provider for accepting the bid) is
 received regardless of whether the provider honors or violates.
 The commitment grants the provider the option to include $\tau$ in the
-next block — an option the provider exercises or discards at $t_2$ based
+next block --- an option the provider exercises or discards at $t_2$ based
 on $\delta$. If $\delta > s \cdot 1.05$, the provider violates; otherwise,
 they honor. The bidder bears all downside risk: they receive \texttt{slashAmt}
 on violation, which is less than the value of a reliable preconfirmation
 when $\texttt{slashAmt} < X$ (the true value of inclusion to the bidder).
 
 \paragraph{Adversarial slash-amount setting.}
-The mev-commit protocol sets no minimum for \texttt{slashAmt} — it is a
+The mev-commit protocol sets no minimum for \texttt{slashAmt} --- it is a
 field in the bid, nominally set by the bidder. However, the provider can
 refuse bids with high \texttt{slashAmt} or charge higher \texttt{bidAmt}
 for them, creating an adversarial equilibrium. In practice:
@@ -109,8 +109,8 @@ The option $\Delta\Pi^{\mathrm{PEO}} > 0$ when $\delta > s \cdot 1.05$.
 Four market regimes produce this condition with non-negligible probability.
 
 \paragraph{MEV spikes.}
-Between $t_0$ and $t_2$, a high-value MEV opportunity $M$ — a sandwich
-attack, a large liquidation, or a profitable arbitrage — appears that
+Between $t_0$ and $t_2$, a high-value MEV opportunity $M$ --- a sandwich
+attack, a large liquidation, or a profitable arbitrage --- appears that
 requires the block slot that $\tau$ was committed to occupy.
 If $V(M, t_2) \gg V(\tau, t_2)$ and $s$ is set below the MEV floor,
 the provider violates. The MEV surplus in Ethereum L1 blocks has a
@@ -172,7 +172,7 @@ preconf); provider net gain: $+0.0675$ ETH per violation.
   \text{Bidder residual loss} &= X - s > 0 \quad \text{(if true value } X > s \text{)} \nonumber
 \end{align}
 
-The provider's bond $B = 1.0$ ETH is not at risk from a single violation —
+The provider's bond $B = 1.0$ ETH is not at risk from a single violation ---
 only $s \cdot 1.05 = 0.0525$ ETH is slashed per violation. A provider
 can execute $\lfloor B / (s \cdot 1.05) \rfloor \approx 19$ violations
 before bond depletion, then re-stake and repeat.
@@ -194,16 +194,16 @@ The measurement study in \S\ref{sec:meas} provides two empirical inputs
 for the PEO analysis.
 
 \paragraph{Real-stack timing (\S\ref{sec:meas-timing}).}
-We measure $t_2 - t_0$ — the window between commitment issuance and
-block proposal — on a local mev-commit deployment. The distribution
+We measure $t_2 - t_0$ --- the window between commitment issuance and
+block proposal --- on a local mev-commit deployment. The distribution
 of this window determines the probability that an MEV opportunity $M$
 with $\delta > s \cdot 1.05$ arrives between $t_0$ and $t_2$.
 \textbf{[Placeholder: timing CDF from Task 7.2]}
 
 \paragraph{Counterfactual replay (\S\ref{sec:meas-replay}).}
 We replay 12 months of Optimism, Base, Arbitrum, and Polygon~zkEVM
-transaction data to compute the empirical distribution of $\delta$ —
-the marginal value of alternative block compositions — under
+transaction data to compute the empirical distribution of $\delta$ ---
+the marginal value of alternative block compositions --- under
 hypothetical preconfirmation commitments.
 \textbf{[Placeholder: $\hat{\alpha}$, $\hat{C}$, and $\rho_{\min}$ from Task 7.4]}
 
@@ -211,7 +211,7 @@ hypothetical preconfirmation commitments.
 \subsection{Why This Is a System Security Problem}
 \label{sec:peo-security}
 
-The PEO is not merely an economic inefficiency — it is a security property
+The PEO is not merely an economic inefficiency --- it is a security property
 of the preconfirmation commitment.
 
 \paragraph{Soft confirmation reliability.}
@@ -228,8 +228,8 @@ The mev-commit slashing mechanism is an A4 guarantee: it bounds the
 expected cost of violation but does not prevent violations from occurring.
 As Theorem~\ref{thm:bond-insufficient} shows, for any finite bond $B$
 and any power-law MEV tail, the violation rate is bounded below by
-$\rho_{\min} > 0$. Applications that require A2 guarantees — all bundle
-legs execute or none do — cannot be built on a bond-backed preconfirmation
+$\rho_{\min} > 0$. Applications that require A2 guarantees --- all bundle
+legs execute or none do --- cannot be built on a bond-backed preconfirmation
 protocol alone.
 
 \paragraph{Composability risk.}
@@ -242,8 +242,8 @@ single-rollup PEO.
 
 \paragraph{Not a bug in mev-commit.}
 The PEO is a structural consequence of the commitment model, not an
-implementation defect. Any A4-only preconfirmation system — regardless
-of bond size, oracle speed, or punishment severity — admits PEO attacks
+implementation defect. Any A4-only preconfirmation system --- regardless
+of bond size, oracle speed, or punishment severity --- admits PEO attacks
 whenever the MEV tail exceeds the slash threshold. Closing PEO requires
 either capability (i) (a pre-execution success predicate that rules out
 conflicting MEV opportunities at commitment time) or capability (ii)

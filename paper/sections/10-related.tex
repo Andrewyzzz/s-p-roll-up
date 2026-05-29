@@ -1,4 +1,4 @@
-% Section 10 — Related Work (~0.8 pages)
+% Section 10 --- Related Work (~0.8 pages)
 % Nine categories per v8.A-final outline.
 %
 % REVIEW STATUS: Draft. Categories 2 (arXiv 2410.11552), 3 (CCS 2025), 4
@@ -12,7 +12,7 @@
 The two-phase commit protocol~\cite{gray1978notes} and its variants are the
 canonical solution to distributed atomic commitment. Gray's original formulation
 requires a coordinator with authority to abort partially-committed participants
-— precisely our capability (ii). Herlihy's universal construction~\cite{herlihy1991wait}
+--- precisely our capability (ii). Herlihy's universal construction~\cite{herlihy1991wait}
 provides wait-free consensus but assumes a single shared memory object; the
 multi-rollup setting has independent state machines with no shared write path.
 The sagas pattern~\cite{garcia-molina1987sagas} allows long-running transactions
