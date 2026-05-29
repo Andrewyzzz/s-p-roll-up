@@ -44,14 +44,15 @@ selective exercise of commitments, not denial.
 
 \paragraph{4. ethresear.ch Preconfirmation Taxonomies.}
 Several ethresear.ch posts propose taxonomies and design criteria for
-preconfirmations~\cite{PLACEHOLDER-ethresear-1, PLACEHOLDER-ethresear-2,
-PLACEHOLDER-ethresear-3}. These works focus primarily on L1 single-chain
+preconfirmations~\cite{Drake2023-BasedPreconf, Drake2023-BasedRollups,
+Drake2023-ExecTickets}. These works focus primarily on L1 single-chain
 preconfirmations (a validator committing to include a transaction in the
-next block). Our contribution extends the analysis to the cross-rollup setting,
-where the commitment spans two independent STFs, and provides the first
-formal proof that A2 closure requires capability (i) or (ii) regardless of
-bond size.
-% TODO (Task 1.5): replace PLACEHOLDERs with actual citations from annotated bibliography.
+next block). Notably, the based-preconfirmations post~\cite{Drake2023-BasedPreconf}
+defines three commitment levels (inclusion, execution state diffs, state root)
+but makes no cross-rollup atomicity claims. Our contribution extends the
+analysis to the cross-rollup setting, where the commitment spans two
+independent STFs, and provides the first formal proof that A2 closure
+requires capability (i) or (ii) regardless of bond size.
 
 \paragraph{5. Unity is Strength.}
 Obadia et al.~\cite{obadia2021unity} formalize cross-domain MEV and introduce
@@ -64,7 +65,7 @@ property of the commitment protocol, not just the value extraction outcome.
 
 \paragraph{6. Flashbots Cross-Rollup Arbitrage Proposals.}
 Flashbots has published proposals for cross-rollup MEV coordination and atomic
-inclusion~\cite{PLACEHOLDER-flashbots-cross-rollup}. These proposals identify
+inclusion~\cite{flashbots2021mev, obadia2021unity}. These proposals identify
 the coordination problem but propose economic solutions (bundler incentives,
 relay-mediated ordering). Our Theorem~\ref{thm:a2-necessary} provides the
 formal basis for why economic solutions (however well-designed) cannot close
@@ -91,7 +92,7 @@ observe partial execution outcomes and selectively honor or abandon the
 commitment.
 
 \paragraph{9. Smart Contract Vulnerability Analysis.}
-The smart contract security literature~\cite{PLACEHOLDER-sc-analysis} has
+The smart contract security literature~\cite{luu2016making} has
 catalogued re-entrancy, oracle manipulation, and price impact attacks.
 The PEFO attack we describe has structural similarity to price oracle
 manipulation: the attacker creates conditions that cause one leg to succeed

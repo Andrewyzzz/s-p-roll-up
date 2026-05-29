@@ -115,20 +115,23 @@ extractable value, making our bound a lower bound on the true option value.
 \begin{table}[h]
 \centering
 \small
-\caption{Tail-index estimates across four chains. Hill $k=100$ primary;
+\caption{Tail-index estimates across chains. Hill $k=100$ primary;
   MLE (Clauset) as robustness check. Bootstrap 95\% CI (1,000 resamples).
-  $\dagger$ Pilot estimate (N=200); replaced by full-dataset estimate upon completion.}
+  Full-transaction proxy ($V = \sum \texttt{gasUsed}_\tau \times
+  \texttt{effectiveGasPrice}_\tau$).}
 \label{tab:alpha-estimates}
 \begin{tabular}{@{}lllll@{}}
 \toprule
 Chain & $N$ & $\hat{\alpha}_{\text{Hill}}$ & 95\% CI & $\hat{\alpha}_{\text{MLE}}$ \\
 \midrule
-Optimism$^\dagger$ & 200 & 1.47 & [1.13, 1.98] & 1.48 \\
-Base         & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Arbitrum     & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
-Polygon zkEVM & 2000 & [PLACEHOLDER] & [PLACEHOLDER] & [PLACEHOLDER] \\
+Optimism      & 300 & 1.35 & [1.09, 1.69] & 1.36 \\
+Base          & 300 & 1.19 & [1.00, 1.48] & 1.28 \\
+Arbitrum$^*$  & 300 & 0.47 & [0.39, 0.59] & 0.41 \\
+Polygon zkEVM & \multicolumn{4}{l}{RPC unavailable during measurement window} \\
 \midrule
-\textbf{Combined} & & \textbf{[PLACEHOLDER]} & \textbf{[PLACEHOLDER]} & \\
+\textbf{OP+Base} & 600 & \textbf{1.18} & \textbf{[0.98, 1.47]} & 1.16 \\
+\midrule
+L1 ETH MEV-Boost$^\dagger$ & 2000 & 1.84 & [1.50, 2.27] & — \\
 \bottomrule
 \end{tabular}
 \end{table}

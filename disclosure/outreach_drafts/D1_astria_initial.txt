@@ -1,0 +1,44 @@
+TO: security@astria.org (or founder DM via Twitter/Discord)
+SUBJECT: Academic security disclosure — shared sequencer structural finding
+CATEGORY: D1 (shared sequencer vendor)
+TIMESTAMP: to be recorded by stamp_attempt.sh on send
+
+---
+
+Hi Astria team,
+
+I'm a researcher working on a security analysis of shared sequencer architectures. I've identified a structural property of lazy shared sequencers that I'd like to disclose to you before publishing.
+
+FINDING SUMMARY:
+
+The Astria shared sequencer satisfies three structural conditions that together enable what we call the "Partial-Execution Free Option" (PEFO) attack on cross-rollup applications:
+
+1. A single Astria meta block commits to transactions from multiple rollup namespaces simultaneously — confirmed by your documentation: "a single meta block consisting of transactions submitted to its mempool by one or more rollups."
+
+2. The sequencer is lazy — confirmed: "provides a guarantee on the ordering of transactions in a block, but it doesn't execute the state transition function of any given rollup."
+
+3. These independent executions occur after the commitment, creating a ~2 second gap between sequencer commitment and rollup execution.
+
+This means: any cross-rollup application that submits paired fill transactions (τ₁ on rollup-A, τ₂ on rollup-B) to the Astria shared sequencer and assumes both will succeed because they share the same meta block commitment is structurally vulnerable. An attacker observing the commitment can selectively cause one leg to fail during the ~2-second execution window, extracting the option value.
+
+WHAT THIS IS NOT:
+- This is not a bug in Astria's implementation
+- This is a structural property of lazy shared sequencing that we prove is unavoidable without providing either (a) pre-execution success evidence or (b) authority to prevent partial effects
+
+WHAT WE HAVE:
+- A formal proof (Theorem 1) that lazy sequencers cannot provide execution atomicity without capability (a) or (b)
+- A working demonstration on an Astria local devnet (pefo-rollup-a + pefo-rollup-b namespaces)
+- 12-month counterfactual replay measuring the option value distribution
+
+WHAT WE WANT:
+We plan to submit this finding to an academic security venue. We're reaching out in advance to:
+1. Give you the opportunity to review our characterization before publication
+2. Understand if you have architectural mitigations planned
+3. Coordinate any public statements
+
+We propose a 90-day disclosure window. We're happy to share the full technical writeup under embargo.
+
+Please respond to this address or reach out via [contact method].
+
+---
+DISCLOSURE NOTE: This message will be timestamped via OpenTimestamps (Bitcoin blockchain anchor) immediately upon sending, establishing the disclosure date for our responsible disclosure record.
